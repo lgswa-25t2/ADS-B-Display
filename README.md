@@ -1,4 +1,4 @@
-# ADB-B-Display
+# ADS-B-Display
 
 This page is the repository for the LG SW architect course 2 team in 2025.
 

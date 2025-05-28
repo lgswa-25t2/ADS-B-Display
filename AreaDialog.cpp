@@ -21,8 +21,6 @@ void __fastcall TAreaConfirm::OkButtonClick(TObject *Sender)
 {
  DWORD Row,Count,i;
 
-
-
  Count=Form1->Areas->Count;
  for (i = 0; i < Count; i++)
  {
@@ -55,6 +53,7 @@ void __fastcall TAreaConfirm::OkButtonClick(TObject *Sender)
  Form1->Insert->Enabled=true;
  Form1->Complete->Enabled=false;
  Form1->Cancel->Enabled=false;
+ Form1->LoadARTCCBoundaries1->Enabled=true;
 // if (Form1->Areas->Count>0)  Form1->Delete->Enabled=true;
  //else   Form1->Delete->Enabled=false;
  ColorCount++;
@@ -71,6 +70,7 @@ void __fastcall TAreaConfirm::CancelButtonClick(TObject *Sender)
  Form1->Insert->Enabled=true;
  Form1->Complete->Enabled=false;
  Form1->Cancel->Enabled=false;
+ Form1->LoadARTCCBoundaries1->Enabled=true;
  // if (Form1->Areas->Count>0)  Form1->Delete->Enabled=true;
  //else   Form1->Delete->Enabled=false;
 

@@ -34,7 +34,6 @@ typedef struct
  bool Valid_CPA;
  uint32_t ICAO_CC;
  uint32_t ICAO_CPA;
-
 }TTrackHook;
 
 typedef struct
@@ -173,6 +172,10 @@ __published:	// IDE-managed Components
 	TLabel *CpaDistanceValue;
 	TPanel *Panel2;
 	TComboBox *MapComboBox;
+	TCheckBox *BigQueryCheckBox;
+	TMenuItem *UseSBSLocal;
+	TMenuItem *UseSBSRemote;
+	TMenuItem *LoadARTCCBoundaries1;
 	void __fastcall ObjectDisplayInit(TObject *Sender);
 	void __fastcall ObjectDisplayResize(TObject *Sender);
 	void __fastcall ObjectDisplayPaint(TObject *Sender);
@@ -213,6 +216,10 @@ __published:	// IDE-managed Components
 	void __fastcall IdTCPClientSBSDisconnected(TObject *Sender);
 	void __fastcall TimeToGoTrackBarChange(TObject *Sender);
 	void __fastcall MapComboBoxChange(TObject *Sender);
+	void __fastcall BigQueryCheckBoxClick(TObject *Sender);
+	void __fastcall UseSBSRemoteClick(TObject *Sender);
+	void __fastcall UseSBSLocalClick(TObject *Sender);
+	void __fastcall LoadARTCCBoundaries1Click(TObject *Sender);
 
 private:	// User declarations
 
@@ -230,6 +237,10 @@ public:		// User declarations
 	void __fastcall RegisterWithCoTRouter(void);
     void __fastcall SetMapCenter(double &x, double &y);
     void __fastcall LoadMap(int Type);
+    void __fastcall CreateBigQueryCSV(void);
+    void __fastcall CloseBigQueryCSV(void);
+    bool __fastcall LoadARTCCBoundaries(AnsiString FileName);
+
 
 	int                        MouseDownX,MouseDownY;
 	bool                       MouseDown;
@@ -256,8 +267,17 @@ public:		// User declarations
 	TStreamReader              *PlayBackRawStream;
     TStreamWriter              *RecordSBSStream;
 	TStreamReader              *PlayBackSBSStream;
+	TStreamWriter              *BigQueryCSV;
+    AnsiString                 BigQueryCSVFileName;
+	unsigned int               BigQueryRowCount;
+	unsigned int               BigQueryFileCount;
+    AnsiString                 BigQueryPythonScript;
+	AnsiString                 BigQueryPath;
+    AnsiString                 BigQueryLogFileName;
 	int                        NumSpriteImages;
 	int                        CurrentSpriteImage;
+    AnsiString                 AircraftDBPathFileName;
+    AnsiString                 ARTCCBoundaryDataPathFileName;
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TForm1 *Form1;

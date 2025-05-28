@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'ADS-B Viewer'
-  ClientHeight = 698
-  ClientWidth = 1623
+  ClientHeight = 603
+  ClientWidth = 1228
   Color = clBtnFace
   Constraints.MinHeight = 740
   Font.Charset = DEFAULT_CHARSET
@@ -43,17 +43,17 @@ object Form1: TForm1
     ParentFont = False
   end
   object RightPanel: TPanel
-    Left = 1373
+    Left = 978
     Top = 0
     Width = 250
-    Height = 698
+    Height = 603
     Align = alRight
     Color = clWindow
     Constraints.MaxWidth = 250
     TabOrder = 0
     object Panel1: TPanel
       Left = 1
-      Top = 550
+      Top = 455
       Width = 248
       Height = 147
       Align = alBottom
@@ -303,14 +303,12 @@ object Form1: TForm1
         Width = 96
         Height = 19
         Caption = 'Cycle Images'
-        Checked = True
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -11
         Font.Name = 'Tahoma'
         Font.Style = [fsBold]
         ParentFont = False
-        State = cbChecked
         TabOrder = 11
         OnClick = CycleImagesClick
       end
@@ -726,16 +724,16 @@ object Form1: TForm1
       object SBSConnectButton: TButton
         Left = 5
         Top = 373
-        Width = 77
-        Height = 18
+        Width = 104
+        Height = 20
         Caption = 'SBS Connect'
         TabOrder = 16
         OnClick = SBSConnectButtonClick
       end
       object SBSIpAddress: TEdit
-        Left = 88
+        Left = 115
         Top = 373
-        Width = 137
+        Width = 117
         Height = 20
         TabOrder = 17
         Text = 'data.adsbhub.org'
@@ -763,7 +761,7 @@ object Form1: TForm1
       Left = 1
       Top = 577
       Width = 248
-      Height = 22
+      Height = 9
       Align = alClient
       TabOrder = 2
       object MapComboBox: TComboBox
@@ -780,13 +778,22 @@ object Form1: TForm1
           'IFS Low'
           'IFS High')
       end
+      object BigQueryCheckBox: TCheckBox
+        Left = 5
+        Top = 32
+        Width = 124
+        Height = 17
+        Caption = 'BigQuery Upload'
+        TabOrder = 1
+        OnClick = BigQueryCheckBoxClick
+      end
     end
   end
   object ObjectDisplay: TOpenGLPanel
     Left = 0
     Top = 0
-    Width = 1373
-    Height = 698
+    Width = 978
+    Height = 603
     Cursor = crCross
     Align = alClient
     TabOrder = 1
@@ -814,6 +821,18 @@ object Form1: TForm1
     Left = 24
     object File1: TMenuItem
       Caption = 'File'
+      object UseSBSRemote: TMenuItem
+        Caption = 'ADS-B Hub'
+        OnClick = UseSBSRemoteClick
+      end
+      object UseSBSLocal: TMenuItem
+        Caption = 'ADS-B Local'
+        OnClick = UseSBSLocalClick
+      end
+      object LoadARTCCBoundaries1: TMenuItem
+        Caption = 'Load ARTCC Boundaries'
+        OnClick = LoadARTCCBoundaries1Click
+      end
       object Exit1: TMenuItem
         Caption = 'Exit'
         OnClick = Exit1Click

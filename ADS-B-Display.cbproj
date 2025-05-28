@@ -202,6 +202,10 @@
             <DependentOn>Aircraft.h</DependentOn>
             <BuildOrder>39</BuildOrder>
         </CppCompile>
+        <CppCompile Include="AircraftDB.cpp">
+            <DependentOn>AircraftDB.h</DependentOn>
+            <BuildOrder>38</BuildOrder>
+        </CppCompile>
         <CppCompile Include="AreaDialog.cpp">
             <Form>AreaConfirm</Form>
             <FormType>dfm</FormType>
@@ -211,6 +215,10 @@
         <CppCompile Include="CPA.cpp">
             <DependentOn>CPA.h</DependentOn>
             <BuildOrder>37</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="csv.cpp">
+            <DependentOn>csv.h</DependentOn>
+            <BuildOrder>39</BuildOrder>
         </CppCompile>
         <CppCompile Include="DecodeRawADS_B.cpp">
             <DependentOn>DecodeRawADS_B.h</DependentOn>

@@ -117,11 +117,11 @@ free(temp_coord);
 flag=1;
 
 }
-	if (csum ^ asum)
+	if (1) //*****  5/25/2025  temp fix  bug in convex alg below always use concave  if (csum ^ asum)
 	{
 		return decompConcave(Verts,NumVerts, tlist, flag, x, y);
 	}
-    }
+	}
 
     *tlist = NULL;
 

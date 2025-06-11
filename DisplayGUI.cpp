@@ -355,9 +355,9 @@ void __fastcall TForm1::DrawObjects(void)
   LatLon2XY(MapCenterLat,MapCenterLon, ScrX, ScrY);
 
   if (DrawMap->Checked)
-    glColor4f(0.6, 0.6, 0.6, 0.8);  // gray
+    glColor4f(1, 1, 1, 1.0);  // white
   else
-    glColor4f(0.3, 0.3, 0.3, 0.8);  // dart gray
+    glColor4f(0.3, 0.3, 0.3, 0.8);  // dark gray
 
   glBegin(GL_LINE_STRIP);
   glVertex2f(ScrX-20.0,ScrY);

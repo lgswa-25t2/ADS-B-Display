@@ -322,6 +322,19 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
  CurrentTime=GetCurrentTimeInMsec();
  SystemTime->Caption=TimeToChar(CurrentTime);
 
+ // monitoring cache status (per 5 secs)
+ static __int64 lastCacheCheck = 0;
+ if (CurrentTime - lastCacheCheck > 5000) {
+     if (g_GETileManager) {
+         int currentTextures = g_GETileManager->GetTextureCount();
+         int maxTextures = g_GETileManager->GetMaxTextures();
+         printf("Cache Status: %d/%d textures (%.1f%% full)\n", 
+                currentTextures, maxTextures, 
+                (float)currentTextures / maxTextures * 100.0f);
+     }
+     lastCacheCheck = CurrentTime;
+ }
+
  ObjectDisplay->Repaint();
 }
 //---------------------------------------------------------------------------
@@ -1718,6 +1731,27 @@ void __fastcall TForm1::LoadMap(int Type)
 //
 //    }
    g_GETileManager = new TileManager(g_Storage);
+   
+   // dynamic cache by system memory
+   MEMORYSTATUSEX memInfo;
+   memInfo.dwLength = sizeof(MEMORYSTATUSEX);
+   if (GlobalMemoryStatusEx(&memInfo)) {
+       DWORDLONG totalPhysMB = memInfo.ullTotalPhys / (1024 * 1024);
+       int maxTextures = 500; // default
+       
+       if (totalPhysMB >= 16384) {        // 16GB 
+           maxTextures = 2000;
+       } else if (totalPhysMB >= 8192) {  // 8GB 
+           maxTextures = 1000;
+       } else if (totalPhysMB >= 4096) {  // 4GB 
+           maxTextures = 500;
+       } else {                           // 4GB 
+           maxTextures = 200;
+       }
+       
+       g_GETileManager->SetMaxTextures(maxTextures);
+       printf("System RAM: %lld MB, Max Textures: %d\n", totalPhysMB, maxTextures);
+   }
    g_MasterLayer = new GoogleLayer(g_GETileManager);
 
    g_EarthView = new FlatEarthView(g_MasterLayer);

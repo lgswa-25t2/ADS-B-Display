@@ -11,6 +11,7 @@
 TileManager::TileManager(TileStorage *ts): m_TextureRoot(new TextureTile(0, 0, 0, TextureTilePtr(0))) {
 	m_FirstTileStorage = ts;
 	m_nTextureTiles = 1;
+	m_MaxTextures = DEFAULT_MAX_TEXTURES;
 }
 
 TileManager::~TileManager() {
@@ -61,37 +62,61 @@ TextureTilePtr TileManager::FindTextureToDrop(TextureTilePtr cur, TextureTilePtr
 
 int TileManager::Cleanup() {
 	/*
-	 * How cache cleanup works:
+	 * Enhanced cache cleanup:
 	 *
 	 * 0. Tiles with children are not dropped
 	 * 0. Tiles recently used (!IsOld) are not dropped
 	 * 0. Root is not dropped
 	 * 1. Tile with highest level is dropped first.
 	 * 2. Of same level, Tile with higher age is dropped first.
+	 * 3. Clean multiple tiles at once when over limit
 	 *
 	 * This ensures:
 	 * - Minimal number of textures loaded
 	 * - All visible tiles are always in memory
 	 * - No reloading tiles on zoomout
+	 * - Better performance by batch cleanup
 	 */
 
-	if (m_nTextureTiles <= DEFAULT_MAX_TEXTURES)
+	if (m_nTextureTiles <= m_MaxTextures)
 		return 0;
 
-	TextureTilePtr victim = FindTextureToDrop(m_TextureRoot, 0);
+	int cleanedCount = 0;
+	int targetCleanup = (m_nTextureTiles - m_MaxTextures) + (m_MaxTextures / 10); // Clean 10% extra
 
-	if (victim == 0)
-		return 0;
+	while (cleanedCount < targetCleanup && m_nTextureTiles > m_MaxTextures) {
+		TextureTilePtr victim = FindTextureToDrop(m_TextureRoot, 0);
 
-	for (int i = 0; i < 4; i++)
-		if (victim->GetParent()->GetChild(i) == victim) {
-			victim->GetParent()->SetChild(i, 0);	/* after this, victim is doomed */
-			victim->Unload();			/* be sure no opengl will be touched in threads XXX: review this */
-			m_nTextureTiles--;
-			return 1;
-		}
+		if (victim == 0)
+			break;
 
-	return 0;
-		}
+		for (int i = 0; i < 4; i++)
+			if (victim->GetParent()->GetChild(i) == victim) {
+				victim->GetParent()->SetChild(i, 0);	/* after this, victim is doomed */
+				victim->Unload();			/* be sure no opengl will be touched in threads XXX: review this */
+				m_nTextureTiles--;
+				cleanedCount++;
+				break;
+			}
+	}
+
+	return cleanedCount;
+}
+
+void TileManager::SetTileStorage(TileStorage *ts) {
+	m_FirstTileStorage = ts;
+}
+
+void TileManager::SetMaxTextures(int maxTextures) {
+	m_MaxTextures = maxTextures;
+}
+
+int TileManager::GetTextureCount() const {
+	return m_nTextureTiles;
+}
+
+int TileManager::GetMaxTextures() const {
+	return m_MaxTextures;
+}
 
 

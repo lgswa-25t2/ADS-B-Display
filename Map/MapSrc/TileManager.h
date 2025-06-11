@@ -9,7 +9,7 @@
 #include "TextureTile.h"
 #include "TileStorage.h"
 
-#define DEFAULT_MAX_TEXTURES 100
+#define DEFAULT_MAX_TEXTURES 500
 
 /**
  * Tile manager.
@@ -48,6 +48,30 @@ public:
 	 */
 	int Cleanup();
 
+	/**
+	 * Set new tile storage for loading tiles.
+	 *
+	 * @param ts new tile storage to use
+	 */
+	void SetTileStorage(TileStorage *ts);
+
+	/**
+	 * Set maximum number of textures to keep in memory.
+	 *
+	 * @param maxTextures maximum number of textures
+	 */
+	void SetMaxTextures(int maxTextures);
+
+	/**
+	 * Get current number of textures in memory.
+	 */
+	int GetTextureCount() const;
+
+	/**
+	 * Get maximum number of textures allowed.
+	 */
+	int GetMaxTextures() const;
+
 private:
 	/**
 	 * Finds best texture tile to remove from memory.
@@ -59,6 +83,7 @@ private:
 
 	int		m_nTextureTiles;	///< Root element of TextureTile quadtree
 	TextureTilePtr	m_TextureRoot;		///< Number of texture tiles in a tree
+	int		m_MaxTextures;		///< Maximum number of textures to keep in memory
 };
 
 

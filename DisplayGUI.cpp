@@ -217,6 +217,7 @@ __fastcall TForm1::TForm1(TComponent* Owner)
 
  LoadMapFromInternet=false;
  MapComboBox->ItemIndex=GoogleMaps;
+ SelectedMapIndex=GoogleMaps;  //init variable SelectedMap for differentColor
  //MapComboBox->ItemIndex=SkyVector_VFR;
  //MapComboBox->ItemIndex=SkyVector_IFR_Low;
  //MapComboBox->ItemIndex=SkyVector_IFR_High;
@@ -293,8 +294,10 @@ void __fastcall TForm1::ObjectDisplayResize(TObject *Sender)
 void __fastcall TForm1::ObjectDisplayPaint(TObject *Sender)
 {
 
- if (DrawMap->Checked)glClearColor(0.0,0.0,0.0,0.0);
- else	glClearColor(BG_INTENSITY,BG_INTENSITY,BG_INTENSITY,0.0);
+ if (DrawMap->Checked)
+   glClearColor(0.0,0.0,0.0,0.0);
+ else
+   glClearColor(0.94, 0.94, 0.96, 1.0); //background color
 
  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -332,11 +335,16 @@ void __fastcall TForm1::DrawObjects(void)
   glEnable (GL_BLEND);
   glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glHint (GL_LINE_SMOOTH_HINT, GL_NICEST);
+  glHint (GL_POINT_SMOOTH_HINT, GL_NICEST);
   glLineWidth(3.0);
   glPointSize(4.0);
-  glColor4f(1.0, 1.0, 1.0, 1.0);
 
   LatLon2XY(MapCenterLat,MapCenterLon, ScrX, ScrY);
+
+  if (DrawMap->Checked)
+    glColor4f(0.6, 0.6, 0.6, 0.8);  // gray
+  else
+    glColor4f(0.3, 0.3, 0.3, 0.8);  // dart gray
 
   glBegin(GL_LINE_STRIP);
   glVertex2f(ScrX-20.0,ScrY);
@@ -435,20 +443,66 @@ void __fastcall TForm1::DrawObjects(void)
 	{
 	  if (Data->HaveLatLon)
 	  {
-		ViewableAircraft++;
-	   glColor4f(1.0, 1.0, 1.0, 1.0);
+			ViewableAircraft++;
 
 	   LatLon2XY(Data->Latitude,Data->Longitude, ScrX, ScrY);
 	   //DrawPoint(ScrX,ScrY);
-	   if (Data->HaveSpeedAndHeading)   glColor4f(1.0, 0.0, 1.0, 1.0);
-	   else
-		{
-		 Data->Heading=0.0;
-		 glColor4f(1.0, 0.0, 0.0, 1.0);
-		}
 
-	   DrawAirplaneImage(ScrX,ScrY,1.5,Data->Heading,Data->SpriteImage);
-	   glRasterPos2i(ScrX+30,ScrY-10);
+     if (Data->HaveSpeedAndHeading){
+       if (DrawMap->Checked){
+          switch(SelectedMapIndex){
+            case 0: // GoogleMaps
+              glColor4f(1.0, 0.0, 1.0, 1.0); //magenta
+              break;
+            case 1: // SkyVector_VFR
+              glColor4f(1.0, 0.0, 1.0, 1.0); //magenta
+              break;
+            case 2: // SkyVector_IFR_Low
+             //glColor4f(0.0, 0.48, 1.0, 1.0);  //blue
+              glColor4f(1.0, 0.5, 0.0, 1.0);   //orange
+              break;
+            case 3: // SkyVector_IFR_High
+             //glColor4f(0.0, 0.48, 1.0, 1.0);  //blue
+              glColor4f(1.0, 0.5, 0.0, 1.0);   //orange
+              break;
+//            case 4: // OpenStreetMap
+//              glColor4f(1.0, 0.5, 0.0, 1.0);   //orange
+//              break;
+            default:
+              glColor4f(1.0, 0.0, 1.0, 1.0); //magenta
+        	}
+       	}
+       	else{
+          glColor4f(0.0, 0.48, 1.0, 1.0);  //ios_blue
+       	}
+      }
+      else
+      {
+       Data->Heading=0.0;
+       glColor4f(1.0, 0.23, 0.19, 1.0);  //ios_red
+      }
+
+	   DrawAirplaneImage(ScrX,ScrY,0.8,Data->Heading,Data->SpriteImage);
+
+       //text color
+	   if (DrawMap->Checked){
+         switch(SelectedMapIndex){
+           case 0: // GoogleMaps
+	         glColor4f(0.92, 0.92, 0.96, 1.0);
+             break;
+           case 1:
+           case 2:
+           case 3:
+             glColor4f(0.0, 0.0, 0.0, 1.0);
+             break;
+           default:
+             glColor4f(0.92, 0.92, 0.96, 1.0);
+         }
+       }
+	   else
+	     glColor4f(0.0, 0.0, 0.0, 1.0);
+
+	   glRasterPos2i(ScrX+15,ScrY-10);
 	   ObjectDisplay->Draw2DText(Data->HexAddr);
 
 	   if ((Data->HaveSpeedAndHeading) && (TimeToGoCheckBox->State==cbChecked))
@@ -459,7 +513,13 @@ void __fastcall TForm1::DrawObjects(void)
 		  {
 			 double ScrX2, ScrY2;
 			 LatLon2XY(lat,lon, ScrX2, ScrY2);
-             glColor4f(1.0, 1.0, 0.0, 1.0);
+
+	       if (DrawMap->Checked){
+	       	glColor4f(1.0, 1.0, 0.0, 1.0);  //yellow
+	       }
+	       else{
+	        glColor4f(1.0, 0.58, 0.0, 0.8);  //orange
+	       }
 			 glBegin(GL_LINE_STRIP);
 			 glVertex2f(ScrX,ScrY);
 			 glVertex2f(ScrX2,ScrY2);
@@ -1654,6 +1714,9 @@ void __fastcall TForm1::LoadMap(int Type)
 	    g_Storage->SetNextLoadStorage(g_Keyhole);
 	   }
     }
+//	else if(Type==OpenStreetMap){
+//
+//    }
    g_GETileManager = new TileManager(g_Storage);
    g_MasterLayer = new GoogleLayer(g_GETileManager);
 
@@ -1663,35 +1726,45 @@ void __fastcall TForm1::LoadMap(int Type)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::MapComboBoxChange(TObject *Sender)
 {
-  double    m_Eyeh= g_EarthView->m_Eye.h;
-  double    m_Eyex= g_EarthView->m_Eye.x;
-  double    m_Eyey= g_EarthView->m_Eye.y;
+  // Do nothing on Change event (it's triggered by mouse focus only). Map changes are handled on CloseUp event
+}
 
-
-  Timer1->Enabled=false;
-  Timer2->Enabled=false;
-  delete g_EarthView;
-  if (g_GETileManager) delete g_GETileManager;
-  delete g_MasterLayer;
-  delete g_Storage;
-  if (LoadMapFromInternet)
+//---------------------------------------------------------------------------
+void __fastcall TForm1::MapComboBoxCloseUp(TObject *Sender)
+{
+  // Only process actual map changes when the ComboBox closes
+  if (SelectedMapIndex != MapComboBox->ItemIndex)
   {
-   if (g_Keyhole) delete g_Keyhole;
+    double    m_Eyeh= g_EarthView->m_Eye.h;
+    double    m_Eyex= g_EarthView->m_Eye.x;
+    double    m_Eyey= g_EarthView->m_Eye.y;
+
+    Timer1->Enabled=false;
+    Timer2->Enabled=false;
+    delete g_EarthView;
+    if (g_GETileManager) delete g_GETileManager;
+    delete g_MasterLayer;
+    delete g_Storage;
+    if (LoadMapFromInternet)
+    {
+     if (g_Keyhole) delete g_Keyhole;
+    }
+
+    // update map index that is really selected
+    SelectedMapIndex = MapComboBox->ItemIndex;
+    
+    if (SelectedMapIndex==0)   LoadMap(GoogleMaps);
+    else if (SelectedMapIndex==1)  LoadMap(SkyVector_VFR);
+    else if (SelectedMapIndex==2)  LoadMap(SkyVector_IFR_Low);
+    else if (SelectedMapIndex==3)   LoadMap(SkyVector_IFR_High);
+    //else if (SelectedMapIndex==4)   LoadMap(OpenStreetMap);
+
+     g_EarthView->m_Eye.h =m_Eyeh;
+     g_EarthView->m_Eye.x=m_Eyex;
+     g_EarthView->m_Eye.y=m_Eyey;
+     Timer1->Enabled=true;
+     Timer2->Enabled=true;
   }
-  if (MapComboBox->ItemIndex==0)   LoadMap(GoogleMaps);
-
-  else if (MapComboBox->ItemIndex==1)  LoadMap(SkyVector_VFR);
-
-  else if (MapComboBox->ItemIndex==2)  LoadMap(SkyVector_IFR_Low);
-
-  else if (MapComboBox->ItemIndex==3)   LoadMap(SkyVector_IFR_High);
-
-   g_EarthView->m_Eye.h =m_Eyeh;
-   g_EarthView->m_Eye.x=m_Eyex;
-   g_EarthView->m_Eye.y=m_Eyey;
-   Timer1->Enabled=true;
-   Timer2->Enabled=true;
-
 }
 //---------------------------------------------------------------------------
 

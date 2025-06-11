@@ -771,7 +771,7 @@ object Form1: TForm1
         Height = 20
         Style = csDropDownList
         TabOrder = 0
-        OnChange = MapComboBoxChange
+        OnCloseUp = MapComboBoxCloseUp
         Items.Strings = (
           'Google Maps'
           'VFR'

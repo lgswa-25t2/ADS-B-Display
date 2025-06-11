@@ -216,6 +216,7 @@ __published:	// IDE-managed Components
 	void __fastcall IdTCPClientSBSDisconnected(TObject *Sender);
 	void __fastcall TimeToGoTrackBarChange(TObject *Sender);
 	void __fastcall MapComboBoxChange(TObject *Sender);
+	void __fastcall MapComboBoxCloseUp(TObject *Sender);
 	void __fastcall BigQueryCheckBoxClick(TObject *Sender);
 	void __fastcall UseSBSRemoteClick(TObject *Sender);
 	void __fastcall UseSBSLocalClick(TObject *Sender);
@@ -278,6 +279,7 @@ public:		// User declarations
 	int                        CurrentSpriteImage;
     AnsiString                 AircraftDBPathFileName;
     AnsiString                 ARTCCBoundaryDataPathFileName;
+	int                        SelectedMapIndex;
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TForm1 *Form1;

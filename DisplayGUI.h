@@ -25,6 +25,9 @@
 #include <IdTCPConnection.hpp>
 #include "cspin.h"
 
+// Forward declarations
+class AirportDataManager;
+
 typedef float T_GL_Color[4];
 
 
@@ -176,6 +179,7 @@ __published:	// IDE-managed Components
 	TMenuItem *UseSBSLocal;
 	TMenuItem *UseSBSRemote;
 	TMenuItem *LoadARTCCBoundaries1;
+	TCheckBox *DisplayAirportCheckBox;
 	void __fastcall ObjectDisplayInit(TObject *Sender);
 	void __fastcall ObjectDisplayResize(TObject *Sender);
 	void __fastcall ObjectDisplayPaint(TObject *Sender);
@@ -221,6 +225,7 @@ __published:	// IDE-managed Components
 	void __fastcall UseSBSRemoteClick(TObject *Sender);
 	void __fastcall UseSBSLocalClick(TObject *Sender);
 	void __fastcall LoadARTCCBoundaries1Click(TObject *Sender);
+	void __fastcall DisplayAirportCheckBoxClick(TObject *Sender);
 
 private:	// User declarations
 
@@ -280,6 +285,9 @@ public:		// User declarations
     AnsiString                 AircraftDBPathFileName;
     AnsiString                 ARTCCBoundaryDataPathFileName;
 	int                        SelectedMapIndex;
+	
+	// Airport management
+	AirportDataManager        *airportManager;
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TForm1 *Form1;

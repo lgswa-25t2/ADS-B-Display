@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'ADS-B Viewer'
-  ClientHeight = 603
-  ClientWidth = 1228
+  ClientHeight = 804
+  ClientWidth = 1246
   Color = clBtnFace
   Constraints.MinHeight = 740
   Font.Charset = DEFAULT_CHARSET
@@ -43,17 +43,17 @@ object Form1: TForm1
     ParentFont = False
   end
   object RightPanel: TPanel
-    Left = 978
+    Left = 996
     Top = 0
     Width = 250
-    Height = 603
+    Height = 804
     Align = alRight
     Color = clWindow
     Constraints.MaxWidth = 250
     TabOrder = 0
     object Panel1: TPanel
       Left = 1
-      Top = 455
+      Top = 656
       Width = 248
       Height = 147
       Align = alBottom
@@ -761,7 +761,7 @@ object Form1: TForm1
       Left = 1
       Top = 577
       Width = 248
-      Height = 9
+      Height = 79
       Align = alClient
       TabOrder = 2
       object MapComboBox: TComboBox
@@ -787,13 +787,22 @@ object Form1: TForm1
         TabOrder = 1
         OnClick = BigQueryCheckBoxClick
       end
+      object DisplayAirportCheckBox: TCheckBox
+        Left = 119
+        Top = 32
+        Width = 124
+        Height = 17
+        Caption = 'Display Airport'
+        TabOrder = 2
+        OnClick = DisplayAirportCheckBoxClick
+      end
     end
   end
   object ObjectDisplay: TOpenGLPanel
     Left = 0
     Top = 0
-    Width = 978
-    Height = 603
+    Width = 996
+    Height = 804
     Cursor = crCross
     Align = alClient
     TabOrder = 1

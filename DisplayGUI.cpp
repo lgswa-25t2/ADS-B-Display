@@ -1029,15 +1029,14 @@ void __fastcall TForm1::Purge(void)
   for(Data = (TADS_B_Aircraft *)ght_first(HashTable, &iterator,(const void **) &Key);
 			  Data; Data = (TADS_B_Aircraft *)ght_next(HashTable, &iterator, (const void **)&Key))
 	{
-	  if ((CurrentTime-Data->LastSeen)>=StaleTimeInMs)
-	  {
-	  p = ght_remove(HashTable,sizeof(*Key), Key);;
-	  if (!p)
-		ShowMessage("Removing the current iterated entry failed! This is a BUG\n");
+		if ((CurrentTime - Data->LastSeen) >= StaleTimeInMs)
+		{
+			p = ght_remove(HashTable, sizeof(*Key), Key);
+			if (!p)
+				ShowMessage("Removing the current iterated entry failed! This is a BUG\n");
 
-	  delete Data;
-
-	  }
+			delete Data;
+		}
 	}
 }
 //---------------------------------------------------------------------------
@@ -1290,40 +1289,54 @@ void __fastcall TTCPClientRawHandleThread::HandleInput(void)
    Form1->RecordRawStream->WriteLine(StringMsgBuffer);
   }
 
-  Status=decode_RAW_message(StringMsgBuffer, &mm);
-  if (Status==HaveMsg)
-  {
-   TADS_B_Aircraft *ADS_B_Aircraft;
-   uint32_t addr;
+	Status = decode_RAW_message(StringMsgBuffer, &mm);
+	if (Status == HaveMsg)
+	{
+		TADS_B_Aircraft *ADS_B_Aircraft;
+		uint32_t addr;
 
-	addr = (mm.AA[0] << 16) | (mm.AA[1] << 8) | mm.AA[2];
+		addr = (mm.AA[0] << 16) | (mm.AA[1] << 8) | mm.AA[2];
 
+		ADS_B_Aircraft = (TADS_B_Aircraft *)ght_get(Form1->HashTable, sizeof(addr), &addr);
+		if (ADS_B_Aircraft)
+		{
+			// Form1->MsgLog->Lines->Add("Retrived");
+		}
+		else
+		{
+			ADS_B_Aircraft = new TADS_B_Aircraft;
+			if (!ADS_B_Aircraft) {
+				printf("Memory allocation failed for new aircraft\n");
+				return;
+			}
 
-	ADS_B_Aircraft =(TADS_B_Aircraft *) ght_get(Form1->HashTable,sizeof(addr),&addr);
-	if (ADS_B_Aircraft)
-	  {
-      	//Form1->MsgLog->Lines->Add("Retrived");
-      }
-    else
-	  {
-  	   ADS_B_Aircraft= new TADS_B_Aircraft;
-	   ADS_B_Aircraft->ICAO=addr;
-	   snprintf(ADS_B_Aircraft->HexAddr,sizeof(ADS_B_Aircraft->HexAddr),"%06X",(int)addr);
-	   ADS_B_Aircraft->NumMessagesSBS=0;
-       ADS_B_Aircraft->NumMessagesRaw=0;
-       ADS_B_Aircraft->VerticalRate=0;
-	   ADS_B_Aircraft->HaveAltitude=false;
-       ADS_B_Aircraft->HaveLatLon=false;
-	   ADS_B_Aircraft->HaveSpeedAndHeading=false;
-	   ADS_B_Aircraft->HaveFlightNum=false;
-	   ADS_B_Aircraft->SpriteImage=Form1->CurrentSpriteImage;
-	   if (Form1->CycleImages->Checked)
-		 Form1->CurrentSpriteImage=(Form1->CurrentSpriteImage+1)%Form1->NumSpriteImages;
-	   if (ght_insert(Form1->HashTable,ADS_B_Aircraft,sizeof(addr), &addr) < 0)
-		  {
-			printf("ght_insert Error - Should Not Happen\n");
-		  }
-	  }
+			memset(ADS_B_Aircraft, 0, sizeof(TADS_B_Aircraft));
+
+			ADS_B_Aircraft->ICAO = addr;
+			snprintf(ADS_B_Aircraft->HexAddr, sizeof(ADS_B_Aircraft->HexAddr), "%06X", (int)addr);
+			ADS_B_Aircraft->NumMessagesSBS = 0;
+			ADS_B_Aircraft->NumMessagesRaw = 0;
+			ADS_B_Aircraft->VerticalRate = 0;
+			ADS_B_Aircraft->HaveAltitude = false;
+			ADS_B_Aircraft->HaveLatLon = false;
+			ADS_B_Aircraft->HaveSpeedAndHeading = false;
+			ADS_B_Aircraft->HaveFlightNum = false;
+			ADS_B_Aircraft->SpriteImage = Form1->CurrentSpriteImage;
+			// init value for tracking
+			ADS_B_Aircraft->HistoryIndex = 0;
+			ADS_B_Aircraft->HistoryCount = 0;
+			memset(ADS_B_Aircraft->PrevLatitude, 0, sizeof(ADS_B_Aircraft->PrevLatitude));
+			memset(ADS_B_Aircraft->PrevLongitude, 0, sizeof(ADS_B_Aircraft->PrevLongitude));
+			memset(ADS_B_Aircraft->PrevAltitude, 0, sizeof(ADS_B_Aircraft->PrevAltitude));
+			memset(ADS_B_Aircraft->PrevTimestamp, 0, sizeof(ADS_B_Aircraft->PrevTimestamp));
+
+			if (Form1->CycleImages->Checked)
+				Form1->CurrentSpriteImage = (Form1->CurrentSpriteImage + 1) % Form1->NumSpriteImages;
+			if (ght_insert(Form1->HashTable, ADS_B_Aircraft, sizeof(addr), &addr) < 0)
+			{
+				printf("ght_insert Error - Should Not Happen\n");
+			}
+		}
 
 	  RawToAircraft(&mm,ADS_B_Aircraft);
   }

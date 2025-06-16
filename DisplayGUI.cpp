@@ -20,10 +20,12 @@
 #include "DecodeRawADS_B.h"
 #include "ght_hash_table.h"
 #include "dms.h"
+#include "Aircraft.h"
 #include "TimeFunctions.h"
 #include "SBS_Message.h"
 #include "CPA.h"
 #include "AircraftDB.h"
+#include "AircraftAPI.h"
 #include "csv.h"
 #include "AirportDB.h"
 #include "AirportDataManager.h"
@@ -932,7 +934,15 @@ void __fastcall TForm1::Exit1Click(TObject *Sender)
 		{
 		 TrackHook.Valid_CC=true;
 		 TrackHook.ICAO_CC=ADS_B_Aircraft->ICAO;
-		 printf("%s\n\n",GetAircraftDBInfo(ADS_B_Aircraft->ICAO));
+		 
+		 // Get local aircraft info
+		 const char* info = GetAircraftDBInfo(ADS_B_Aircraft->ICAO);
+
+		 printf("info: %s\n", info);
+		 if(ADS_B_Aircraft->HaveFlightNum) {
+			const char* additionalInfo = GetAircraftAPIInfo(ADS_B_Aircraft->ICAO, ADS_B_Aircraft->FlightNum);
+			printf("additionalInfo: %s\n", additionalInfo);
+		 }
 		}
 		else
 		{

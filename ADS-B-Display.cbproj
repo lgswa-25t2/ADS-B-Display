@@ -186,6 +186,7 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <DynamicRTL>false</DynamicRTL>
+        <IncludePath>C:\Users\user\Documents\LG\ADS-B-Display\lib\curl\include;$(IncludePath)</IncludePath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64x)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
@@ -201,6 +202,10 @@
         <CppCompile Include="Aircraft.cpp">
             <DependentOn>Aircraft.h</DependentOn>
             <BuildOrder>39</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="AircraftAPI.cpp">
+            <DependentOn>AircraftAPI.h</DependentOn>
+            <BuildOrder>42</BuildOrder>
         </CppCompile>
         <CppCompile Include="AircraftDB.cpp">
             <DependentOn>AircraftDB.h</DependentOn>
@@ -239,6 +244,13 @@
         </CppCompile>
         <None Include="dms.h">
             <BuildOrder>36</BuildOrder>
+        </None>
+        <CppCompile Include="HttpClient.cpp">
+            <DependentOn>HttpClient.h</DependentOn>
+            <BuildOrder>43</BuildOrder>
+        </CppCompile>
+        <None Include="json.hpp">
+            <BuildOrder>44</BuildOrder>
         </None>
         <CppCompile Include="LatLonConv.cpp">
             <DependentOn>LatLonConv.h</DependentOn>

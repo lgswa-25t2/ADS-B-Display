@@ -37,6 +37,22 @@ typedef struct
 {
   uint32_t    ICAO24;
   AnsiString  Fields[AC_DB_NUM_FIELDS];
+  std::string callSign;
+  std::string number;
+  std::string airline_code;
+  std::string airport_codes;
+  std::string airport_codes_iata;
+  uint32_t    airport_size;
+  std::string airport_name[10];
+  std::string airport_icao[10];
+  std::string airport_iata[10];
+  std::string airport_location[10];
+  std::string airport_countryiso2[10];
+  double airport_lat[10];
+  double airport_lon[10];
+  double airport_alt_feet[10];
+  double airport_alt_meters[10];
+
 } TAircraftData;
 
 bool InitAircraftDB(AnsiString FileName);

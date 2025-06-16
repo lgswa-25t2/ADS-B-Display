@@ -20,7 +20,6 @@
 #include "DecodeRawADS_B.h"
 #include "ght_hash_table.h"
 #include "dms.h"
-#include "Aircraft.h"
 #include "TimeFunctions.h"
 #include "SBS_Message.h"
 #include "CPA.h"

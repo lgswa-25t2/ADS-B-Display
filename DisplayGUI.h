@@ -24,7 +24,7 @@
 #include <IdTCPClient.hpp>
 #include <IdTCPConnection.hpp>
 #include "cspin.h"
-
+#include "Aircraft.h"
 // Forward declarations
 class AirportDataManager;
 

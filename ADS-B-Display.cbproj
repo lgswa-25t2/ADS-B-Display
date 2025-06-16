@@ -206,6 +206,13 @@
             <DependentOn>AircraftDB.h</DependentOn>
             <BuildOrder>38</BuildOrder>
         </CppCompile>
+        <CppCompile Include="AirportDataManager.cpp">
+            <BuildOrder>40</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="AirportDB.cpp">
+            <DependentOn>AirportDB.h</DependentOn>
+            <BuildOrder>41</BuildOrder>
+        </CppCompile>
         <CppCompile Include="AreaDialog.cpp">
             <Form>AreaConfirm</Form>
             <FormType>dfm</FormType>

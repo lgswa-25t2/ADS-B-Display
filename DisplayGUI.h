@@ -246,7 +246,8 @@ public:		// User declarations
     void __fastcall CreateBigQueryCSV(void);
     void __fastcall CloseBigQueryCSV(void);
     bool __fastcall LoadARTCCBoundaries(AnsiString FileName);
-
+	void __fastcall UpdateAircraftHistory(TADS_B_Aircraft* aircraft);
+	void __fastcall PurgeOldHistory(TADS_B_Aircraft* aircraft, __int64 currentTime);
 
 	int                        MouseDownX,MouseDownY;
 	bool                       MouseDown;

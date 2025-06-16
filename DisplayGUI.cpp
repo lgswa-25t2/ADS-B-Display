@@ -576,6 +576,7 @@ void __fastcall TForm1::DrawObjects(void)
 	{
 	  if (Data->HaveLatLon)
 	  {
+			UpdateAircraftHistory(Data);
 			ViewableAircraft++;
 
 	   LatLon2XY(Data->Latitude,Data->Longitude, ScrX, ScrY);
@@ -701,21 +702,45 @@ void __fastcall TForm1::DrawObjects(void)
         glColor4f(1.0, 0.0, 0.0, 1.0);
         LatLon2XY(Data->Latitude,Data->Longitude, ScrX, ScrY);
         DrawTrackHook(ScrX, ScrY);
-        }
 
-		else
-        {
-		 TrackHook.Valid_CC=false;
-		 ICAOLabel->Caption="N/A";
-		 FlightNumLabel->Caption="N/A";
-         CLatLabel->Caption="N/A";
-		 CLonLabel->Caption="N/A";
-         SpdLabel->Caption="N/A";
-		 HdgLabel->Caption="N/A";
-		 AltLabel->Caption="N/A";
-		 MsgCntLabel->Caption="N/A";
-         TrkLastUpdateTimeLabel->Caption="N/A";
-        }
+		// Display Track history
+		if (Data && Data->HistoryCount > 0 && Data->HistoryIndex >= 0 && Data->HistoryIndex < FLIGHT_TRACK_HISTORY_COUNT)
+		{
+			glBegin(GL_LINE_STRIP);
+			for (int i = 0; i < Data->HistoryCount && i < FLIGHT_TRACK_HISTORY_COUNT; i++)
+			{
+				int idx = (Data->HistoryIndex - i - 1 + FLIGHT_TRACK_HISTORY_COUNT) % FLIGHT_TRACK_HISTORY_COUNT;
+				if (idx < 0 || idx >= FLIGHT_TRACK_HISTORY_COUNT) continue;
+
+				glColor4f(1.0, 1.0, 1.0, 1.0);
+				glLineWidth(3.0);
+
+				double historyScrX, historyScrY;
+
+				if (fabs(Data->PrevLatitude[idx]) < 0.01 && fabs(Data->PrevLongitude[idx]) < 0.01){
+					//printf("Detected 0.000000 %s %f %f\n", Data->HexAddr, Data->PrevLatitude[idx], Data->PrevLongitude[idx]);
+				}else{
+					LatLon2XY(Data->PrevLatitude[idx], Data->PrevLongitude[idx],
+							historyScrX, historyScrY);
+					glVertex2f(historyScrX, historyScrY);
+				}
+			}
+			glEnd();
+		}
+	}
+	else
+	{
+		TrackHook.Valid_CC=false;
+		ICAOLabel->Caption="N/A";
+		FlightNumLabel->Caption="N/A";
+		CLatLabel->Caption="N/A";
+		CLonLabel->Caption="N/A";
+		SpdLabel->Caption="N/A";
+		HdgLabel->Caption="N/A";
+		AltLabel->Caption="N/A";
+		MsgCntLabel->Caption="N/A";
+		TrkLastUpdateTimeLabel->Caption="N/A";
+	}
  }
  if (TrackHook.Valid_CPA)
  {
@@ -812,9 +837,78 @@ void __fastcall TForm1::ObjectDisplayMouseDown(TObject *Sender,
  else if (Button==mbMiddle)  ResetXYOffset();
 }
 //---------------------------------------------------------------------------
+void __fastcall TForm1::UpdateAircraftHistory(TADS_B_Aircraft *aircraft)
+{
+    if (!aircraft->HaveLatLon)
+        return;
+
+    // Check index range
+    if (aircraft->HistoryIndex < 0 || aircraft->HistoryIndex >= FLIGHT_TRACK_HISTORY_COUNT) {
+        aircraft->HistoryIndex = 0;
+        aircraft->HistoryCount = 0;
+    }
+
+    // Compare previous loc and current loc
+    bool shouldUpdate = true;
+    if (aircraft->HistoryCount > 0) {
+        int prevIdx = (aircraft->HistoryIndex - 1 + FLIGHT_TRACK_HISTORY_COUNT) % FLIGHT_TRACK_HISTORY_COUNT;
+        // Same data, not save
+        if (aircraft->PrevLatitude[prevIdx] == aircraft->Latitude &&
+            aircraft->PrevLongitude[prevIdx] == aircraft->Longitude) {
+            shouldUpdate = false;
+        }
+    }
+
+    if (shouldUpdate) {
+        int idx = aircraft->HistoryIndex;
+
+        // Save current position
+        aircraft->PrevLatitude[idx] = aircraft->Latitude;
+        aircraft->PrevLongitude[idx] = aircraft->Longitude;
+        aircraft->PrevAltitude[idx] = aircraft->Altitude;
+        aircraft->PrevTimestamp[idx] = aircraft->LastSeen;
+
+        // Circular buffer index update
+        aircraft->HistoryIndex = (aircraft->HistoryIndex + 1) % FLIGHT_TRACK_HISTORY_COUNT;
+        if (aircraft->HistoryCount < FLIGHT_TRACK_HISTORY_COUNT)
+        {
+            aircraft->HistoryCount++;
+        }
+
+		//printf("UpdateAircraftHistory %s %f %f\n", aircraft->HexAddr, aircraft->Latitude, aircraft->Longitude);
+    }
+}
+
+//---------------------------------------------------------------------------
+void __fastcall TForm1::PurgeOldHistory(TADS_B_Aircraft *aircraft, __int64 currentTime)
+{
+	//printf("PurgeOldHistory\n");
+	if (aircraft->HistoryCount == 0)
+		return;
+
+	int validCount = 0;
+	int newIndex = 0;
+
+	for (int i = 0; i < aircraft->HistoryCount; i++)
+	{
+		int idx = (aircraft->HistoryIndex - i - 1 + 100) % 100;
+		if ((currentTime - aircraft->PrevTimestamp[idx]) <= 30000)
+		{
+			validCount++;
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	aircraft->HistoryCount = validCount;
+}
+
+//---------------------------------------------------------------------------
 
 void __fastcall TForm1::ObjectDisplayMouseUp(TObject *Sender,
-	  TMouseButton Button, TShiftState Shift, int X, int Y)
+											 TMouseButton Button, TShiftState Shift, int X, int Y)
 {
   if (Button == mbLeft) g_MouseDownMask &= ~LEFT_MOUSE_DOWN;
 }

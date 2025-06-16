@@ -66,30 +66,29 @@ static const char * strnistr(const char * pszSource, DWORD dwLength, const char 
 //---------------------------------------------------------------------------
 uint32_t createRGB(uint8_t r, uint8_t g, uint8_t b)
 {
-  return ((uint32_t)r << 16) | ((uint32_t)g << 8) | b;
+	return ((uint32_t)r << 16) | ((uint32_t)g << 8) | b;
 }
 //---------------------------------------------------------------------------
 uint32_t PopularColors[] = {
-	  createRGB(255, 0, 0),      // Red
-	  createRGB(0, 255, 0),      // Green
-	  createRGB(0, 0, 255),      // Blue
-	  createRGB(255, 255, 0),   // Yellow
-	  createRGB(255, 165, 0),   // Orange
-	  createRGB(255, 192, 203), // Pink
-	  createRGB(0, 255, 255),   // Cyan
-	  createRGB(255, 0, 255),  // Magenta
-	  createRGB(255,255, 255),    // White
-	  //createRGB(0, 0, 0),        // Black
-	  createRGB(128,128,128),      // Gray
-	  createRGB(165,42,42)    // Brown
-  };
+	createRGB(255, 0, 0),	  // Red
+	createRGB(0, 255, 0),	  // Green
+	createRGB(0, 0, 255),	  // Blue
+	createRGB(255, 255, 0),	  // Yellow
+	createRGB(255, 165, 0),	  // Orange
+	createRGB(255, 192, 203), // Pink
+	createRGB(0, 255, 255),	  // Cyan
+	createRGB(255, 0, 255),	  // Magenta
+	createRGB(255, 255, 255), // White
+	// createRGB(0, 0, 0),        // Black
+	createRGB(128, 128, 128), // Gray
+	createRGB(165, 42, 42)	  // Brown
+};
 
-  int NumColors = sizeof(PopularColors) / sizeof(PopularColors[0]);
- unsigned int CurrentColor=0;
+int NumColors = sizeof(PopularColors) / sizeof(PopularColors[0]);
+unsigned int CurrentColor = 0;
 
-
- //---------------------------------------------------------------------------
- typedef struct
+//---------------------------------------------------------------------------
+typedef struct
 {
    union{ 
      struct{ 
@@ -1923,123 +1922,128 @@ void __fastcall TForm1::MapComboBoxCloseUp(TObject *Sender)
 
 void __fastcall TForm1::BigQueryCheckBoxClick(TObject *Sender)
 {
- if (BigQueryCheckBox->State==cbChecked) CreateBigQueryCSV();
- else {
-	   CloseBigQueryCSV();
-	   RunPythonScript(BigQueryPythonScript,BigQueryPath+" "+BigQueryCSVFileName);
-	  }
+	if (BigQueryCheckBox->State == cbChecked)
+		CreateBigQueryCSV();
+	else
+	{
+		CloseBigQueryCSV();
+		RunPythonScript(BigQueryPythonScript, BigQueryPath + " " + BigQueryCSVFileName);
+	}
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::CreateBigQueryCSV(void)
 {
-    AnsiString  HomeDir = ExtractFilePath(ExtractFileDir(Application->ExeName));
-    BigQueryCSVFileName="BigQuery"+UIntToStr(BigQueryFileCount)+".csv";
-    BigQueryRowCount=0;
-    BigQueryFileCount++;
-    BigQueryCSV=new TStreamWriter(HomeDir+"..\\BigQuery\\"+BigQueryCSVFileName, false);
-    if (BigQueryCSV==NULL)
-	  {
-		ShowMessage("Cannot Open BigQuery CSV File "+HomeDir+"..\\BigQuery\\"+BigQueryCSVFileName);
-        BigQueryCheckBox->State=cbUnchecked;
-	  }
-	AnsiString Header=AnsiString("Message Type,Transmission Type,SessionID,AircraftID,HexIdent,FlightID,Date_MSG_Generated,Time_MSG_Generated,Date_MSG_Logged,Time_MSG_Logged,Callsign,Altitude,GroundSpeed,Track,Latitude,Longitude,VerticalRate,Squawk,Alert,Emergency,SPI,IsOnGround");
+	AnsiString HomeDir = ExtractFilePath(ExtractFileDir(Application->ExeName));
+	BigQueryCSVFileName = "BigQuery" + UIntToStr(BigQueryFileCount) + ".csv";
+	BigQueryRowCount = 0;
+	BigQueryFileCount++;
+	BigQueryCSV = new TStreamWriter(HomeDir + "..\\BigQuery\\" + BigQueryCSVFileName, false);
+	if (BigQueryCSV == NULL)
+	{
+		ShowMessage("Cannot Open BigQuery CSV File " + HomeDir + "..\\BigQuery\\" + BigQueryCSVFileName);
+		BigQueryCheckBox->State = cbUnchecked;
+	}
+	AnsiString Header = AnsiString("Message Type,Transmission Type,SessionID,AircraftID,HexIdent,FlightID,Date_MSG_Generated,Time_MSG_Generated,Date_MSG_Logged,Time_MSG_Logged,Callsign,Altitude,GroundSpeed,Track,Latitude,Longitude,VerticalRate,Squawk,Alert,Emergency,SPI,IsOnGround");
 	BigQueryCSV->WriteLine(Header);
 }
 //--------------------------------------------------------------------------
 void __fastcall TForm1::CloseBigQueryCSV(void)
 {
-    if (BigQueryCSV)
-    {
-     delete BigQueryCSV;
-     BigQueryCSV=NULL;
-    }
+	if (BigQueryCSV)
+	{
+		delete BigQueryCSV;
+		BigQueryCSV = NULL;
+	}
 }
 //--------------------------------------------------------------------------
-	 static void RunPythonScript(AnsiString scriptPath,AnsiString args)
-     {
-        STARTUPINFOA si;
-        PROCESS_INFORMATION pi;
+static void RunPythonScript(AnsiString scriptPath, AnsiString args)
+{
+	STARTUPINFOA si;
+	PROCESS_INFORMATION pi;
 
-        ZeroMemory(&si, sizeof(si));
-        si.cb = sizeof(si);
-        ZeroMemory(&pi, sizeof(pi));
+	ZeroMemory(&si, sizeof(si));
+	si.cb = sizeof(si);
+	ZeroMemory(&pi, sizeof(pi));
 
-        AnsiString commandLine = "python " + scriptPath+" "+args;
-        char* cmdLineCharArray = new char[strlen(commandLine.c_str()) + 1];
-		strcpy(cmdLineCharArray, commandLine.c_str());
-	#define  LOG_PYTHON 1
-	#if LOG_PYTHON
-        //printf("%s\n", cmdLineCharArray);
-        SECURITY_ATTRIBUTES sa;
-        sa.nLength = sizeof(sa);
-	    sa.lpSecurityDescriptor = NULL;
-        sa.bInheritHandle = TRUE;
-		HANDLE h = CreateFileA(Form1->BigQueryLogFileName.c_str(),
-		FILE_APPEND_DATA,
-        FILE_SHARE_WRITE | FILE_SHARE_READ,
-        &sa,
-		OPEN_ALWAYS,
-        FILE_ATTRIBUTE_NORMAL,
-		NULL );
+	AnsiString commandLine = "python " + scriptPath + " " + args;
+	char *cmdLineCharArray = new char[strlen(commandLine.c_str()) + 1];
+	strcpy(cmdLineCharArray, commandLine.c_str());
+#define LOG_PYTHON 1
+#if LOG_PYTHON
+	// printf("%s\n", cmdLineCharArray);
+	SECURITY_ATTRIBUTES sa;
+	sa.nLength = sizeof(sa);
+	sa.lpSecurityDescriptor = NULL;
+	sa.bInheritHandle = TRUE;
+	HANDLE h = CreateFileA(Form1->BigQueryLogFileName.c_str(),
+						   FILE_APPEND_DATA,
+						   FILE_SHARE_WRITE | FILE_SHARE_READ,
+						   &sa,
+						   OPEN_ALWAYS,
+						   FILE_ATTRIBUTE_NORMAL,
+						   NULL);
 
-        si.hStdInput = NULL;
-	    si.hStdOutput = h;
-	    si.hStdError = h; // Redirect standard error as well, if needed
-	    si.dwFlags |= STARTF_USESTDHANDLES;
-    #endif
-        if (!CreateProcessA(
-            nullptr,          // No module name (use command line)
-            cmdLineCharArray, // Command line
-            nullptr,          // Process handle not inheritable
-            nullptr,          // Thread handle not inheritable
-	 #if LOG_PYTHON
-            TRUE,
-     #else
-            FALSE,            // Set handle inheritance to FALSE
-     #endif
-            CREATE_NO_WINDOW, // Don't create a console window
-			nullptr,          // Use parent's environment block
-            nullptr,          // Use parent's starting directory
-            &si,             // Pointer to STARTUPINFO structure
-            &pi))             // Pointer to PROCESS_INFORMATION structure
-         {
-            std::cerr << "CreateProcess failed (" << GetLastError() << ").\n";
-            delete[] cmdLineCharArray;
-            return;
-         }
-
-        // Optionally, detach from the process
-        CloseHandle(pi.hProcess);
-		CloseHandle(pi.hThread);
+	si.hStdInput = NULL;
+	si.hStdOutput = h;
+	si.hStdError = h; // Redirect standard error as well, if needed
+	si.dwFlags |= STARTF_USESTDHANDLES;
+#endif
+	if (!CreateProcessA(
+			nullptr,		  // No module name (use command line)
+			cmdLineCharArray, // Command line
+			nullptr,		  // Process handle not inheritable
+			nullptr,		  // Thread handle not inheritable
+#if LOG_PYTHON
+			TRUE,
+#else
+			FALSE, // Set handle inheritance to FALSE
+#endif
+			CREATE_NO_WINDOW, // Don't create a console window
+			nullptr,		  // Use parent's environment block
+			nullptr,		  // Use parent's starting directory
+			&si,			  // Pointer to STARTUPINFO structure
+			&pi))			  // Pointer to PROCESS_INFORMATION structure
+	{
+		std::cerr << "CreateProcess failed (" << GetLastError() << ").\n";
 		delete[] cmdLineCharArray;
-    }
+		return;
+	}
 
- //--------------------------------------------------------------------------
+	// Optionally, detach from the process
+	CloseHandle(pi.hProcess);
+	CloseHandle(pi.hThread);
+	delete[] cmdLineCharArray;
+}
+
+//--------------------------------------------------------------------------
 void __fastcall TForm1::UseSBSRemoteClick(TObject *Sender)
 {
- SBSIpAddress->Text="data.adsbhub.org";
+	SBSIpAddress->Text = "data.adsbhub.org";
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TForm1::UseSBSLocalClick(TObject *Sender)
 {
- SBSIpAddress->Text="128.237.96.41";
+	SBSIpAddress->Text = "128.237.96.41";
 }
 //---------------------------------------------------------------------------
 static bool DeleteFilesWithExtension(AnsiString dirPath, AnsiString extension)
- {
+{
 	AnsiString searchPattern = dirPath + "\\*." + extension;
 	WIN32_FIND_DATAA findData;
 
 	HANDLE hFind = FindFirstFileA(searchPattern.c_str(), &findData);
 
-	if (hFind == INVALID_HANDLE_VALUE) {
+	if (hFind == INVALID_HANDLE_VALUE)
+	{
 		return false; // No files found or error
 	}
 
-	do {
+	do
+	{
 		AnsiString filePath = dirPath + "\\" + findData.cFileName;
-		if (DeleteFileA(filePath.c_str()) == 0) {
+		if (DeleteFileA(filePath.c_str()) == 0)
+		{
 			FindClose(hFind);
 			return false; // Failed to delete a file
 		}
@@ -2048,187 +2052,192 @@ static bool DeleteFilesWithExtension(AnsiString dirPath, AnsiString extension)
 	FindClose(hFind);
 	return true;
 }
-static bool IsFirstRow=true;
-static bool CallBackInit=false;
+static bool IsFirstRow = true;
+static bool CallBackInit = false;
 //---------------------------------------------------------------------------
- static int CSV_callback_ARTCCBoundaries (struct CSV_context *ctx, const char *value)
+static int CSV_callback_ARTCCBoundaries(struct CSV_context *ctx, const char *value)
 {
-  int    rc = 1;
-  static char LastArea[512];
-  static char Area[512];
-  static char Lat[512];
-  static char Lon[512];
-  int    Deg,Min,Sec,Hsec;
-  char   Dir;
+	int rc = 1;
+	static char LastArea[512];
+	static char Area[512];
+	static char Lat[512];
+	static char Lon[512];
+	int Deg, Min, Sec, Hsec;
+	char Dir;
 
-   if (ctx->field_num==0)
-   {
-	strcpy(Area,value);
-   }
-   else if (ctx->field_num==3)
-   {
-	strcpy(Lat,value);
-   }
-   else if (ctx->field_num==4)
-   {
-    strcpy(Lon,value);
-   }
+	if (ctx->field_num == 0)
+	{
+		strcpy(Area, value);
+	}
+	else if (ctx->field_num == 3)
+	{
+		strcpy(Lat, value);
+	}
+	else if (ctx->field_num == 4)
+	{
+		strcpy(Lon, value);
+	}
 
-   if (ctx->field_num == (ctx->num_fields - 1))
-   {
+	if (ctx->field_num == (ctx->num_fields - 1))
+	{
 
-	float fLat, fLon;
-   if (!IsFirstRow)
-   {
-	 if (!CallBackInit)
-	 {
-	  strcpy(LastArea,Area);
-	  CallBackInit=true;
-	 }
-	   if(strcmp(LastArea,Area)!=0)
+		float fLat, fLon;
+		if (!IsFirstRow)
 		{
+			if (!CallBackInit)
+			{
+				strcpy(LastArea, Area);
+				CallBackInit = true;
+			}
+			if (strcmp(LastArea, Area) != 0)
+			{
 
-		 if (FinshARTCCBoundary())
-		   {
-			printf("Load ERROR ID %s\n",LastArea);
-		   }
-		 else printf("Loaded ID %s\n",LastArea);
-		 strcpy(LastArea,Area);
-		 }
-	   if (Form1->AreaTemp==NULL)
-		   {
-			Form1->AreaTemp= new TArea;
-			Form1->AreaTemp->NumPoints=0;
-			Form1->AreaTemp->Name=Area;
-			Form1->AreaTemp->Selected=false;
-			Form1->AreaTemp->Triangles=NULL;
-			 printf("Loading ID %s\n",Area);
-		   }
-	   if (sscanf(Lat,"%2d%2d%2d%2d%c",&Deg,&Min,&Sec,&Hsec,&Dir)!=5)
-		 printf("Latitude Parse Error\n");
-	   fLat=Deg+Min/60.0+Sec/3600.0+Hsec/360000.00;
-	   if (Dir=='S') fLat=-fLat;
+				if (FinshARTCCBoundary())
+				{
+					printf("Load ERROR ID %s\n", LastArea);
+				}
+				else
+					printf("Loaded ID %s\n", LastArea);
+				strcpy(LastArea, Area);
+			}
+			if (Form1->AreaTemp == NULL)
+			{
+				Form1->AreaTemp = new TArea;
+				Form1->AreaTemp->NumPoints = 0;
+				Form1->AreaTemp->Name = Area;
+				Form1->AreaTemp->Selected = false;
+				Form1->AreaTemp->Triangles = NULL;
+				printf("Loading ID %s\n", Area);
+			}
+			if (sscanf(Lat, "%2d%2d%2d%2d%c", &Deg, &Min, &Sec, &Hsec, &Dir) != 5)
+				printf("Latitude Parse Error\n");
+			fLat = Deg + Min / 60.0 + Sec / 3600.0 + Hsec / 360000.00;
+			if (Dir == 'S')
+				fLat = -fLat;
 
-	   if (sscanf(Lon,"%3d%2d%2d%2d%c",&Deg,&Min,&Sec,&Hsec,&Dir)!=5)
-		 printf("Longitude Parse Error\n");
-	   fLon=Deg+Min/60.0+Sec/3600.0+Hsec/360000.00;
-	   if (Dir=='W') fLon=-fLon;
-	   //printf("%f, %f\n",fLat,fLon);
-	   if (Form1->AreaTemp->NumPoints<MAX_AREA_POINTS)
-	   {
-		Form1->AreaTemp->Points[Form1->AreaTemp->NumPoints][1]=fLat;
-		Form1->AreaTemp->Points[Form1->AreaTemp->NumPoints][0]=fLon;
-		Form1->AreaTemp->Points[Form1->AreaTemp->NumPoints][2]=0.0;
-		Form1->AreaTemp->NumPoints++;
-	   }
-		else printf("Max Area Points Reached\n");
-
-   }
-   if (IsFirstRow) IsFirstRow=false;
-   }
-  return(rc);
+			if (sscanf(Lon, "%3d%2d%2d%2d%c", &Deg, &Min, &Sec, &Hsec, &Dir) != 5)
+				printf("Longitude Parse Error\n");
+			fLon = Deg + Min / 60.0 + Sec / 3600.0 + Hsec / 360000.00;
+			if (Dir == 'W')
+				fLon = -fLon;
+			// printf("%f, %f\n",fLat,fLon);
+			if (Form1->AreaTemp->NumPoints < MAX_AREA_POINTS)
+			{
+				Form1->AreaTemp->Points[Form1->AreaTemp->NumPoints][1] = fLat;
+				Form1->AreaTemp->Points[Form1->AreaTemp->NumPoints][0] = fLon;
+				Form1->AreaTemp->Points[Form1->AreaTemp->NumPoints][2] = 0.0;
+				Form1->AreaTemp->NumPoints++;
+			}
+			else
+				printf("Max Area Points Reached\n");
+		}
+		if (IsFirstRow)
+			IsFirstRow = false;
+	}
+	return (rc);
 }
 //---------------------------------------------------------------------------
 bool __fastcall TForm1::LoadARTCCBoundaries(AnsiString FileName)
 {
-  CSV_context  csv_ctx;
-   memset (&csv_ctx, 0, sizeof(csv_ctx));
-   csv_ctx.file_name = FileName.c_str();
-   csv_ctx.delimiter = ',';
-   csv_ctx.callback  = CSV_callback_ARTCCBoundaries;
-   csv_ctx.line_size = 2000;
-   IsFirstRow=true;
-   CallBackInit=false;
-   if (!CSV_open_and_parse_file(&csv_ctx))
-    {
-	  printf("Parsing of \"%s\" failed: %s\n", FileName.c_str(), strerror(errno));
-      return (false);
+	CSV_context csv_ctx;
+	memset(&csv_ctx, 0, sizeof(csv_ctx));
+	csv_ctx.file_name = FileName.c_str();
+	csv_ctx.delimiter = ',';
+	csv_ctx.callback = CSV_callback_ARTCCBoundaries;
+	csv_ctx.line_size = 2000;
+	IsFirstRow = true;
+	CallBackInit = false;
+	if (!CSV_open_and_parse_file(&csv_ctx))
+	{
+		printf("Parsing of \"%s\" failed: %s\n", FileName.c_str(), strerror(errno));
+		return (false);
 	}
-   if ((Form1->AreaTemp!=NULL) && (Form1->AreaTemp->NumPoints>0))
-   {
-     char Area[512];
-     strcpy(Area,Form1->AreaTemp->Name.c_str());
-     if (FinshARTCCBoundary())
-	    {
-        printf("Loaded ERROR ID %s\n",Area);
-	    }
-        else printf("Loaded ID %s\n",Area);
-   }
-   printf("Done\n");
-   return(true);
+	if ((Form1->AreaTemp != NULL) && (Form1->AreaTemp->NumPoints > 0))
+	{
+		char Area[512];
+		strcpy(Area, Form1->AreaTemp->Name.c_str());
+		if (FinshARTCCBoundary())
+		{
+			printf("Loaded ERROR ID %s\n", Area);
+		}
+		else
+			printf("Loaded ID %s\n", Area);
+	}
+	printf("Done\n");
+	return (true);
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::LoadARTCCBoundaries1Click(TObject *Sender)
 {
-   LoadARTCCBoundaries(ARTCCBoundaryDataPathFileName);
+	LoadARTCCBoundaries(ARTCCBoundaryDataPathFileName);
 }
 //---------------------------------------------------------------------------
 static int FinshARTCCBoundary(void)
 {
-  int or1=orientation2D_Polygon( Form1->AreaTemp->Points,Form1->AreaTemp->NumPoints);
-  if (or1==0)
-   {
-	TArea *Temp;
-	Temp= Form1->AreaTemp;
-	Form1->AreaTemp=NULL;
-	delete  Temp;
-	printf("Degenerate Polygon\n");
-	return(-1);
-   }
-  if (or1==CLOCKWISE)
-  {
-	DWORD i;
+	int or1 = orientation2D_Polygon(Form1->AreaTemp->Points, Form1->AreaTemp->NumPoints);
+	if (or1 == 0)
+	{
+		TArea *Temp;
+		Temp = Form1->AreaTemp;
+		Form1->AreaTemp = NULL;
+		delete Temp;
+		printf("Degenerate Polygon\n");
+		return (-1);
+	}
+	if (or1 == CLOCKWISE)
+	{
+		DWORD i;
 
-	memcpy(Form1->AreaTemp->PointsAdj,Form1->AreaTemp->Points,sizeof(Form1->AreaTemp->Points));
-	for (i = 0; i <Form1->AreaTemp->NumPoints; i++)
-	 {
-	   memcpy(Form1->AreaTemp->Points[i],
-			 Form1->AreaTemp->PointsAdj[Form1->AreaTemp->NumPoints-1-i],sizeof( pfVec3));
-	 }
-  }
-  if (checkComplex( Form1->AreaTemp->Points,Form1->AreaTemp->NumPoints))
-   {
-	TArea *Temp;
-	Temp= Form1->AreaTemp;
-	Form1->AreaTemp=NULL;
-	delete  Temp;
-	printf("Polygon is Complex\n");
-    return(-2);
-   }
-  DWORD Row,Count,i;
+		memcpy(Form1->AreaTemp->PointsAdj, Form1->AreaTemp->Points, sizeof(Form1->AreaTemp->Points));
+		for (i = 0; i < Form1->AreaTemp->NumPoints; i++)
+		{
+			memcpy(Form1->AreaTemp->Points[i],
+				   Form1->AreaTemp->PointsAdj[Form1->AreaTemp->NumPoints - 1 - i], sizeof(pfVec3));
+		}
+	}
+	if (checkComplex(Form1->AreaTemp->Points, Form1->AreaTemp->NumPoints))
+	{
+		TArea *Temp;
+		Temp = Form1->AreaTemp;
+		Form1->AreaTemp = NULL;
+		delete Temp;
+		printf("Polygon is Complex\n");
+		return (-2);
+	}
+	DWORD Row, Count, i;
 
+	Count = Form1->Areas->Count;
+	for (i = 0; i < Count; i++)
+	{
+		TArea *Area = (TArea *)Form1->Areas->Items[i];
+		if (Area->Name == Form1->AreaTemp->Name)
+		{
 
- Count=Form1->Areas->Count;
- for (i = 0; i < Count; i++)
- {
-  TArea *Area = (TArea *)Form1->Areas->Items[i];
-  if (Area->Name==Form1->AreaTemp->Name) {
+			TArea *Temp;
+			Temp = Form1->AreaTemp;
+			printf("Duplicate Area Name %s\n", Form1->AreaTemp->Name.c_str());
+			Form1->AreaTemp = NULL;
+			delete Temp;
+			return (-3);
+		}
+	}
 
-   TArea *Temp;
-   Temp= Form1->AreaTemp;
-   printf("Duplicate Area Name %s\n",Form1->AreaTemp->Name.c_str());;
-   Form1->AreaTemp=NULL;
-   delete  Temp;
-   return(-3);
-   }
- }
+	triangulatePoly(Form1->AreaTemp->Points, Form1->AreaTemp->NumPoints,
+					&Form1->AreaTemp->Triangles);
 
- triangulatePoly(Form1->AreaTemp->Points,Form1->AreaTemp->NumPoints,
-				 &Form1->AreaTemp->Triangles);
-
- Form1->AreaTemp->Color=TColor(PopularColors[CurrentColor]);
- CurrentColor++ ;
- CurrentColor=CurrentColor%NumColors;
- Form1->Areas->Add(Form1->AreaTemp);
- Form1->AreaListView->Items->BeginUpdate();
- Form1->AreaListView->Items->Add();
- Row=Form1->AreaListView->Items->Count-1;
- Form1->AreaListView->Items->Item[Row]->Caption=Form1->AreaTemp->Name;
- Form1->AreaListView->Items->Item[Row]->Data=Form1->AreaTemp;
- Form1->AreaListView->Items->Item[Row]->SubItems->Add("");
- Form1->AreaListView->Items->EndUpdate();
- Form1->AreaTemp=NULL;
- return 0 ;
+	Form1->AreaTemp->Color = TColor(PopularColors[CurrentColor]);
+	CurrentColor++;
+	CurrentColor = CurrentColor % NumColors;
+	Form1->Areas->Add(Form1->AreaTemp);
+	Form1->AreaListView->Items->BeginUpdate();
+	Form1->AreaListView->Items->Add();
+	Row = Form1->AreaListView->Items->Count - 1;
+	Form1->AreaListView->Items->Item[Row]->Caption = Form1->AreaTemp->Name;
+	Form1->AreaListView->Items->Item[Row]->Data = Form1->AreaTemp;
+	Form1->AreaListView->Items->Item[Row]->SubItems->Add("");
+	Form1->AreaListView->Items->EndUpdate();
+	Form1->AreaTemp = NULL;
+	return 0;
 }
 //---------------------------------------------------------------------------
 

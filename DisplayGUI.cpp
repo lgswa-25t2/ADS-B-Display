@@ -712,7 +712,7 @@ void __fastcall TForm1::DrawObjects(void)
 				int idx = (Data->HistoryIndex - i - 1 + FLIGHT_TRACK_HISTORY_COUNT) % FLIGHT_TRACK_HISTORY_COUNT;
 				if (idx < 0 || idx >= FLIGHT_TRACK_HISTORY_COUNT) continue;
 
-				glColor4f(1.0, 1.0, 1.0, 1.0);
+				glColor4f(1.0, 1.0, 1.0, 0.7);
 				glLineWidth(3.0);
 
 				double historyScrX, historyScrY;
@@ -874,8 +874,6 @@ void __fastcall TForm1::UpdateAircraftHistory(TADS_B_Aircraft *aircraft)
         {
             aircraft->HistoryCount++;
         }
-
-		//printf("UpdateAircraftHistory %s %f %f\n", aircraft->HexAddr, aircraft->Latitude, aircraft->Longitude);
     }
 }
 

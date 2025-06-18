@@ -498,6 +498,13 @@ void __fastcall TForm1::DrawObjects(void)
   TAircraftData *a = NULL;
 
   DWORD i,j,Count;
+  int cell[10][10] = {0, };
+  int cellWidth = ObjectDisplay->Width / 10 - 1;
+  int cellHeight = ObjectDisplay->Height / 10 - 1;
+  int cellSize = std::min(cellWidth, cellHeight) /2;
+  int cellMin = cellSize/5;
+  int cellMax = cellSize;
+  double cellDrawZoomRate = 0.00005;
 
   if (AreaTemp)
   {
@@ -583,6 +590,20 @@ void __fastcall TForm1::DrawObjects(void)
 			ViewableAircraft++;
 
 	   LatLon2XY(Data->Latitude,Data->Longitude, ScrX, ScrY);
+	   
+	   if(ScrX >=0 && ScrX <= ObjectDisplay->Width &&
+        	ScrY >=0 && ScrY <= ObjectDisplay->Height) {
+
+            int y = ScrY/cellHeight;
+            int x = ScrX/cellWidth;
+            if (x>=0 && x<10 && y>=0 && y<10) {
+       			cell[y][x] += 1;
+            }
+        }
+        else {
+            continue;
+        }
+		
 	   //DrawPoint(ScrX,ScrY);
 
      if (Data->HaveSpeedAndHeading){
@@ -619,30 +640,32 @@ void __fastcall TForm1::DrawObjects(void)
        glColor4f(1.0, 0.23, 0.19, 1.0);  //ios_red
       }
 
-	   DrawAirplaneImage(ScrX,ScrY,0.8,Data->Heading,Data->SpriteImage);
+       if ( xf < cellDrawZoomRate) {
+		   DrawAirplaneImage(ScrX,ScrY,0.8,Data->Heading,Data->SpriteImage);
 
-       //text color
-	   if (DrawMap->Checked){
-         switch(SelectedMapIndex){
-           case 0: // GoogleMaps
-	         glColor4f(0.92, 0.92, 0.96, 1.0);
-             break;
-           case 1:
-           case 2:
-           case 3:
-             glColor4f(0.0, 0.0, 0.0, 1.0);
-             break;
-           default:
-             glColor4f(0.92, 0.92, 0.96, 1.0);
-         }
+	       //text color
+		   if (DrawMap->Checked){
+	         switch(SelectedMapIndex){
+	           case 0: // GoogleMaps
+		         glColor4f(0.92, 0.92, 0.96, 1.0);
+	             break;
+	           case 1:
+	           case 2:
+	           case 3:
+	             glColor4f(0.0, 0.0, 0.0, 1.0);
+	             break;
+	           default:
+	             glColor4f(0.92, 0.92, 0.96, 1.0);
+	         }
+	       }
+		   else
+		     glColor4f(0.0, 0.0, 0.0, 1.0);
+
+		   glRasterPos2i(ScrX+15,ScrY-10);
+		   ObjectDisplay->Draw2DText(Data->HexAddr);
        }
-	   else
-	     glColor4f(0.0, 0.0, 0.0, 1.0);
 
-	   glRasterPos2i(ScrX+15,ScrY-10);
-	   ObjectDisplay->Draw2DText(Data->HexAddr);
-
-	   if ((Data->HaveSpeedAndHeading) && (TimeToGoCheckBox->State==cbChecked))
+	   if ((Data->HaveSpeedAndHeading) && (TimeToGoCheckBox->State==cbChecked) && xf < cellDrawZoomRate)
 	   {
 		double lat,lon,az;
 		if (VDirect(Data->Latitude,Data->Longitude,
@@ -828,7 +851,73 @@ void __fastcall TForm1::DrawObjects(void)
 	}
  }
  
+	// Draw Cells(white bubbles) instead of whole aircrafts for the performance and usability, 
+	// when zoomRate(xf) >= cellDrawZoomRate
+    int s = 0;
+ 	if (xf >= cellDrawZoomRate) {
+        for (j = 0; j < 10; j++) {
+            for (i=0; i < 10; i++) {
+
+                if (cell[j][i] > 0) {
+
+                    s = cell[j][i];
+
+                    if(cell[j][i] < cellMin ) {
+                    	s = cellMin;
+                    } else if (cell[j][i] > cellMax) {
+                        s = cellMax;
+                    }
+
+                    DrawCircleWithNumber(
+                    	(float)(cellWidth*(i+1)-cellWidth/2),
+                        (float)(cellHeight*(j+1)-cellHeight/2),
+                        s,
+                        cell[j][i]
+                    );
+                }
+            }
+        }
+    }
 }
+
+void __fastcall TForm1::DrawCircleWithNumber(float x, float y, float radius, int number)
+{
+    // 원 그리기
+    glBegin(GL_TRIANGLE_FAN);
+    glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
+    glVertex2f(x, y);
+    for(int i = 0; i <= 360; i += 10) {
+        float angle = i * M_PI / 180.0f;
+        glVertex2f(x + radius * cos(angle), y + radius * sin(angle));
+    }
+    glEnd();
+
+    // 원 테두리 그리기
+    /*
+    glBegin(GL_LINE_LOOP);
+    glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+    for(int i = 0; i < 360; i += 10) {
+        float angle = i * M_PI / 180.0f;
+        glVertex2f(x + radius * cos(angle), y + radius * sin(angle));
+    }
+    glEnd();
+    */
+
+    // 숫자 그리기
+    char numStr[10];
+    sprintf(numStr, "%d", number);
+    
+    // 숫자 위치 계산 (중앙 정렬)
+    int textWidth = strlen(numStr) * 8;
+    float textX = x - textWidth / 2.0f - textWidth / 2.0f;
+    float textY = y - 10.0f;
+
+    // 숫자 그리기
+    glColor4f(0.1f, 0.1f, 0.1f, 1.0f);
+    glRasterPos2i(textX,textY);
+	ObjectDisplay->Draw2DText(numStr);
+}
+
 //---------------------------------------------------------------------------
 void __fastcall TForm1::ObjectDisplayMouseDown(TObject *Sender,
 	  TMouseButton Button, TShiftState Shift, int X, int Y)

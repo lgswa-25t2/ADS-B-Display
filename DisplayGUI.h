@@ -226,6 +226,7 @@ __published:	// IDE-managed Components
 	void __fastcall UseSBSLocalClick(TObject *Sender);
 	void __fastcall LoadARTCCBoundaries1Click(TObject *Sender);
 	void __fastcall DisplayAirportCheckBoxClick(TObject *Sender);
+	void __fastcall DrawCircleWithNumber(float, float, float, int);
 
 private:	// User declarations
 

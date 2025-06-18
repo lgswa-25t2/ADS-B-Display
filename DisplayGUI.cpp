@@ -675,44 +675,35 @@ void __fastcall TForm1::DrawObjects(void)
 		
 	   //DrawPoint(ScrX,ScrY);
 
-	 if (Data->HaveSpeedAndHeading){
-	   if (DrawMap->Checked){
-
-		  if (airportManager && isNearAirport) {
-            glColor4f(1.0, 1.0, 0.0, 1.0); // yellow
-          } else {
-
-            switch(SelectedMapIndex){
-              case 0: // GoogleMaps
-                glColor4f(1.0, 0.0, 1.0, 1.0); //magenta
-                break;
-              case 1: // SkyVector_VFR
-                glColor4f(1.0, 0.0, 1.0, 1.0); //magenta
-                break;
-              case 2: // SkyVector_IFR_Low
-                glColor4f(1.0, 0.5, 0.0, 1.0);   //orange
-                break;
-              case 3: // SkyVector_IFR_High
-                glColor4f(1.0, 0.5, 0.0, 1.0);   //orange
-                break;
-              default:
-                glColor4f(1.0, 0.0, 1.0, 1.0); //magenta
-			}
+      // Set aircraft color based on type (map-independent)
+      if (aircraft_is_helicopter(Data->ICAO, NULL)) {
+          glColor4f(1.0f, 0.65f, 0.0f, 1.0f);  // Orange for helicopters
+      }
+      else if (IsAircraftMilitary(Data->ICAO)) {
+          glColor4f(0.0f, 1.0f, 0.0f, 1.0f);   // Fluorescent green for military
+      }
+      else {
+          const TAircraftData *a = (TAircraftData *)ght_get(AircraftDBHashTable, sizeof(Data->ICAO), &Data->ICAO);
+          if (!a) {
+              glColor4f(0.0f, 0.75f, 1.0f, 1.0f);    //  for unknown
           }
-       	}
-       	else{
-          if (airportManager && isNearAirport) {
-            glColor4f(1.0, 1.0, 0.0, 1.0); // yellow
-          } else {
-			glColor4f(0.0, 0.48, 1.0, 1.0);  //ios_blue
-		  }
-       	}
+          else {
+              glColor4f(1.0, 0.0, 1.0, 1.0); //magenta for known civilian aircraft
+          }
       }
-      else
-      {
-       Data->Heading=0.0;
-       glColor4f(1.0, 0.23, 0.19, 1.0);  //ios_red
+	  if (airportManager && isNearAirport) {
+      	glColor4f(1.0, 1.0, 0.0, 1.0); // yellow
       }
+
+      // If aircraft has no speed/heading data, make it semi-transparent
+      if (!Data->HaveSpeedAndHeading) {
+          Data->Heading = 0.0;
+          // Make unknown heading aircraft semi-transparent
+          float currentColor[4];
+          glGetFloatv(GL_CURRENT_COLOR, currentColor);
+          glColor4f(currentColor[0], currentColor[1], currentColor[2], 0.6f);
+      }
+
 
        if ( xf < cellDrawZoomRate) {
 		   DrawAirplaneImage(ScrX,ScrY,0.8,Data->Heading,Data->SpriteImage);
@@ -1578,12 +1569,15 @@ void __fastcall TTCPClientRawHandleThread::HandleInput(void)
 {
   modeS_message mm;
   TDecodeStatus Status;
+  __int64 CurrentTime;
+  CurrentTime=GetCurrentTimeInMsec();
 
  // Form1->MsgLog->Lines->Add(StringMsgBuffer);
+ 
   if (Form1->RecordRawStream)
   {
-   __int64 CurrentTime;
-   CurrentTime=GetCurrentTimeInMsec();
+   //__int64 CurrentTime;
+   //CurrentTime=GetCurrentTimeInMsec();
    Form1->RecordRawStream->WriteLine(IntToStr(CurrentTime));
    Form1->RecordRawStream->WriteLine(StringMsgBuffer);
   }
@@ -1639,13 +1633,18 @@ void __fastcall TTCPClientRawHandleThread::HandleInput(void)
 
 	  RawToAircraft(&mm,ADS_B_Aircraft);
   }
-  else  printf("Raw Decode Error:%d\n",Status);
-
-  // HandleInput 내에서 하트비트 감지 시
-  if (Status == MsgHeartBeat) {
+  else if (Status == MsgHeartBeat) {
 	  LastHeartbeatTime = GetCurrentTimeInMsec();
 	  RawTimeoutPopupShown = false;
   }
+  else
+  {
+	 //고객씬은 아닐듯
+	 //ShowMessage("Error while connecting: E%.2d"+Status);
+  }
+  
+  printf("[%lld]PI Raw Decode code:%d\n",CurrentTime, Status);
+
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::RawConnectButtonClick(TObject *Sender)

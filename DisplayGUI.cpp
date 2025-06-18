@@ -1,4 +1,4 @@
-ï»¿//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 #include <vcl.h>
 #include <new>
@@ -385,10 +385,10 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
      lastCacheCheck = CurrentTime;
  }
  
-   // Timer1Timer ë‚´ì—ì„œ íƒ€ì„ì•„ì›ƒ ì²´í¬
+   // Timer1Timer ³»¿¡¼­ Å¸ÀÓ¾Æ¿ô Ã¼Å©
   __int64 now = GetCurrentTimeInMsec();
   if (RawConnectButton->Caption=="Raw Disconnect") {
-	if (!RawTimeoutPopupShown && (now - LastHeartbeatTime > 10000)) // 10ì´ˆ ì˜ˆì‹œ
+	if (!RawTimeoutPopupShown && (now - LastHeartbeatTime > 10000)) // 10ÃÊ ¿¹½Ã
 	{
 		RawTimeoutPopupShown = true;
 		if (Form1->IdTCPClientRaw->Connected()) {
@@ -407,7 +407,7 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::DrawObjects(void)
 {
-    // ìºì‹œ ì •ë¦¬ ì‹¤í–‰
+    // Ä³½Ã Á¤¸® ½ÇÇà
     cleanupOldCache();
     
     double ScrX, ScrY;
@@ -625,7 +625,7 @@ void __fastcall TForm1::DrawObjects(void)
 			// Convert screen corner coordinates to latitude and longitude
 			LatLon2XY(Data->Latitude, Data->Longitude, aircraftX, aircraftY);
 
-			// í™”ë©´ ë°–ì˜ í•­ê³µê¸°ëŠ” ê³„ì‚°í•˜ì§€ ì•ŠìŒ
+			// È­¸é ¹ÛÀÇ Ç×°ø±â´Â °è»êÇÏÁö ¾ÊÀ½
 			if (!(0 <= aircraftX && aircraftX < screenWidth && 0 <= aircraftY && aircraftY < screenHeight))
 			{
 				continue;
@@ -637,13 +637,13 @@ void __fastcall TForm1::DrawObjects(void)
 			double airportX, airportY;
 			for (const auto& airport : visibleAirports) {
 			  LatLon2XY(airport.latitude, airport.longitude, airportX, airportY);
-			  // í™”ë©´ ë°–ì˜ ê³µí•­ì€ ê³„ì‚°í•˜ì§€ ì•ŠìŒ
+			  // È­¸é ¹ÛÀÇ °øÇ×Àº °è»êÇÏÁö ¾ÊÀ½
 			  if (!(0 <= airportX && airportX < screenWidth && 0 <= airportY && airportY < screenHeight))
 			  {
 				continue;
 			  }
 
-			  // ìºì‹œëœ ê±°ë¦¬ ê³„ì‚° ì‚¬ìš©
+			  // Ä³½ÃµÈ °Å¸® °è»ê »ç¿ë
 			  double distance = getCachedDistance(Data->ICAO, airport.icao,
 											   Data->Latitude, Data->Longitude,
 											   airport.latitude, airport.longitude);
@@ -903,7 +903,7 @@ void __fastcall TForm1::DrawObjects(void)
  if (a != NULL && a->airport_size > 0) {
 	for (i = 0; i < a->airport_size; i++) {
 		DrawAirportIcon(a->airport_lat[i], a->airport_lon[i], (i == 0) ? true : false);
-		DrawAirportInfo(a->airport_lat[i], a->airport_lon[i], a->airport_name[i].c_str(), (i == 0) ? true : false);
+		DrawAirportInfo(a->airport_lat[i], a->airport_lon[i], a->airport_iata[i].c_str(), (i == 0) ? true : false);
 	}
 
 	// Draw connecting line between airports if we have both departure and arrival
@@ -956,7 +956,7 @@ void __fastcall TForm1::DrawObjects(void)
 
 void __fastcall TForm1::DrawCircleWithNumber(float x, float y, float radius, int number)
 {
-    // ì› ê·¸ë¦¬ê¸°
+    // ¿ø ±×¸®±â
     glBegin(GL_TRIANGLE_FAN);
     glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
     glVertex2f(x, y);
@@ -966,7 +966,7 @@ void __fastcall TForm1::DrawCircleWithNumber(float x, float y, float radius, int
     }
     glEnd();
 
-    // ì› í…Œë‘ë¦¬ ê·¸ë¦¬ê¸°
+    // ¿ø Å×µÎ¸® ±×¸®±â
     /*
     glBegin(GL_LINE_LOOP);
     glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
@@ -977,16 +977,16 @@ void __fastcall TForm1::DrawCircleWithNumber(float x, float y, float radius, int
     glEnd();
     */
 
-    // ìˆ«ì ê·¸ë¦¬ê¸°
+    // ¼ıÀÚ ±×¸®±â
     char numStr[10];
     sprintf(numStr, "%d", number);
     
-    // ìˆ«ì ìœ„ì¹˜ ê³„ì‚° (ì¤‘ì•™ ì •ë ¬)
+    // ¼ıÀÚ À§Ä¡ °è»ê (Áß¾Ó Á¤·Ä)
     int textWidth = strlen(numStr) * 8;
     float textX = x - textWidth / 2.0f - textWidth / 2.0f;
     float textY = y - 10.0f;
 
-    // ìˆ«ì ê·¸ë¦¬ê¸°
+    // ¼ıÀÚ ±×¸®±â
     glColor4f(0.1f, 0.1f, 0.1f, 1.0f);
     glRasterPos2i(textX,textY);
 	ObjectDisplay->Draw2DText(numStr);
@@ -1648,7 +1648,7 @@ void __fastcall TTCPClientRawHandleThread::HandleInput(void)
   }
   else
   {
-	 //ê³ ê°ì”¬ì€ ì•„ë‹ë“¯
+	 //°í°´¾ÀÀº ¾Æ´Òµí
 	 //ShowMessage("Error while connecting: E%.2d"+Status);
   }
   
@@ -2640,23 +2640,23 @@ void __fastcall TForm1::DrawAirportInfo(double lat, double lon, const char* name
     double ScrX, ScrY;
     LatLon2XY(lat, lon, ScrX, ScrY);
 
-    // Draw airport name
-    glColor4f(1.0, 0.0, 0.0, 1.0);  // Red color (R=1.0, G=0.0, B=0.0, A=1.0)
+	// Draw airport name
+	glColor4f(1.0, 1.0, 0.0, 1.0);
     glRasterPos2i(ScrX + 20, ScrY + 20);
     ObjectDisplay->Draw2DText(name);
 }
 
-// ìºì‹œëœ ê±°ë¦¬ ê³„ì‚° í•¨ìˆ˜ êµ¬í˜„
+// Ä³½ÃµÈ °Å¸® °è»ê ÇÔ¼ö ±¸Çö
 double TForm1::getCachedDistance(uint32_t aircraftICAO, const std::string& airportICAO,
                                double aircraftLat, double aircraftLon,
                                double airportLat, double airportLon) {
     auto now = std::chrono::system_clock::now();
     auto key = std::make_pair(aircraftICAO, airportICAO);
     
-    // ìºì‹œì—ì„œ ê±°ë¦¬ ì°¾ê¸°
+    // Ä³½Ã¿¡¼­ °Å¸® Ã£±â
     auto it = distanceCache.find(key);
     if (it != distanceCache.end()) {
-        // ìºì‹œê°€ ë§Œë£Œë˜ì§€ ì•Šì•˜ëŠ”ì§€ í™•ì¸
+        // Ä³½Ã°¡ ¸¸·áµÇÁö ¾Ê¾Ò´ÂÁö È®ÀÎ
         auto age = std::chrono::duration_cast<std::chrono::milliseconds>(
             now - it->second.timestamp).count();
         if (age < CACHE_EXPIRY_MS) {
@@ -2664,14 +2664,14 @@ double TForm1::getCachedDistance(uint32_t aircraftICAO, const std::string& airpo
         }
     }
     
-    // ìºì‹œì— ì—†ê±°ë‚˜ ë§Œë£Œëœ ê²½ìš° ìƒˆë¡œ ê³„ì‚°
+    // Ä³½Ã¿¡ ¾ø°Å³ª ¸¸·áµÈ °æ¿ì »õ·Î °è»ê
     double dlat = aircraftLat - airportLat;
     double dlon = aircraftLon - airportLon;
     double latDist = dlat * 60.0;
     double lonDist = dlon * 60.0 * cos(aircraftLat * M_PI/180.0);
     double distance = sqrt(latDist * latDist + lonDist * lonDist);
     
-    // ê²°ê³¼ë¥¼ ìºì‹œì— ì €ì¥
+    // °á°ú¸¦ Ä³½Ã¿¡ ÀúÀå
     DistanceCache cache;
     cache.distance = distance;
     cache.timestamp = now;
@@ -2680,18 +2680,18 @@ double TForm1::getCachedDistance(uint32_t aircraftICAO, const std::string& airpo
     return distance;
 }
 
-// ìºì‹œ ì •ë¦¬ í•¨ìˆ˜ êµ¬í˜„
+// Ä³½Ã Á¤¸® ÇÔ¼ö ±¸Çö
 void TForm1::cleanupOldCache() {
     auto now = std::chrono::system_clock::now();
     
-    // ë§ˆì§€ë§‰ ì •ë¦¬ ì´í›„ ì¼ì • ì‹œê°„ì´ ì§€ë‚¬ëŠ”ì§€ í™•ì¸
+    // ¸¶Áö¸· Á¤¸® ÀÌÈÄ ÀÏÁ¤ ½Ã°£ÀÌ Áö³µ´ÂÁö È®ÀÎ
     auto timeSinceLastCleanup = std::chrono::duration_cast<std::chrono::milliseconds>(
         now - lastCleanupTime).count();
     if (timeSinceLastCleanup < CACHE_CLEANUP_INTERVAL_MS) {
         return;
     }
     
-    // ì˜¤ë˜ëœ ìºì‹œ í•­ëª© ì œê±°
+    // ¿À·¡µÈ Ä³½Ã Ç×¸ñ Á¦°Å
     for (auto it = distanceCache.begin(); it != distanceCache.end();) {
         auto age = std::chrono::duration_cast<std::chrono::milliseconds>(
             now - it->second.timestamp).count();

@@ -64,7 +64,7 @@ TForm1 *Form1;
 
 static char *stristr(const char *String, const char *Pattern);
 static const char * strnistr(const char * pszSource, DWORD dwLength, const char * pszFind) ;
-
+int globalTrackbarValue = 1;
 extern ght_hash_table_t *AircraftDBHashTable;
 
 //---------------------------------------------------------------------------
@@ -272,6 +272,8 @@ __fastcall TForm1::TForm1(TComponent* Owner)
  //printf("=== End Airport Data Loading Debug ===\n");
 
   lastCleanupTime = std::chrono::system_clock::now();
+ // Initial Trackbar Value
+ PlaybackSpeedTrackBar->Visible = false;
 }
 //---------------------------------------------------------------------------
 __fastcall TForm1::~TForm1()
@@ -1096,8 +1098,7 @@ void __fastcall TForm1::ObjectDisplayMouseUp(TObject *Sender,
   if (Button == mbLeft) g_MouseDownMask &= ~LEFT_MOUSE_DOWN;
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::ObjectDisplayMouseMove(TObject *Sender,
-	  TShiftState Shift, int X, int Y)
+void __fastcall TForm1::ObjectDisplayMouseMove(TObject *Sender, TShiftState Shift, int X, int Y)
 {
  int X1,Y1;
  double VLat,VLon;
@@ -1919,67 +1920,74 @@ __fastcall TTCPClientSBSHandleThread::~TTCPClientSBSHandleThread()
 // Execute method where the thread's logic resides
 void __fastcall TTCPClientSBSHandleThread::Execute(void)
 {
-  __int64 Time,SleepTime;
-  while (!Terminated)
-  {
-	if (!UseFileInsteadOfNetwork)
-	 {
-	  try {
-		   if (!Form1->IdTCPClientSBS->Connected()) Terminate();
-	       StringMsgBuffer=Form1->IdTCPClientSBS->IOHandler->ReadLn();
-		  }
-       catch (...)
+	__int64 Time,SleepTime;
+	while (!Terminated)
+	{
+		if (!UseFileInsteadOfNetwork)
 		{
-		 TThread::Synchronize(StopTCPClient);
-		 break;
+			try 
+			{
+				if (!Form1->IdTCPClientSBS->Connected()) {
+					Terminate();
+				}
+				StringMsgBuffer=Form1->IdTCPClientSBS->IOHandler->ReadLn();
+			}
+			catch (...)
+			{
+				TThread::Synchronize(StopTCPClient);
+				break;
+			}
 		}
-
-	 }
-	 else
-	 {
-	  try
-        {
-         if (Form1->PlayBackSBSStream->EndOfStream)
-           {
-            printf("End SBS Playback 1\n");
-            TThread::Synchronize(StopPlayback);
-            break;
-           }
-		 StringMsgBuffer= Form1->PlayBackSBSStream->ReadLine();
-         Time=StrToInt64(StringMsgBuffer);
-		 if (First)
-	      {
-		   First=false;
-		   LastTime=Time;
-		  }
-		 SleepTime=Time-LastTime;
-		 LastTime=Time;
-		 if (SleepTime>0) Sleep(SleepTime);
-         if (Form1->PlayBackSBSStream->EndOfStream)
-           {
-            printf("End SBS Playback 2\n");
-            TThread::Synchronize(StopPlayback);
-            break;
-           }
-		 StringMsgBuffer= Form1->PlayBackSBSStream->ReadLine();
-		}
-        catch (...)
+		else
 		{
-         printf("SBS Playback Exception\n");
-		 TThread::Synchronize(StopPlayback);
-		 break;
+			try
+			{
+				if (Form1->PlayBackSBSStream->EndOfStream)
+				{
+					printf("End SBS Playback 1\n");
+					TThread::Synchronize(StopPlayback);
+					break;
+				}
+				StringMsgBuffer = Form1->PlayBackSBSStream->ReadLine();
+				Time = StrToInt64(StringMsgBuffer);
+				if (First)
+				{
+					First=false;
+					LastTime=Time;
+				}
+				int SpeedFactor = globalTrackbarValue;
+				//printf("SpeedFactor: %d\n", SpeedFactor);
+				if (SpeedFactor < 1) SpeedFactor = 1;
+				SleepTime = (Time - LastTime) / SpeedFactor;
+				LastTime=Time;
+				if (SleepTime>0) {
+					Sleep(SleepTime);
+				}
+				if (Form1->PlayBackSBSStream->EndOfStream)
+				{
+					printf("End SBS Playback 2\n");
+					TThread::Synchronize(StopPlayback);
+					break;
+				}
+				StringMsgBuffer= Form1->PlayBackSBSStream->ReadLine();
+			}
+			catch (...)
+			{
+				printf("SBS Playback Exception\n");
+				TThread::Synchronize(StopPlayback);
+				break;
+			}
 		}
-	   }
-     try
-      {
-	   // Synchronize method to safely access UI components
-	   TThread::Synchronize(HandleInput);
-      }
-	 catch (...)
-     {
-      ShowMessage("TTCPClientSBSHandleThread::Execute Exception 3");
-	 }
-  }
+		try
+		{
+			// Synchronize method to safely access UI components
+			TThread::Synchronize(HandleInput);
+		}
+		catch (...)
+		{
+			ShowMessage("TTCPClientSBSHandleThread::Execute Exception 3");
+		}
+	}
 }
 //---------------------------------------------------------------------------
 void __fastcall TTCPClientSBSHandleThread::StopPlayback(void)
@@ -2047,6 +2055,7 @@ void __fastcall TForm1::SBSPlaybackButtonClick(TObject *Sender)
 		   TCPClientSBSHandleThread->Resume();
 		   SBSPlaybackButton->Caption="Stop SBS Playback";
            SBSConnectButton->Enabled=false;
+ 		   PlaybackSpeedTrackBar->Visible = true;
 		  }
 	}
   }
@@ -2058,6 +2067,7 @@ void __fastcall TForm1::SBSPlaybackButtonClick(TObject *Sender)
    PlayBackSBSStream=NULL;
    SBSPlaybackButton->Caption="SBS Playback";
    SBSConnectButton->Enabled=true;
+   PlaybackSpeedTrackBar->Visible = false;
  }
 
 }
@@ -2671,3 +2681,11 @@ void TForm1::cleanupOldCache() {
     lastCleanupTime = now;
 }
 
+//---------------------------------------------------------------------------
+void __fastcall TForm1::PlaybackSpeedTrackBarChanged(TObject *Sender)
+{
+    int trackBarValue = PlaybackSpeedTrackBar->Position;
+	globalTrackbarValue = trackBarValue;
+    printf("PlaybackSpeedTrackBar Changed - Position: %d\n", trackBarValue);
+}
+//---------------------------------------------------------------------------

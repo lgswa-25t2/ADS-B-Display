@@ -1578,12 +1578,15 @@ void __fastcall TTCPClientRawHandleThread::HandleInput(void)
 {
   modeS_message mm;
   TDecodeStatus Status;
+  __int64 CurrentTime;
+  CurrentTime=GetCurrentTimeInMsec();
 
  // Form1->MsgLog->Lines->Add(StringMsgBuffer);
+ 
   if (Form1->RecordRawStream)
   {
-   __int64 CurrentTime;
-   CurrentTime=GetCurrentTimeInMsec();
+   //__int64 CurrentTime;
+   //CurrentTime=GetCurrentTimeInMsec();
    Form1->RecordRawStream->WriteLine(IntToStr(CurrentTime));
    Form1->RecordRawStream->WriteLine(StringMsgBuffer);
   }
@@ -1639,13 +1642,18 @@ void __fastcall TTCPClientRawHandleThread::HandleInput(void)
 
 	  RawToAircraft(&mm,ADS_B_Aircraft);
   }
-  else  printf("Raw Decode Error:%d\n",Status);
-
-  // HandleInput 내에서 하트비트 감지 시
-  if (Status == MsgHeartBeat) {
+  else if (Status == MsgHeartBeat) {
 	  LastHeartbeatTime = GetCurrentTimeInMsec();
 	  RawTimeoutPopupShown = false;
   }
+  else
+  {
+	 //고객씬은 아닐듯
+	 //ShowMessage("Error while connecting: E%.2d"+Status);
+  }
+  
+  printf("[%lld]PI Raw Decode code:%d\n",CurrentTime, Status);
+
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::RawConnectButtonClick(TObject *Sender)

@@ -241,7 +241,7 @@ __published:	// IDE-managed Components
 	void __fastcall UseSBSLocalClick(TObject *Sender);
 	void __fastcall LoadARTCCBoundaries1Click(TObject *Sender);
 	void __fastcall DisplayAirportCheckBoxClick(TObject *Sender);
-	void __fastcall DrawCircleWithNumber(float, float, float, int);
+	void __fastcall DrawCircleWithNumber(float x, float y, float radius, int number);
 
 private:	// User declarations
 	// 항공기-공항 거리 캐시

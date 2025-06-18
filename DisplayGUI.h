@@ -180,6 +180,7 @@ __published:	// IDE-managed Components
 	TMenuItem *UseSBSRemote;
 	TMenuItem *LoadARTCCBoundaries1;
 	TCheckBox *DisplayAirportCheckBox;
+	TTrackBar *PlaybackSpeedTrackBar;
 	void __fastcall ObjectDisplayInit(TObject *Sender);
 	void __fastcall ObjectDisplayResize(TObject *Sender);
 	void __fastcall ObjectDisplayPaint(TObject *Sender);
@@ -226,8 +227,8 @@ __published:	// IDE-managed Components
 	void __fastcall UseSBSLocalClick(TObject *Sender);
 	void __fastcall LoadARTCCBoundaries1Click(TObject *Sender);
 	void __fastcall DisplayAirportCheckBoxClick(TObject *Sender);
+	void __fastcall PlaybackSpeedTrackBarChanged(TObject *Sender);
 	void __fastcall DrawCircleWithNumber(float, float, float, int);
-
 private:	// User declarations
 
 

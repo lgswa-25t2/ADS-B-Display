@@ -90,6 +90,8 @@ uint32_t PopularColors[] = {
 
 int NumColors = sizeof(PopularColors) / sizeof(PopularColors[0]);
 unsigned int CurrentColor = 0;
+ __int64 LastHeartbeatTime = 0;
+ bool RawTimeoutPopupShown = true;
 
 //---------------------------------------------------------------------------
 typedef struct
@@ -380,6 +382,16 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
      }
      lastCacheCheck = CurrentTime;
  }
+ 
+   // Timer1Timer 내에서 타임아웃 체크
+  __int64 now = GetCurrentTimeInMsec();
+  if (RawConnectButton->Caption=="Raw Disconnect") {
+	if (!RawTimeoutPopupShown && (now - LastHeartbeatTime > 10000)) // 10초 예시
+	{
+		RawTimeoutPopupShown = true;
+		ShowMessage("Raw data heartbeat timeout: No heartbeat received from PI for 10 seconds.");
+	}
+  }
 
  ObjectDisplay->Repaint();
 }
@@ -1611,12 +1623,23 @@ void __fastcall TTCPClientRawHandleThread::HandleInput(void)
 	  RawToAircraft(&mm,ADS_B_Aircraft);
   }
   else  printf("Raw Decode Error:%d\n",Status);
+
+  // HandleInput 내에서 하트비트 감지 시
+  if (Status == MsgHeartBeat) {
+	  LastHeartbeatTime = GetCurrentTimeInMsec();
+	  RawTimeoutPopupShown = false;
+  }
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::RawConnectButtonClick(TObject *Sender)
 {
  IdTCPClientRaw->Host=RawIpAddress->Text;
  IdTCPClientRaw->Port=30002;
+
+ //test code
+ //LastHeartbeatTime = GetCurrentTimeInMsec();
+ //RawTimeoutPopupShown = false;
+ //RawConnectButton->Caption="Raw Disconnect";
 
  if ((RawConnectButton->Caption=="Raw Connect") && (Sender!=NULL))
  {
@@ -1649,6 +1672,8 @@ void __fastcall TForm1::IdTCPClientRawConnected(TObject *Sender)
    IdTCPClientRaw->Socket->Binding->SetKeepAliveValues(true,60*1000,15*1000);
    RawConnectButton->Caption="Raw Disconnect";
    RawPlaybackButton->Enabled=false;
+   RawTimeoutPopupShown = false;
+   LastHeartbeatTime = GetCurrentTimeInMsec();
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::IdTCPClientRawDisconnected(TObject *Sender)

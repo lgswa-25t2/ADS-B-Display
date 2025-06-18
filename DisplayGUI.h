@@ -241,6 +241,7 @@ __published:	// IDE-managed Components
 	void __fastcall UseSBSLocalClick(TObject *Sender);
 	void __fastcall LoadARTCCBoundaries1Click(TObject *Sender);
 	void __fastcall DisplayAirportCheckBoxClick(TObject *Sender);
+	void __fastcall DrawCircleWithNumber(float, float, float, int);
 
 private:	// User declarations
 	// 항공기-공항 거리 캐시
@@ -307,13 +308,16 @@ public:		// User declarations
 	unsigned int               BigQueryFileCount;
     AnsiString                 BigQueryPythonScript;
 	AnsiString                 BigQueryPath;
-    AnsiString                 BigQueryLogFileName;
+	AnsiString                 BigQueryLogFileName;
 	int                        NumSpriteImages;
 	int                        CurrentSpriteImage;
-    AnsiString                 AircraftDBPathFileName;
-    AnsiString                 ARTCCBoundaryDataPathFileName;
+	AnsiString                 AircraftDBPathFileName;
+	AnsiString                 ARTCCBoundaryDataPathFileName;
 	int                        SelectedMapIndex;
-	
+
+    void DrawAirportIcon(double lat, double lon, bool isDeparture);
+	void DrawAirportInfo(double lat, double lon, const char* name, bool isDeparture);
+
 	// Airport management
 	AirportDataManager        *airportManager;
 };

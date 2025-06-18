@@ -15,10 +15,10 @@ HttpClient::~HttpClient() {
 }
 
 bool HttpClient::loadCurlFunctions() {
-    hCurlLib = LoadLibraryA("libcurl.dll");
+	hCurlLib = LoadLibraryA("../../lib/curl/libcurl.dll");
     if (!hCurlLib) {
         lastError = "Failed to load libcurl.dll";
-        return false;
+		return false;
     }
 
     p_curl_easy_init = (curl_easy_init_t)GetProcAddress(hCurlLib, "curl_easy_init");

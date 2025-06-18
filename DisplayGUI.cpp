@@ -65,6 +65,8 @@ TForm1 *Form1;
 static char *stristr(const char *String, const char *Pattern);
 static const char * strnistr(const char * pszSource, DWORD dwLength, const char * pszFind) ;
 
+extern ght_hash_table_t *AircraftDBHashTable;
+
 //---------------------------------------------------------------------------
 uint32_t createRGB(uint8_t r, uint8_t g, uint8_t b)
 {
@@ -498,8 +500,16 @@ void __fastcall TForm1::DrawObjects(void)
   uint32_t *Key;
   ght_iterator_t iterator;
   TADS_B_Aircraft* Data,*DataCPA;
+  TAircraftData *a = NULL;
 
   DWORD i,j,Count;
+  int cell[10][10] = {0, };
+  int cellWidth = ObjectDisplay->Width / 10 - 1;
+  int cellHeight = ObjectDisplay->Height / 10 - 1;
+  int cellSize = std::min(cellWidth, cellHeight) /2;
+  int cellMin = cellSize/5;
+  int cellMax = cellSize;
+  double cellDrawZoomRate = 0.00005;
 
   if (AreaTemp)
   {
@@ -628,6 +638,20 @@ void __fastcall TForm1::DrawObjects(void)
 			ViewableAircraft++;
 
 	   LatLon2XY(Data->Latitude,Data->Longitude, ScrX, ScrY);
+	   
+	   if(ScrX >=0 && ScrX <= ObjectDisplay->Width &&
+        	ScrY >=0 && ScrY <= ObjectDisplay->Height) {
+
+            int y = ScrY/cellHeight;
+            int x = ScrX/cellWidth;
+            if (x>=0 && x<10 && y>=0 && y<10) {
+       			cell[y][x] += 1;
+            }
+        }
+        else {
+            continue;
+        }
+		
 	   //DrawPoint(ScrX,ScrY);
 
 	 if (Data->HaveSpeedAndHeading){
@@ -669,30 +693,32 @@ void __fastcall TForm1::DrawObjects(void)
        glColor4f(1.0, 0.23, 0.19, 1.0);  //ios_red
       }
 
-	   DrawAirplaneImage(ScrX,ScrY,0.8,Data->Heading,Data->SpriteImage);
+       if ( xf < cellDrawZoomRate) {
+		   DrawAirplaneImage(ScrX,ScrY,0.8,Data->Heading,Data->SpriteImage);
 
-       //text color
-	   if (DrawMap->Checked){
-         switch(SelectedMapIndex){
-           case 0: // GoogleMaps
-	         glColor4f(0.92, 0.92, 0.96, 1.0);
-             break;
-           case 1:
-           case 2:
-           case 3:
-             glColor4f(0.0, 0.0, 0.0, 1.0);
-             break;
-           default:
-             glColor4f(0.92, 0.92, 0.96, 1.0);
-         }
+	       //text color
+		   if (DrawMap->Checked){
+	         switch(SelectedMapIndex){
+	           case 0: // GoogleMaps
+		         glColor4f(0.92, 0.92, 0.96, 1.0);
+	             break;
+	           case 1:
+	           case 2:
+	           case 3:
+	             glColor4f(0.0, 0.0, 0.0, 1.0);
+	             break;
+	           default:
+	             glColor4f(0.92, 0.92, 0.96, 1.0);
+	         }
+	       }
+		   else
+		     glColor4f(0.0, 0.0, 0.0, 1.0);
+
+		   glRasterPos2i(ScrX+15,ScrY-10);
+		   ObjectDisplay->Draw2DText(Data->HexAddr);
        }
-	   else
-	     glColor4f(0.0, 0.0, 0.0, 1.0);
 
-	   glRasterPos2i(ScrX+15,ScrY-10);
-	   ObjectDisplay->Draw2DText(Data->HexAddr);
-
-	   if ((Data->HaveSpeedAndHeading) && (TimeToGoCheckBox->State==cbChecked))
+	   if ((Data->HaveSpeedAndHeading) && (TimeToGoCheckBox->State==cbChecked) && xf < cellDrawZoomRate)
 	   {
 		double lat,lon,az;
 		if (VDirect(Data->Latitude,Data->Longitude,
@@ -721,10 +747,12 @@ void __fastcall TForm1::DrawObjects(void)
 		Data= (TADS_B_Aircraft *)ght_get(HashTable, sizeof(TrackHook.ICAO_CC), (void *)&TrackHook.ICAO_CC);
 		if (Data)
 		{
+		a = (TAircraftData *)ght_get(AircraftDBHashTable,sizeof(Data->ICAO),&Data->ICAO);
+
 		ICAOLabel->Caption=Data->HexAddr;
         if (Data->HaveFlightNum)
           FlightNumLabel->Caption=Data->FlightNum;
-        else FlightNumLabel->Caption="N/A";
+		else FlightNumLabel->Caption="N/A";
         if (Data->HaveLatLon)
 		{
 		 CLatLabel->Caption=DMS::DegreesMinutesSecondsLat(Data->Latitude).c_str();
@@ -850,7 +878,99 @@ void __fastcall TForm1::DrawObjects(void)
 	CpaDistanceValue->Caption="None";
    }
  }
+
+ if (a != NULL && a->airport_size > 0) {
+	for (i = 0; i < a->airport_size; i++) {
+		DrawAirportIcon(a->airport_lat[i], a->airport_lon[i], (i == 0) ? true : false);
+		DrawAirportInfo(a->airport_lat[i], a->airport_lon[i], a->airport_name[i].c_str(), (i == 0) ? true : false);
+	}
+
+	// Draw connecting line between airports if we have both departure and arrival
+	if (a->airport_size >= 2) {
+		for (i = 0; i <= a->airport_size - 2; i++) {
+			double ScrX1, ScrY1, ScrX2, ScrY2;
+			LatLon2XY(a->airport_lat[i], a->airport_lon[i], ScrX1, ScrY1);
+			LatLon2XY(a->airport_lat[i+1], a->airport_lon[i+1], ScrX2, ScrY2);
+
+			// Draw red line connecting airports
+			glColor4f(1.0, 0.0, 0.0, 1.0);  // Red color
+			glLineWidth(4.0);  // Make the line thicker
+			glBegin(GL_LINES);
+			glVertex2f(ScrX1, ScrY1);
+			glVertex2f(ScrX2, ScrY2);
+			glEnd();	
+		}
+		
+	}
+ }
+ 
+	// Draw Cells(white bubbles) instead of whole aircrafts for the performance and usability, 
+	// when zoomRate(xf) >= cellDrawZoomRate
+    int s = 0;
+ 	if (xf >= cellDrawZoomRate) {
+        for (j = 0; j < 10; j++) {
+            for (i=0; i < 10; i++) {
+
+                if (cell[j][i] > 0) {
+
+                    s = cell[j][i];
+
+                    if(cell[j][i] < cellMin ) {
+                    	s = cellMin;
+                    } else if (cell[j][i] > cellMax) {
+                        s = cellMax;
+                    }
+
+                    DrawCircleWithNumber(
+                    	(float)(cellWidth*(i+1)-cellWidth/2),
+                        (float)(cellHeight*(j+1)-cellHeight/2),
+                        s,
+                        cell[j][i]
+                    );
+                }
+            }
+        }
+    }
 }
+
+void __fastcall TForm1::DrawCircleWithNumber(float x, float y, float radius, int number)
+{
+    // 원 그리기
+    glBegin(GL_TRIANGLE_FAN);
+    glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
+    glVertex2f(x, y);
+    for(int i = 0; i <= 360; i += 10) {
+        float angle = i * M_PI / 180.0f;
+        glVertex2f(x + radius * cos(angle), y + radius * sin(angle));
+    }
+    glEnd();
+
+    // 원 테두리 그리기
+    /*
+    glBegin(GL_LINE_LOOP);
+    glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+    for(int i = 0; i < 360; i += 10) {
+        float angle = i * M_PI / 180.0f;
+        glVertex2f(x + radius * cos(angle), y + radius * sin(angle));
+    }
+    glEnd();
+    */
+
+    // 숫자 그리기
+    char numStr[10];
+    sprintf(numStr, "%d", number);
+    
+    // 숫자 위치 계산 (중앙 정렬)
+    int textWidth = strlen(numStr) * 8;
+    float textX = x - textWidth / 2.0f - textWidth / 2.0f;
+    float textY = y - 10.0f;
+
+    // 숫자 그리기
+    glColor4f(0.1f, 0.1f, 0.1f, 1.0f);
+    glRasterPos2i(textX,textY);
+	ObjectDisplay->Draw2DText(numStr);
+}
+
 //---------------------------------------------------------------------------
 void __fastcall TForm1::ObjectDisplayMouseDown(TObject *Sender,
 	  TMouseButton Button, TShiftState Shift, int X, int Y)
@@ -1085,8 +1205,13 @@ void __fastcall TForm1::Exit1Click(TObject *Sender)
 
 		 printf("info: %s\n", info);
 		 if(ADS_B_Aircraft->HaveFlightNum) {
-			const char* additionalInfo = GetAircraftAPIInfo(ADS_B_Aircraft->ICAO, ADS_B_Aircraft->FlightNum);
+			bool isExist = false;
+			const char* additionalInfo = GetAircraftAPIInfo(ADS_B_Aircraft->ICAO, ADS_B_Aircraft->FlightNum, &isExist);
 			printf("additionalInfo: %s\n", additionalInfo);
+
+			if (isExist) {
+                 ObjectDisplay->Repaint();
+			}
 		 }
 		}
 		else
@@ -2420,6 +2545,47 @@ void __fastcall TForm1::DisplayAirportCheckBoxClick(TObject *Sender)
 
 }
 //---------------------------------------------------------------------------
+
+void __fastcall TForm1::DrawAirportIcon(double lat, double lon, bool isDeparture)
+{
+    double ScrX, ScrY;
+    LatLon2XY(lat, lon, ScrX, ScrY);
+
+    // Set color based on departure/arrival
+    if (isDeparture) {
+        glColor4f(0.0, 1.0, 0.0, 1.0);  // Green for departure
+    } else {
+        glColor4f(1.0, 0.0, 0.0, 1.0);  // Red for arrival
+    }
+
+    // Draw airport icon (simple cross)
+    glLineWidth(2.0);
+    glBegin(GL_LINES);
+    glVertex2f(ScrX - 10, ScrY);
+    glVertex2f(ScrX + 10, ScrY);
+    glVertex2f(ScrX, ScrY - 10);
+    glVertex2f(ScrX, ScrY + 10);
+    glEnd();
+
+    // Draw circle around the cross
+    glBegin(GL_LINE_LOOP);
+    for (int i = 0; i < 360; i += 10) {
+		double angle = i * M_PI / 180.0;
+        glVertex2f(ScrX + 15 * cos(angle), ScrY + 15 * sin(angle));
+    }
+    glEnd();
+}
+
+void __fastcall TForm1::DrawAirportInfo(double lat, double lon, const char* name, bool isDeparture)
+{
+    double ScrX, ScrY;
+    LatLon2XY(lat, lon, ScrX, ScrY);
+
+    // Draw airport name
+    glColor4f(1.0, 0.0, 0.0, 1.0);  // Red color (R=1.0, G=0.0, B=0.0, A=1.0)
+    glRasterPos2i(ScrX + 20, ScrY + 20);
+    ObjectDisplay->Draw2DText(name);
+}
 
 // 캐시된 거리 계산 함수 구현
 double TForm1::getCachedDistance(uint32_t aircraftICAO, const std::string& airportICAO,

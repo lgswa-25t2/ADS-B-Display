@@ -391,6 +391,13 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
 	if (!RawTimeoutPopupShown && (now - LastHeartbeatTime > 10000)) // 10초 예시
 	{
 		RawTimeoutPopupShown = true;
+		if (Form1->IdTCPClientRaw->Connected()) {
+			TCPClientRawHandleThread->Terminate();
+			IdTCPClientRaw->Disconnect();
+			IdTCPClientRaw->IOHandler->InputBuffer->Clear();
+		}
+		RawConnectButton->Caption="Raw Connect";
+		RawPlaybackButton->Enabled=true;
 		ShowMessage("Raw data heartbeat timeout: No heartbeat received from PI for 10 seconds.");
 	}
   }

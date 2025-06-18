@@ -62,16 +62,16 @@ typedef struct
  bool        Selected;
 }TArea;
 
-// ê±°ë¦¬ ê³„ì‚° ê²°ê³¼ë¥¼ ì €ì¥í•  êµ¬ì¡°ì²´
+// °Å¸® °è»ê °á°ú¸¦ ÀúÀåÇÒ ±¸Á¶Ã¼
 struct DistanceCache {
     double distance;
     std::chrono::system_clock::time_point timestamp;
 };
 
-// ìºì‹œ ë§Œë£Œ ì‹œê°„ (ë°€ë¦¬ì´ˆ)
-const int CACHE_EXPIRY_MS = 3000; // 3ì´ˆ
-const int CACHE_CLEANUP_INTERVAL_MS = 5000; // 5ì´ˆë§ˆë‹¤ ìºì‹œ ì •ë¦¬
-const int CACHE_MAX_AGE_MS = 30000; // 30ì´ˆ ì´ìƒ ëœ ìºì‹œ ì œê±°
+// Ä³½Ã ¸¸·á ½Ã°£ (¹Ğ¸®ÃÊ)
+const int CACHE_EXPIRY_MS = 3000; // 3ÃÊ
+const int CACHE_CLEANUP_INTERVAL_MS = 5000; // 5ÃÊ¸¶´Ù Ä³½Ã Á¤¸®
+const int CACHE_MAX_AGE_MS = 30000; // 30ÃÊ ÀÌ»ó µÈ Ä³½Ã Á¦°Å
 
 //---------------------------------------------------------------------------
 class  TTCPClientRawHandleThread : public TThread
@@ -246,18 +246,18 @@ __published:	// IDE-managed Components
 	void __fastcall DrawCircleWithNumber(float x, float y, float radius, int number);
 
 private:	// User declarations
-	// í•­ê³µê¸°-ê³µí•­ ê±°ë¦¬ ìºì‹œ
+	// Ç×°ø±â-°øÇ× °Å¸® Ä³½Ã
 	std::map<std::pair<uint32_t, std::string>, DistanceCache> distanceCache;
 	
-	// ìºì‹œëœ ê±°ë¦¬ ê³„ì‚° í•¨ìˆ˜
+	// Ä³½ÃµÈ °Å¸® °è»ê ÇÔ¼ö
 	double getCachedDistance(uint32_t aircraftICAO, const std::string& airportICAO, 
 						   double aircraftLat, double aircraftLon,
 						   double airportLat, double airportLon);
 
-	// ìºì‹œ ì •ë¦¬ í•¨ìˆ˜
+	// Ä³½Ã Á¤¸® ÇÔ¼ö
 	void cleanupOldCache();
 	
-	// ë§ˆì§€ë§‰ ìºì‹œ ì •ë¦¬ ì‹œê°„
+	// ¸¶Áö¸· Ä³½Ã Á¤¸® ½Ã°£
 	std::chrono::system_clock::time_point lastCleanupTime;
 
 public:		// User declarations

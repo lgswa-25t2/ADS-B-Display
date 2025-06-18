@@ -825,6 +825,15 @@ object Form1: TForm1
     OnInit = ObjectDisplayInit
     OnResize = ObjectDisplayResize
     OnPaint = ObjectDisplayPaint
+    object PlaybackSpeedTrackBar: TTrackBar
+      Left = 542
+      Top = 0
+      Width = 454
+      Height = 48
+      TabOrder = 0
+      Visible = False
+      OnChange = PlaybackSpeedTrackBarChanged
+    end
   end
   object MainMenu1: TMainMenu
     Left = 24

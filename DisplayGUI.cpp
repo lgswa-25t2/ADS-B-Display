@@ -993,42 +993,51 @@ void __fastcall TForm1::DrawCircleWithNumber(float x, float y, float radius, int
 }
 
 //---------------------------------------------------------------------------
-void __fastcall TForm1::ObjectDisplayMouseDown(TObject *Sender,
-	  TMouseButton Button, TShiftState Shift, int X, int Y)
+void __fastcall TForm1::ObjectDisplayMouseDown(TObject *Sender, TMouseButton Button, TShiftState Shift, int X, int Y)
 {
-
- if (Button==mbLeft)
-   {
-	if (Shift.Contains(ssCtrl))
+	if (Button==mbLeft)
 	{
+		if (Shift.Contains(ssCtrl))
+		{
 
+		}
+		else
+		{
+			g_MouseLeftDownX = X;
+			g_MouseLeftDownY = Y;
+			g_MouseDownMask |= LEFT_MOUSE_DOWN ;
+			g_EarthView->StartDrag(X, Y, NAV_DRAG_PAN);
+		}
 	}
-	else
+	else if (Button==mbRight)
 	{
-	 g_MouseLeftDownX = X;
-	 g_MouseLeftDownY = Y;
-	 g_MouseDownMask |= LEFT_MOUSE_DOWN ;
-	 g_EarthView->StartDrag(X, Y, NAV_DRAG_PAN);
+		if (AreaTemp)
+		{
+			if (AreaTemp->NumPoints<MAX_AREA_POINTS)
+			{
+				AddPoint(X, Y);
+			}
+			else
+			{
+				ShowMessage("Max Area Points Reached");
+			}
+		}
+		else
+		{
+			if (Shift.Contains(ssCtrl))
+			{
+				HookTrack(X,Y,true);
+			}
+			else
+			{
+				HookTrack(X,Y,false);
+			}
+		}
 	}
-  }
- else if (Button==mbRight)
-  {
-  if (AreaTemp)
-   {
-	if (AreaTemp->NumPoints<MAX_AREA_POINTS)
+ 	else if (Button==mbMiddle)
 	{
-	  AddPoint(X, Y);
+		ResetXYOffset();
 	}
-	else ShowMessage("Max Area Points Reached");
-   }
-  else
-   {
-   if (Shift.Contains(ssCtrl))   HookTrack(X,Y,true);
-   else  HookTrack(X,Y,false);
-   }
-  }
-
- else if (Button==mbMiddle)  ResetXYOffset();
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::UpdateAircraftHistory(TADS_B_Aircraft *aircraft)

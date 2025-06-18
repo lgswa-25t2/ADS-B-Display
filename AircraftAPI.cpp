@@ -22,13 +22,13 @@ bool HttpClientInit() {
       printf("Failed to initialize HTTP client: %s\n", http.getLastError().c_str());
       return false;
     }
-    http_initialized = true;
+	http_initialized = true;
   }
 
   return http_initialized;
 }
   
-const char * GetAircraftAPIInfo(uint32_t addr, char *flightNum) {
+const char * GetAircraftAPIInfo(uint32_t addr, char *flightNum, bool* isExist) {
   static char          buf [2048];
   TAircraftData *a;
   a =(TAircraftData *) ght_get(AircraftDBHashTable,sizeof(addr),&addr);
@@ -83,13 +83,17 @@ const char * GetAircraftAPIInfo(uint32_t addr, char *flightNum) {
 			snprintf (buf + strlen(buf), sizeof(buf) - strlen(buf), "Airport Name: %s, Airport ICAO: %s, Airport IATA: %s, Airport Location: %s, Airport Country ISO2: %s, Airport Lat: %lf, Airport Lon: %lf, Airport Alt Feet: %lf, Airport Alt Meters: %lf\n",
 				a->airport_name[i].c_str(), a->airport_icao[i].c_str(), a->airport_iata[i].c_str(), a->airport_location[i].c_str(), a->airport_countryiso2[i].c_str(), a->airport_lat[i], a->airport_lon[i], a->airport_alt_feet[i], a->airport_alt_meters[i]);
 		}
+
+		*isExist = true;
 	}
 	else {
 		snprintf (buf,sizeof(buf), "There is no route data for this flight\n");
+		*isExist = false;
 	}
   }
   else {
 		snprintf (buf,sizeof(buf), "There is no route data for this flight\n");
+		*isExist = false;
   }
 
 

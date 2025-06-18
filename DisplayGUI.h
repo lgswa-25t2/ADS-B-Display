@@ -280,13 +280,16 @@ public:		// User declarations
 	unsigned int               BigQueryFileCount;
     AnsiString                 BigQueryPythonScript;
 	AnsiString                 BigQueryPath;
-    AnsiString                 BigQueryLogFileName;
+	AnsiString                 BigQueryLogFileName;
 	int                        NumSpriteImages;
 	int                        CurrentSpriteImage;
-    AnsiString                 AircraftDBPathFileName;
-    AnsiString                 ARTCCBoundaryDataPathFileName;
+	AnsiString                 AircraftDBPathFileName;
+	AnsiString                 ARTCCBoundaryDataPathFileName;
 	int                        SelectedMapIndex;
-	
+
+    void DrawAirportIcon(double lat, double lon, bool isDeparture);
+	void DrawAirportInfo(double lat, double lon, const char* name, bool isDeparture);
+
 	// Airport management
 	AirportDataManager        *airportManager;
 };

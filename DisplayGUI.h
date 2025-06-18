@@ -25,6 +25,9 @@
 #include <IdTCPConnection.hpp>
 #include "cspin.h"
 #include "Aircraft.h"
+#include <map>
+#include <unordered_map>
+#include <chrono>
 // Forward declarations
 class AirportDataManager;
 
@@ -58,6 +61,18 @@ typedef struct
  TTriangles *Triangles;
  bool        Selected;
 }TArea;
+
+// 거리 계산 결과를 저장할 구조체
+struct DistanceCache {
+    double distance;
+    std::chrono::system_clock::time_point timestamp;
+};
+
+// 캐시 만료 시간 (밀리초)
+const int CACHE_EXPIRY_MS = 3000; // 3초
+const int CACHE_CLEANUP_INTERVAL_MS = 5000; // 5초마다 캐시 정리
+const int CACHE_MAX_AGE_MS = 30000; // 30초 이상 된 캐시 제거
+
 //---------------------------------------------------------------------------
 class  TTCPClientRawHandleThread : public TThread
 {
@@ -228,7 +243,19 @@ __published:	// IDE-managed Components
 	void __fastcall DisplayAirportCheckBoxClick(TObject *Sender);
 
 private:	// User declarations
+	// 항공기-공항 거리 캐시
+	std::map<std::pair<uint32_t, std::string>, DistanceCache> distanceCache;
+	
+	// 캐시된 거리 계산 함수
+	double getCachedDistance(uint32_t aircraftICAO, const std::string& airportICAO, 
+						   double aircraftLat, double aircraftLon,
+						   double airportLat, double airportLon);
 
+	// 캐시 정리 함수
+	void cleanupOldCache();
+	
+	// 마지막 캐시 정리 시간
+	std::chrono::system_clock::time_point lastCleanupTime;
 
 public:		// User declarations
 	__fastcall TForm1(TComponent* Owner);

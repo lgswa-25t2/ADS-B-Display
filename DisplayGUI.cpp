@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 
 #include <vcl.h>
 #include <new>
@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <filesystem>
 #include <fileapi.h>
+#include <chrono>
 
 #pragma hdrstop
 
@@ -42,7 +43,6 @@
 #define   LEFT_MOUSE_DOWN   1
 #define   RIGHT_MOUSE_DOWN  2
 #define   MIDDLE_MOUSE_DOWN 4
-
 
 #define BG_INTENSITY   0.37
 //---------------------------------------------------------------------------
@@ -266,6 +266,8 @@ __fastcall TForm1::TForm1(TComponent* Owner)
      printf("No airport data found in hash table\n");
  }
  //printf("=== End Airport Data Loading Debug ===\n");
+
+  lastCleanupTime = std::chrono::system_clock::now();
 }
 //---------------------------------------------------------------------------
 __fastcall TForm1::~TForm1()
@@ -382,8 +384,11 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::DrawObjects(void)
 {
-  double ScrX, ScrY;
-  int    ViewableAircraft=0;
+    // 캐시 정리 실행
+    cleanupOldCache();
+    
+    double ScrX, ScrY;
+    int    ViewableAircraft=0;
 
   glEnable( GL_LINE_SMOOTH );
   glEnable( GL_POINT_SMOOTH );
@@ -419,7 +424,7 @@ void __fastcall TForm1::DrawObjects(void)
       */
       // current zoon level (not used at the moment)
       int zoomLevel = (int)(log(g_EarthView->m_Eye.h) / log(1.3));
-      printf("Current zoom level: %d (Eye.h = %.6f)\n", zoomLevel, g_EarthView->m_Eye.h);
+      //printf("Current zoom level: %d (Eye.h = %.6f)\n", zoomLevel, g_EarthView->m_Eye.h);
       
       // for test: Conversion using known coordinates.
 	    /*
@@ -576,38 +581,86 @@ void __fastcall TForm1::DrawObjects(void)
 	{
 	  if (Data->HaveLatLon)
 	  {
+		  double aircraftX, aircraftY;
+		  // calculate distance between aircraft and airport
+		  bool isNearAirport = false;
+		  if (airportManager) {
+			double minDistance = 999999.0;
+
+			// calculate current screen
+			int screenWidth = ObjectDisplay->Width;
+			int screenHeight = ObjectDisplay->Height;
+
+			// Convert screen corner coordinates to latitude and longitude
+			LatLon2XY(Data->Latitude, Data->Longitude, aircraftX, aircraftY);
+
+			// 화면 밖의 항공기는 계산하지 않음
+			if (!(0 <= aircraftX && aircraftX < screenWidth && 0 <= aircraftY && aircraftY < screenHeight))
+			{
+				continue;
+			}
+
+			auto visibleAirports = airportManager->getVisibleAirports(
+				0, 0, 0, 0, 0);
+
+			double airportX, airportY;
+			for (const auto& airport : visibleAirports) {
+			  LatLon2XY(airport.latitude, airport.longitude, airportX, airportY);
+			  // 화면 밖의 공항은 계산하지 않음
+			  if (!(0 <= airportX && airportX < screenWidth && 0 <= airportY && airportY < screenHeight))
+			  {
+				continue;
+			  }
+
+			  // 캐시된 거리 계산 사용
+			  double distance = getCachedDistance(Data->ICAO, airport.icao,
+											   Data->Latitude, Data->Longitude,
+											   airport.latitude, airport.longitude);
+					
+			  if (distance < minDistance) {
+				minDistance = distance;
+			  }
+			}
+			isNearAirport = (minDistance <= 5.0); // 5 nautical miles
+		  }
+
 			UpdateAircraftHistory(Data);
 			ViewableAircraft++;
 
 	   LatLon2XY(Data->Latitude,Data->Longitude, ScrX, ScrY);
 	   //DrawPoint(ScrX,ScrY);
 
-     if (Data->HaveSpeedAndHeading){
-       if (DrawMap->Checked){
-          switch(SelectedMapIndex){
-            case 0: // GoogleMaps
-              glColor4f(1.0, 0.0, 1.0, 1.0); //magenta
-              break;
-            case 1: // SkyVector_VFR
-              glColor4f(1.0, 0.0, 1.0, 1.0); //magenta
-              break;
-            case 2: // SkyVector_IFR_Low
-             //glColor4f(0.0, 0.48, 1.0, 1.0);  //blue
-              glColor4f(1.0, 0.5, 0.0, 1.0);   //orange
-              break;
-            case 3: // SkyVector_IFR_High
-             //glColor4f(0.0, 0.48, 1.0, 1.0);  //blue
-              glColor4f(1.0, 0.5, 0.0, 1.0);   //orange
-              break;
-//            case 4: // OpenStreetMap
-//              glColor4f(1.0, 0.5, 0.0, 1.0);   //orange
-//              break;
-            default:
-              glColor4f(1.0, 0.0, 1.0, 1.0); //magenta
-        	}
+	 if (Data->HaveSpeedAndHeading){
+	   if (DrawMap->Checked){
+
+		  if (airportManager && isNearAirport) {
+            glColor4f(1.0, 1.0, 0.0, 1.0); // yellow
+          } else {
+
+            switch(SelectedMapIndex){
+              case 0: // GoogleMaps
+                glColor4f(1.0, 0.0, 1.0, 1.0); //magenta
+                break;
+              case 1: // SkyVector_VFR
+                glColor4f(1.0, 0.0, 1.0, 1.0); //magenta
+                break;
+              case 2: // SkyVector_IFR_Low
+                glColor4f(1.0, 0.5, 0.0, 1.0);   //orange
+                break;
+              case 3: // SkyVector_IFR_High
+                glColor4f(1.0, 0.5, 0.0, 1.0);   //orange
+                break;
+              default:
+                glColor4f(1.0, 0.0, 1.0, 1.0); //magenta
+			}
+          }
        	}
        	else{
-          glColor4f(0.0, 0.48, 1.0, 1.0);  //ios_blue
+          if (airportManager && isNearAirport) {
+            glColor4f(1.0, 1.0, 0.0, 1.0); // yellow
+          } else {
+			glColor4f(0.0, 0.48, 1.0, 1.0);  //ios_blue
+		  }
        	}
       }
       else
@@ -2367,4 +2420,63 @@ void __fastcall TForm1::DisplayAirportCheckBoxClick(TObject *Sender)
 
 }
 //---------------------------------------------------------------------------
+
+// 캐시된 거리 계산 함수 구현
+double TForm1::getCachedDistance(uint32_t aircraftICAO, const std::string& airportICAO,
+                               double aircraftLat, double aircraftLon,
+                               double airportLat, double airportLon) {
+    auto now = std::chrono::system_clock::now();
+    auto key = std::make_pair(aircraftICAO, airportICAO);
+    
+    // 캐시에서 거리 찾기
+    auto it = distanceCache.find(key);
+    if (it != distanceCache.end()) {
+        // 캐시가 만료되지 않았는지 확인
+        auto age = std::chrono::duration_cast<std::chrono::milliseconds>(
+            now - it->second.timestamp).count();
+        if (age < CACHE_EXPIRY_MS) {
+            return it->second.distance;
+        }
+    }
+    
+    // 캐시에 없거나 만료된 경우 새로 계산
+    double dlat = aircraftLat - airportLat;
+    double dlon = aircraftLon - airportLon;
+    double latDist = dlat * 60.0;
+    double lonDist = dlon * 60.0 * cos(aircraftLat * M_PI/180.0);
+    double distance = sqrt(latDist * latDist + lonDist * lonDist);
+    
+    // 결과를 캐시에 저장
+    DistanceCache cache;
+    cache.distance = distance;
+    cache.timestamp = now;
+    distanceCache[key] = cache;
+    
+    return distance;
+}
+
+// 캐시 정리 함수 구현
+void TForm1::cleanupOldCache() {
+    auto now = std::chrono::system_clock::now();
+    
+    // 마지막 정리 이후 일정 시간이 지났는지 확인
+    auto timeSinceLastCleanup = std::chrono::duration_cast<std::chrono::milliseconds>(
+        now - lastCleanupTime).count();
+    if (timeSinceLastCleanup < CACHE_CLEANUP_INTERVAL_MS) {
+        return;
+    }
+    
+    // 오래된 캐시 항목 제거
+    for (auto it = distanceCache.begin(); it != distanceCache.end();) {
+        auto age = std::chrono::duration_cast<std::chrono::milliseconds>(
+            now - it->second.timestamp).count();
+        if (age > CACHE_MAX_AGE_MS) {
+            it = distanceCache.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    
+    lastCleanupTime = now;
+}
 

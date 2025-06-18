@@ -12,6 +12,7 @@ const char *aircraft_get_country (uint32_t addr, bool get_short);
 bool aircraft_is_helicopter (uint32_t addr, const char **type_ptr);
 const char *aircraft_get_military (uint32_t addr);
 bool aircraft_is_military (uint32_t addr, const char **country);
+bool IsAircraftMilitary(uint32_t icao_addr);
 
 ght_hash_table_t *AircraftDBHashTable=NULL;
 //---------------------------------------------------------------------------
@@ -448,6 +449,30 @@ bool aircraft_is_military (uint32_t addr, const char **country)
       }
   return (false);
 }
+
+bool IsAircraftMilitary(uint32_t icao_addr)
+{
+    // 1. original routine that check ICAO address
+    if (aircraft_is_military(icao_addr, NULL)) {
+        return true;
+    }
+
+    // 2. check operator field
+    const TAircraftData *a = (TAircraftData *)ght_get(AircraftDBHashTable, sizeof(icao_addr), &icao_addr);
+    if (a) {
+        const char* operator_name = a->Fields[AC_DB_Operator].c_str();
+        const char* owner = a->Fields[AC_DB_Owner].c_str();
+
+        // if military keyword is included
+        if (stristr(operator_name, "Air Force") ||
+            stristr(operator_name, "Military") ||
+            stristr(owner, "Military")) {
+            return true;
+        }
+    }
+
+    return false;
+}
 //---------------------------------------------------------------------------
 /**
  * The types of a helicopter (incomplete).
@@ -503,3 +528,39 @@ const char *aircraft_get_military (uint32_t addr)
   return (buf);
 }
 //---------------------------------------------------------------------------
+static char *stristr(const char *String, const char *Pattern)
+{
+  char *pptr, *sptr, *start;
+  size_t  slen, plen;
+
+  for (start = (char *)String,pptr  = (char *)Pattern,slen  = strlen(String),plen  = strlen(Pattern);
+       slen >= plen;start++, slen--)
+      {
+            /* find start of pattern in string */
+            while (toupper(*start) != toupper(*Pattern))
+            {
+                  start++;
+                  slen--;
+
+                  /* if pattern longer than string */
+
+                  if (slen < plen)
+                        return(NULL);
+            }
+
+            sptr = start;
+            pptr = (char *)Pattern;
+
+            while (toupper(*sptr) == toupper(*pptr))
+            {
+                  sptr++;
+                  pptr++;
+
+                  /* if end of pattern then pattern was found */
+
+                  if ('\0' == *pptr)
+                        return (start);
+            }
+      }
+   return(NULL);
+}

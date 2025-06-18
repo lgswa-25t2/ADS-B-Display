@@ -90,8 +90,10 @@ uint32_t PopularColors[] = {
 
 int NumColors = sizeof(PopularColors) / sizeof(PopularColors[0]);
 unsigned int CurrentColor = 0;
- __int64 LastHeartbeatTime = 0;
- bool RawTimeoutPopupShown = true;
+__int64 LastHeartbeatTime = 0;
+bool RawTimeoutPopupShown = true;
+__int64 LastSBSDataReceiveTime = 0;
+bool SBSTimeoutPopupShown = true;
 
 //---------------------------------------------------------------------------
 typedef struct
@@ -385,10 +387,10 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
      lastCacheCheck = CurrentTime;
  }
  
-   // Timer1Timer 내에서 타임아웃 체크
+   // RawData 타임아웃 체크
   __int64 now = GetCurrentTimeInMsec();
   if (RawConnectButton->Caption=="Raw Disconnect") {
-	if (!RawTimeoutPopupShown && (now - LastHeartbeatTime > 10000)) // 10초 예시
+	if (!RawTimeoutPopupShown && (now - LastHeartbeatTime > 10000)) // 10초
 	{
 		RawTimeoutPopupShown = true;
 		if (Form1->IdTCPClientRaw->Connected()) {
@@ -399,6 +401,22 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
 		RawConnectButton->Caption="Raw Connect";
 		RawPlaybackButton->Enabled=true;
 		ShowMessage("Raw data heartbeat timeout: No heartbeat received from PI for 10 seconds.");
+	}
+  }
+
+	 // SBSData 내에서 타임아웃 체크
+  if (SBSConnectButton->Caption=="SBS Disconnect") {
+	if (!SBSTimeoutPopupShown && (now - LastSBSDataReceiveTime > 10000)) // 10초
+	{
+		SBSTimeoutPopupShown = true;
+		if (Form1->IdTCPClientSBS->Connected()) {
+			TCPClientSBSHandleThread->Terminate();
+			IdTCPClientSBS->Disconnect();
+			IdTCPClientSBS->IOHandler->InputBuffer->Clear();
+		}
+		SBSConnectButton->Caption="SBS Connect";
+		SBSPlaybackButton->Enabled=true;
+		ShowMessage("SBS Hub connection timeout: No data received from SBS Hub for 10 seconds.");
 	}
   }
 
@@ -1695,6 +1713,7 @@ void __fastcall TForm1::IdTCPClientRawConnected(TObject *Sender)
 void __fastcall TForm1::IdTCPClientRawDisconnected(TObject *Sender)
 {
   TCPClientRawHandleThread->Terminate();
+  RawTimeoutPopupShown = true;
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::RawRecordButtonClick(TObject *Sender)
@@ -1863,6 +1882,11 @@ void __fastcall TForm1::SBSConnectButtonClick(TObject *Sender)
  IdTCPClientSBS->Host=SBSIpAddress->Text;
  IdTCPClientSBS->Port=5002;
 
+ // test code
+//  SBSTimeoutPopupShown = false;
+//  LastSBSDataReceiveTime = GetCurrentTimeInMsec();
+//  SBSConnectButton->Caption="SBS Disconnect";
+
  if ((SBSConnectButton->Caption=="SBS Connect") && (Sender!=NULL))
  {
   try
@@ -1916,6 +1940,13 @@ void __fastcall TTCPClientSBSHandleThread::HandleInput(void)
 	 Form1->CreateBigQueryCSV();
 	}
   }
+
+	// SBS 메시지 처리 시 타임아웃 감지
+  if (StringMsgBuffer.Length() > 0) {
+	  LastSBSDataReceiveTime = GetCurrentTimeInMsec();
+	  SBSTimeoutPopupShown = false;
+  }
+  
   SBS_Message_Decode( StringMsgBuffer.c_str());
 
 }
@@ -2094,11 +2125,14 @@ void __fastcall TForm1::IdTCPClientSBSConnected(TObject *Sender)
    IdTCPClientSBS->Socket->Binding->SetKeepAliveValues(true,60*1000,15*1000);
    SBSConnectButton->Caption="SBS Disconnect";
    SBSPlaybackButton->Enabled=false;
+   SBSTimeoutPopupShown = false;
+   LastSBSDataReceiveTime = GetCurrentTimeInMsec();
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::IdTCPClientSBSDisconnected(TObject *Sender)
 {
   TCPClientSBSHandleThread->Terminate();
+  SBSTimeoutPopupShown = true;
 }
 //---------------------------------------------------------------------------
 

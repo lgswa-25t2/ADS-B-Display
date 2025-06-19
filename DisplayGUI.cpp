@@ -402,7 +402,8 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
 		}
 		RawConnectButton->Caption="Raw Connect";
 		RawPlaybackButton->Enabled=true;
-		ShowMessage("Raw data heartbeat timeout: No heartbeat received from PI for 10 seconds.");
+		//ShowMessage("Raw data heartbeat timeout: No heartbeat received from PI for 10 seconds.");
+		ShowMessage("SBS Hub connection timeout: No data received from PI for 10 seconds.");
 	}
   }
 
@@ -1689,6 +1690,8 @@ void __fastcall TTCPClientRawHandleThread::HandleInput(void)
 		}
 
 	  RawToAircraft(&mm,ADS_B_Aircraft);
+	  LastHeartbeatTime = GetCurrentTimeInMsec();
+	  RawTimeoutPopupShown = false;
   }
   else if (Status == MsgHeartBeat) {
 	  LastHeartbeatTime = GetCurrentTimeInMsec();
@@ -1920,6 +1923,11 @@ void __fastcall TForm1::SBSConnectButtonClick(TObject *Sender)
 {
  IdTCPClientSBS->Host=SBSIpAddress->Text;
  IdTCPClientSBS->Port=5002;
+
+ // test code
+//  SBSTimeoutPopupShown = false;
+//  LastSBSDataReceiveTime = GetCurrentTimeInMsec();
+//  SBSConnectButton->Caption="SBS Disconnect";
 
  if ((SBSConnectButton->Caption=="SBS Connect") && (Sender!=NULL))
  {

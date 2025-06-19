@@ -814,27 +814,39 @@ void __fastcall TForm1::DrawObjects(void)
         LatLon2XY(Data->Latitude,Data->Longitude, ScrX, ScrY);
         DrawTrackHook(ScrX, ScrY);
 
-		// Display Track history
+		// Display Tracking history
 		if (Data && Data->HistoryCount > 0 && Data->HistoryIndex >= 0 && Data->HistoryIndex < FLIGHT_TRACK_HISTORY_COUNT)
 		{
+			//printf("[Data] %s HistoryCount=%d HistoryIndex=%d\n", Data->HexAddr, Data->HistoryCount, Data->HistoryIndex);
 			glBegin(GL_LINE_STRIP);
 			for (int i = 0; i < Data->HistoryCount && i < FLIGHT_TRACK_HISTORY_COUNT; i++)
 			{
 				int idx = (Data->HistoryIndex - i - 1 + FLIGHT_TRACK_HISTORY_COUNT) % FLIGHT_TRACK_HISTORY_COUNT;
-				if (idx < 0 || idx >= FLIGHT_TRACK_HISTORY_COUNT) continue;
+				
+				// Error Handling
+				if (idx < 0 || idx >= FLIGHT_TRACK_HISTORY_COUNT) {
+					continue;
+				}
+
+				// Error Handling - -90 < LAT < 90, -180 < LON < 180
+				if (fabs(Data->PrevLatitude[idx]) > 90.0 || fabs(Data->PrevLongitude[idx]) > 180.0) {
+					//printf("[NG] Invalid history: %s idx=%d lat=%.6f lon=%.6f\n",	Data->HexAddr, idx, Data->PrevLatitude[idx], Data->PrevLongitude[idx]);
+					continue;
+				}
+
+				// Error Handling - 0.000000
+				if (fabs(Data->PrevLatitude[idx]) < 0.01 || fabs(Data->PrevLongitude[idx]) < 0.01){
+					//printf("[NG] Invalid history: 0.000000 %s idx=%d %f %f\n", Data->HexAddr, idx, Data->PrevLatitude[idx], Data->PrevLongitude[idx]);
+					continue;
+				}
 
 				glColor4f(1.0, 1.0, 1.0, 0.7);
 				glLineWidth(3.0);
-
 				double historyScrX, historyScrY;
+				LatLon2XY(Data->PrevLatitude[idx], Data->PrevLongitude[idx], historyScrX, historyScrY);
+				glVertex2f(historyScrX, historyScrY);
 
-				if (fabs(Data->PrevLatitude[idx]) < 0.01 && fabs(Data->PrevLongitude[idx]) < 0.01){
-					//printf("Detected 0.000000 %s %f %f\n", Data->HexAddr, Data->PrevLatitude[idx], Data->PrevLongitude[idx]);
-				}else{
-					LatLon2XY(Data->PrevLatitude[idx], Data->PrevLongitude[idx],
-							historyScrX, historyScrY);
-					glVertex2f(historyScrX, historyScrY);
-				}
+				//printf("[OK] Valid Aircraft History %s idx=%d %f %f\n", Data->HexAddr, idx, Data->PrevLatitude[idx], Data->PrevLongitude[idx]);
 			}
 			glEnd();
 		}
@@ -1257,7 +1269,6 @@ void __fastcall TForm1::Exit1Click(TObject *Sender)
 		 TrackHook.Valid_CPA=true;
 		 TrackHook.ICAO_CPA=ADS_B_Aircraft->ICAO;
         }
-;
 	  }
 
 	}

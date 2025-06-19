@@ -240,6 +240,16 @@ __fastcall TForm1::TForm1(TComponent* Owner)
  Panel4->VertScrollBar->Position = 0;
  Panel4->HorzScrollBar->Position= 0;
 
+ this->ShowHint = true;
+	// PanelTitle1에 tooltip 설정
+ PanelTitle1->ShowHint = true;
+ PanelTitle1->Hint = "Click to hide Control Menu";
+ PanelTitle1->Cursor = crHandPoint;
+
+ // Hint 표시 시간 조정 (선택사항)
+ Application->HintPause = 500;    // 0.5초 후 표시
+ Application->HintHidePause = 5000; // 5초 후 숨김
+
  LoadMap(MapComboBox->ItemIndex);
 
  g_EarthView->m_Eye.h /= pow(1.3,18);//pow(1.3,43);
@@ -290,7 +300,6 @@ __fastcall TForm1::TForm1(TComponent* Owner)
   lastCleanupTime = std::chrono::system_clock::now();
  // Initial Trackbar Value
  PlaybackSpeedTrackBar->Visible = false;
- 
 
 }
 //---------------------------------------------------------------------------
@@ -3106,6 +3115,7 @@ void __fastcall TForm1::TogglePanels()
 
         PanelTitle1->Caption = "Control Menu ▼";
         PanelTitle1->Color = clSkyBlue;
+        PanelTitle1->Hint = "Click to hide Control Menu";
     } else {
         // 축소 모드
         Panel7->Align = alClient;
@@ -3119,6 +3129,7 @@ void __fastcall TForm1::TogglePanels()
 
         PanelTitle1->Caption = "Control Menu ▶ (Click to expand)";
         PanelTitle1->Color = clLtGray;
+        PanelTitle1->Hint = "Click to show Control Menu";
     }
 
     // 레이아웃 업데이트

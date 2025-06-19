@@ -154,7 +154,7 @@ __published:	// IDE-managed Components
 	TButton *RawConnectButton;
 	//TLabel *Label16;
 	//TLabel *Label17;
-	TEdit *RawIpAddress;
+	TComboBox *RawIpAddress;
 	TIdTCPClient *IdTCPClientRaw;
 	TSaveDialog *RecordRawSaveDialog;
 	TOpenDialog *PlaybackRawDialog;

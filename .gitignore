@@ -2,4 +2,4 @@
 **/Win32
 **/__history
 **/*.local
-**/*key.json
+**/YourJsonFile.json

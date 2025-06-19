@@ -135,14 +135,14 @@ __published:	// IDE-managed Components
 	TButton *Complete;
 	TButton *Cancel;
 	TButton *RawConnectButton;
-	TLabel *Label16;
-	TLabel *Label17;
+	//TLabel *Label16;
+	//TLabel *Label17;
 	TEdit *RawIpAddress;
 	TIdTCPClient *IdTCPClientRaw;
 	TSaveDialog *RecordRawSaveDialog;
 	TOpenDialog *PlaybackRawDialog;
 	TCheckBox *CycleImages;
-	TPanel *Panel4;
+	TScrollBox *Panel4;
 	TLabel *CLatLabel;
 	TLabel *CLonLabel;
 	TLabel *SpdLabel;
@@ -161,7 +161,7 @@ __published:	// IDE-managed Components
 	TLabel *FlightNumLabel;
 	TLabel *ICAOLabel;
 	TLabel *Label5;
-	TLabel *Label4;
+	//TLabel *Label4;
 	TPanel *Panel5;
 	TLabel *Lon;
 	TLabel *Label3;
@@ -195,11 +195,71 @@ __published:	// IDE-managed Components
 	TMenuItem *UseSBSLocal;
 	TMenuItem *UseSBSRemote;
 	TMenuItem *LoadARTCCBoundaries1;
+	TLabel *Label16;
 	TCheckBox *DisplayAirportCheckBox;
 	TTrackBar *PlaybackSpeedTrackBar;
 	TMenuItem *Help1;
 	TMenuItem *AboutADSBDisplay1;
 	TMenuItem *UserManual1;
+	TPanel *PanelTitle1;
+	TPanel *Panel7;
+	TLabel *PanelTitle2;
+	TLabel *Label20;
+	TLabel *Label21;
+	TLabel *Label22;
+	TLabel *SerialNum;
+	TLabel *Label23;
+	TLabel *Manufacturer;
+	TLabel *Label24;
+	TLabel *Model;
+	TLabel *Label25;
+	TLabel *MFRYear;
+	TLabel *Label26;
+	TLabel *Label27;
+	TLabel *AirType;
+	TLabel *EngineType;
+	TLabel *Label4;
+	TLabel *Label28;
+	TLabel *Label29;
+	TLabel *CeritificatedInfo;
+	TLabel *Label30;
+	TLabel *ExpirationData;
+	TLabel *Label31;
+	TLabel *DepartureAirportName;
+	TLabel *Label32;
+	TLabel *Label33;
+	TLabel *DepartureAirportICAO;
+	TLabel *Label35;
+	TLabel *DepartureAirportLocation;
+	TLabel *Label34;
+	TLabel *Label36;
+	TLabel *Label37;
+	TLabel *Label38;
+	TLabel *DestinationAirportName;
+	TLabel *Label39;
+	TLabel *DestinationAirportICAO;
+	TLabel *Label40;
+	TLabel *DestinationAirportLocation;
+	TLabel *Label41;
+	TLabel *Label42;
+	TLabel *Label43;
+	TLabel *Label44;
+	TLabel *TransitAirport1Name;
+	TLabel *Label46;
+	TLabel *TransitAirport1ICAO;
+	TLabel *Label48;
+	TLabel *TransitAirport1Location;
+	TLabel *Label50;
+	TLabel *TransitAirport1Country;
+	TLabel *Label45;
+	TLabel *Label47;
+	TLabel *TransitAirport2Name;
+	TLabel *Label51;
+	TLabel *TransitAirport2ICAO;
+	TLabel *Label53;
+	TLabel *TransitAirport2Location;
+	TLabel *Label55;
+	TLabel *TransitAirport2Country;
 	void __fastcall ObjectDisplayInit(TObject *Sender);
 	void __fastcall ObjectDisplayResize(TObject *Sender);
 	void __fastcall ObjectDisplayPaint(TObject *Sender);
@@ -250,7 +310,7 @@ __published:	// IDE-managed Components
 	void __fastcall DrawCircleWithNumber(float x, float y, float radius, int number);
 	void __fastcall AboutADSBDisplay1Click(TObject *Sender);
 	void __fastcall UserManual1Click(TObject *Sender);
-
+	void __fastcall PanelTitle1Click(TObject *Sender);
 private:	// User declarations
 	// 항공기-공항 거리 캐시
 	std::map<std::pair<uint32_t, std::string>, DistanceCache> distanceCache;
@@ -265,7 +325,9 @@ private:	// User declarations
 	
 	// 마지막 캐시 정리 시간
 	std::chrono::system_clock::time_point lastCleanupTime;
-
+	
+	// Panel Menu Visible Toggle
+	bool panelsVisible;
 public:		// User declarations
 	__fastcall TForm1(TComponent* Owner);
 	__fastcall ~TForm1();
@@ -284,6 +346,7 @@ public:		// User declarations
     bool __fastcall LoadARTCCBoundaries(AnsiString FileName);
 	void __fastcall UpdateAircraftHistory(TADS_B_Aircraft* aircraft);
 	void __fastcall PurgeOldHistory(TADS_B_Aircraft* aircraft, __int64 currentTime);
+  	void __fastcall TogglePanels();  // Panel Menu Visible
 
 	int                        MouseDownX,MouseDownY;
 	bool                       MouseDown;
@@ -326,6 +389,10 @@ public:		// User declarations
     void DrawAirportIcon(double lat, double lon, bool isDeparture);
 	void DrawAirportInfo(double lat, double lon, const char* name, bool isDeparture);
 	int __fastcall getAirplaneType(uint32_t addr);
+  	void UpdateAircraftInfo(TADS_B_Aircraft* Data);
+  	void UpdateRouteInfo(TADS_B_Aircraft* Data);
+  	void ClearAircraftInfo();
+  	void ClearRouteInfo();
 
 	// Airport management
 	AirportDataManager        *airportManager;

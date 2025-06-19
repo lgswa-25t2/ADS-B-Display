@@ -226,11 +226,13 @@ __fastcall TForm1::TForm1(TComponent* Owner)
 
  LoadMapFromInternet=false;
  MapComboBox->ItemIndex=GoogleMaps;
- SelectedMapIndex=GoogleMaps;  //init variable SelectedMap for differentColor
- //MapComboBox->ItemIndex=SkyVector_VFR;
- //MapComboBox->ItemIndex=SkyVector_IFR_Low;
- //MapComboBox->ItemIndex=SkyVector_IFR_High;
- //MapComboBox->ItemIndex=OpenStreetMaps;
+ SelectedMapIndex=GoogleMaps;  
+ 
+ panelsVisible = true;
+
+ Panel4->VertScrollBar->Position = 0;
+ Panel4->HorzScrollBar->Position= 0;
+
  LoadMap(MapComboBox->ItemIndex);
 
  g_EarthView->m_Eye.h /= pow(1.3,18);//pow(1.3,43);
@@ -275,9 +277,14 @@ __fastcall TForm1::TForm1(TComponent* Owner)
  }
  //printf("=== End Airport Data Loading Debug ===\n");
 
+  // Set to initial state
+ 	ClearAircraftInfo();
+
   lastCleanupTime = std::chrono::system_clock::now();
  // Initial Trackbar Value
  PlaybackSpeedTrackBar->Visible = false;
+ 
+
 }
 //---------------------------------------------------------------------------
 __fastcall TForm1::~TForm1()
@@ -1292,6 +1299,8 @@ void __fastcall TForm1::Exit1Click(TObject *Sender)
                  ObjectDisplay->Repaint();
 			}
 		 }
+    	//Update aircraft information panel
+      	UpdateAircraftInfo(ADS_B_Aircraft);
 		}
 		else
 		{
@@ -2812,6 +2821,235 @@ void __fastcall TForm1::UserManual1Click(TObject *Sender)
 {
    	printf("User Manual Clicked\n");
 	ShellExecute(0, L"open", L"https://www.naver.com", NULL, NULL, SW_SHOWNORMAL);
+}
+
+void __fastcall TForm1::UpdateAircraftInfo(TADS_B_Aircraft* Data)
+{
+    if (!Data) {
+        return;
+    }
+
+    // Get aircraft information from database
+    const TAircraftData *a = (TAircraftData *)ght_get(AircraftDBHashTable, sizeof(Data->ICAO), &Data->ICAO);
+
+    if (a) {
+        // Update aircraft metadata in right panel
+        SerialNum->Caption = AnsiString(a->Fields[AC_DB_SerialNumber].c_str());
+        Manufacturer->Caption = AnsiString(a->Fields[AC_DB_ManufacturerName].c_str());
+        Model->Caption = AnsiString(a->Fields[AC_DB_Model].c_str());
+        MFRYear->Caption = AnsiString(a->Fields[AC_DB_Built].c_str());
+        CeritificatedInfo->Caption = AnsiString(a->Fields[AC_DB_Registered].c_str());
+        ExpirationData->Caption = AnsiString(a->Fields[AC_DB_RegUntil].c_str());
+        EngineType->Caption = AnsiString(a->Fields[AC_DB_Engines].c_str());
+        AirType->Caption = AnsiString(a->Fields[AC_DB_ICAOAircraftType].c_str());
+
+        printf("Aircraft metadata updated in UI\n");
+    } else {
+        // Clear metadata when no data available
+        SerialNum->Caption = "N/A";
+        Manufacturer->Caption = "N/A";
+        Model->Caption = "N/A";
+        MFRYear->Caption = "N/A";
+        CeritificatedInfo->Caption = "N/A";
+        ExpirationData->Caption = "N/A";
+        EngineType->Caption = "N/A";
+        AirType->Caption = "N/A";
+
+        printf("No aircraft metadata available\n");
+    }
+
+    // Update ROUTE DESCRIPTION
+    UpdateRouteInfo(Data);
+}
+
+
+void __fastcall TForm1::UpdateRouteInfo(TADS_B_Aircraft* Data)
+{
+    if (!Data) {
+        // Clear all route info when no data
+        ClearRouteInfo();
+        return;
+    }
+
+    // Get aircraft data which contains route information
+    const TAircraftData *a = (TAircraftData *)ght_get(AircraftDBHashTable, sizeof(Data->ICAO), &Data->ICAO);
+
+    printf("=== Route Information ===\n");
+
+    if (a && a->airport_size > 0) {
+        // Departure Airport (첫 번째 공항)
+        DepartureAirportName->Caption = AnsiString(a->airport_name[0].c_str());
+        DepartureAirportICAO->Caption = AnsiString(a->airport_icao[0].c_str());
+        DepartureAirportLocation->Caption = AnsiString(a->airport_location[0].c_str());
+        Label36->Caption = AnsiString(a->airport_countryiso2[0].c_str()); // Departure Country
+
+        printf("Departure: %s (%s) - %s, %s\n",
+               a->airport_name[0].c_str(),
+               a->airport_icao[0].c_str(),
+               a->airport_location[0].c_str(),
+               a->airport_countryiso2[0].c_str());
+
+        // Destination Airport (마지막 공항, airport_size > 1인 경우)
+        if (a->airport_size > 1) {
+            uint32_t lastIndex = a->airport_size - 1;
+            DestinationAirportName->Caption = AnsiString(a->airport_name[lastIndex].c_str());
+            DestinationAirportICAO->Caption = AnsiString(a->airport_icao[lastIndex].c_str());
+            DestinationAirportLocation->Caption = AnsiString(a->airport_location[lastIndex].c_str());
+            Label42->Caption = AnsiString(a->airport_countryiso2[lastIndex].c_str()); // Destination Country
+
+            printf("Destination: %s (%s) - %s, %s\n",
+                   a->airport_name[lastIndex].c_str(),
+                   a->airport_icao[lastIndex].c_str(),
+                   a->airport_location[lastIndex].c_str(),
+                   a->airport_countryiso2[lastIndex].c_str());
+        } else {
+            // 목적지가 없는 경우 (단일 공항)
+            DestinationAirportName->Caption = "N/A";
+            DestinationAirportICAO->Caption = "N/A";
+            DestinationAirportLocation->Caption = "N/A";
+            Label42->Caption = "N/A";
+        }
+
+        // Transit Airport 1 (두 번째 공항, airport_size > 2인 경우)
+        if (a->airport_size > 2) {
+            TransitAirport1Name->Caption = AnsiString(a->airport_name[1].c_str());
+            TransitAirport1ICAO->Caption = AnsiString(a->airport_icao[1].c_str());
+            TransitAirport1Location->Caption = AnsiString(a->airport_location[1].c_str());
+            TransitAirport1Country->Caption = AnsiString(a->airport_countryiso2[1].c_str());
+
+            printf("Transit1: %s (%s) - %s, %s\n",
+                   a->airport_name[1].c_str(),
+                   a->airport_icao[1].c_str(),
+                   a->airport_location[1].c_str(),
+                   a->airport_countryiso2[1].c_str());
+        } else {
+            TransitAirport1Name->Caption = "N/A";
+            TransitAirport1ICAO->Caption = "N/A";
+            TransitAirport1Location->Caption = "N/A";
+            TransitAirport1Country->Caption = "N/A";
+        }
+
+        // Transit Airport 2 (세 번째 공항, airport_size > 3인 경우)
+        if (a->airport_size > 3) {
+            TransitAirport2Name->Caption = AnsiString(a->airport_name[2].c_str());
+            TransitAirport2ICAO->Caption = AnsiString(a->airport_icao[2].c_str());
+            TransitAirport2Location->Caption = AnsiString(a->airport_location[2].c_str());
+            TransitAirport2Country->Caption = AnsiString(a->airport_countryiso2[2].c_str());
+
+            printf("Transit2: %s (%s) - %s, %s\n",
+                   a->airport_name[2].c_str(),
+                   a->airport_icao[2].c_str(),
+                   a->airport_location[2].c_str(),
+                   a->airport_countryiso2[2].c_str());
+        } else {
+            TransitAirport2Name->Caption = "N/A";
+            TransitAirport2ICAO->Caption = "N/A";
+            TransitAirport2Location->Caption = "N/A";
+            TransitAirport2Country->Caption = "N/A";
+        }
+
+    } else {
+        // 루트 정보가 없는 경우 모든 필드를 N/A로 설정
+        ClearRouteInfo();
+        printf("No route information available\n");
+    }
+    printf("========================\n");
+}
+
+void __fastcall TForm1::ClearAircraftInfo()
+{
+    // Clear aircraft metadata
+    SerialNum->Caption = "N/A";
+    Manufacturer->Caption = "N/A";
+    Model->Caption = "N/A";
+    MFRYear->Caption = "N/A";
+    CeritificatedInfo->Caption = "N/A";
+    ExpirationData->Caption = "N/A";
+    EngineType->Caption = "N/A";
+    AirType->Caption = "N/A";
+
+    // Also clear route information
+    ClearRouteInfo();
+
+    printf("Aircraft metadata and route info cleared\n");
+}
+
+void __fastcall TForm1::ClearRouteInfo()
+{
+    // Clear Departure Airport
+    DepartureAirportName->Caption = "N/A";
+    DepartureAirportICAO->Caption = "N/A";
+    DepartureAirportLocation->Caption = "N/A";
+    Label36->Caption = "N/A"; // Departure Country
+
+    // Clear Destination Airport
+    DestinationAirportName->Caption = "N/A";
+    DestinationAirportICAO->Caption = "N/A";
+    DestinationAirportLocation->Caption = "N/A";
+    Label42->Caption = "N/A"; // Destination Country
+
+    // Clear Transit Airport 1
+    TransitAirport1Name->Caption = "N/A";
+    TransitAirport1ICAO->Caption = "N/A";
+    TransitAirport1Location->Caption = "N/A";
+    TransitAirport1Country->Caption = "N/A";
+
+    // Clear Transit Airport 2
+    TransitAirport2Name->Caption = "N/A";
+    TransitAirport2ICAO->Caption = "N/A";
+    TransitAirport2Location->Caption = "N/A";
+    TransitAirport2Country->Caption = "N/A";
+
+    printf("Route information cleared\n");
+}
+void __fastcall TForm1::PanelTitle1Click(TObject *Sender)
+{
+  TogglePanels();
+}
+
+void __fastcall TForm1::TogglePanels()
+{
+    panelsVisible = !panelsVisible;
+
+    // Panel들의 Visible 속성 토글
+    Panel1->Visible = panelsVisible;
+    Panel2->Visible = panelsVisible;
+    Panel3->Visible = panelsVisible;
+
+    if (panelsVisible) {
+        // 확장 모드
+        Panel7->Align = alBottom;
+        Panel7->Height = 465;  // 원래 높이
+
+        Panel5->Align = alClient;
+        Panel4->Align = alBottom;
+        Panel4->Height = 350;
+
+        PanelTitle1->Caption = "Control Menu ▼";
+        PanelTitle1->Color = clSkyBlue;
+    } else {
+        // 축소 모드
+        Panel7->Align = alClient;
+
+        Panel5->Align = alTop;
+        Panel5->Height = 95;
+
+        Panel4->Align = alClient;
+        // Panel4 스크롤을 맨 위로 리셋
+        Panel4->VertScrollBar->Position = 0;
+
+        PanelTitle1->Caption = "Control Menu ▶ (Click to expand)";
+        PanelTitle1->Color = clLtGray;
+    }
+
+    // 레이아웃 업데이트
+    RightPanel->Realign();
+    Panel7->Realign();
+    Application->ProcessMessages();
+
+    printf("Panels %s, Panel4 %s\n",
+           panelsVisible ? "expanded" : "collapsed",
+           panelsVisible ? "bottom-aligned" : "client-aligned");
 }
 //---------------------------------------------------------------------------
 

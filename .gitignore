@@ -2,4 +2,4 @@
 **/Win32
 **/__history
 **/*.local
-**/YourJsonFile.json
+BigQuery/*.json

@@ -506,7 +506,7 @@ object Form1: TForm1
       object SBSPlaybackButton: TButton
         Left = 115
         Top = 150
-        Width = 96
+        Width = 120
         Height = 17
         Caption = 'SBS Playback'
         Font.Charset = ANSI_CHARSET

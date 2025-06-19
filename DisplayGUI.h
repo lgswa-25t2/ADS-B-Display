@@ -111,6 +111,23 @@ public:
 };
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
+class  TConnectionThread : public TThread
+{
+private:
+	AnsiString Host;
+	int Port;
+	bool IsSBS;
+	AnsiString ErrorMessage;
+	void __fastcall OnConnectionComplete(void);
+	void __fastcall OnConnectionFailed(void);
+protected:
+	void __fastcall Execute(void);
+public:
+	__fastcall TConnectionThread(AnsiString host, int port, bool isSBS);
+	~TConnectionThread();
+};
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 class TForm1 : public TForm
 {
 __published:	// IDE-managed Components
@@ -177,7 +194,7 @@ __published:	// IDE-managed Components
 	TButton *RawRecordButton;
 	TIdTCPClient *IdTCPClientSBS;
 	TButton *SBSConnectButton;
-	TEdit *SBSIpAddress;
+	TComboBox *SBSIpAddress;
 	TButton *SBSRecordButton;
 	TButton *SBSPlaybackButton;
 	TSaveDialog *RecordSBSSaveDialog;
@@ -328,6 +345,17 @@ private:	// User declarations
 	
 	// Panel Menu Visible Toggle
 	bool panelsVisible;
+
+	// IP 주소 히스토리 관리
+	TStringList* SBSIpHistory;
+	TStringList* RawIpHistory;
+	const int MAX_IP_HISTORY = 10; // 최대 10개까지 저장
+	
+	// IP 히스토리 관리 함수들
+	void LoadIpHistory();
+	void SaveIpHistory();
+	void LoadIpHistoryToComboBox();
+
 public:		// User declarations
 	__fastcall TForm1(TComponent* Owner);
 	__fastcall ~TForm1();
@@ -396,6 +424,9 @@ public:		// User declarations
 
 	// Airport management
 	AirportDataManager        *airportManager;
+
+	// IP 히스토리에 추가 (public으로 이동)
+	void AddToIpHistory(AnsiString ip, bool isSBS);
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TForm1 *Form1;

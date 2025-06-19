@@ -400,7 +400,7 @@ object Form1: TForm1
         TabOrder = 9
         OnClick = RawConnectButtonClick
       end
-      object RawIpAddress: TEdit
+      object RawIpAddress: TComboBox
         Left = 115
         Top = 103
         Width = 110
@@ -474,7 +474,7 @@ object Form1: TForm1
         TabOrder = 14
         OnClick = SBSConnectButtonClick
       end
-      object SBSIpAddress: TEdit
+      object SBSIpAddress: TComboBox
         Left = 115
         Top = 126
         Width = 117

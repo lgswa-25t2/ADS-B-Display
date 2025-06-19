@@ -11,6 +11,7 @@
 #include <fileapi.h>
 #include <chrono>
 #include <ShellAPI.h>
+#include <IniFiles.hpp>
 
 #pragma hdrstop
 
@@ -194,7 +195,13 @@ static char *stristr(const char *String, const char *Pattern)
 __fastcall TForm1::TForm1(TComponent* Owner)
 	: TForm(Owner)
 {
-  AircraftDBPathFileName=ExtractFilePath(ExtractFileDir(Application->ExeName)) +AnsiString("..\\AircraftDB\\")+AIRCRAFT_DATABASE_FILE;
+	// Initialize IP history
+	LoadIpHistory();
+	
+	// Initialize cache cleanup time
+	lastCleanupTime = std::chrono::system_clock::now();
+	
+	AircraftDBPathFileName=ExtractFilePath(ExtractFileDir(Application->ExeName)) +AnsiString("..\\AircraftDB\\")+AIRCRAFT_DATABASE_FILE;
   ARTCCBoundaryDataPathFileName=ExtractFilePath(ExtractFileDir(Application->ExeName)) +AnsiString("..\\ARTCC_Boundary_Data\\")+ARTCC_BOUNDARY_FILE;
   BigQueryPath=ExtractFilePath(ExtractFileDir(Application->ExeName)) +AnsiString("..\\BigQuery\\");
   BigQueryPythonScript= BigQueryPath+ AnsiString(BIG_QUERY_RUN_FILENAME);
@@ -289,7 +296,20 @@ __fastcall TForm1::TForm1(TComponent* Owner)
 //---------------------------------------------------------------------------
 __fastcall TForm1::~TForm1()
 {
- Timer1->Enabled=false;
+	// Save IP history before closing
+	SaveIpHistory();
+	
+	// Clean up IP history
+	if (SBSIpHistory) {
+		delete SBSIpHistory;
+		SBSIpHistory = NULL;
+	}
+	if (RawIpHistory) {
+		delete RawIpHistory;
+		RawIpHistory = NULL;
+	}
+	
+	Timer1->Enabled=false;
  Timer2->Enabled=false;
  delete g_EarthView;
  if (g_GETileManager) delete g_GETileManager;
@@ -1718,28 +1738,15 @@ void __fastcall TTCPClientRawHandleThread::HandleInput(void)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::RawConnectButtonClick(TObject *Sender)
 {
- IdTCPClientRaw->Host=RawIpAddress->Text;
- IdTCPClientRaw->Port=30002;
-
- //test code
- //LastHeartbeatTime = GetCurrentTimeInMsec();
- //RawTimeoutPopupShown = false;
- //RawConnectButton->Caption="Raw Disconnect";
-
  if ((RawConnectButton->Caption=="Raw Connect") && (Sender!=NULL))
  {
-  try
-   {
-   IdTCPClientRaw->Connect();
-   TCPClientRawHandleThread = new TTCPClientRawHandleThread(true);
-   TCPClientRawHandleThread->UseFileInsteadOfNetwork=false;
-   TCPClientRawHandleThread->FreeOnTerminate=TRUE;
-   TCPClientRawHandleThread->Resume();
-   }
-   catch (const EIdException& e)
-   {
-    ShowMessage("Error while connecting: "+e.Message);
-   }
+  // Disable button to prevent multiple clicks
+  RawConnectButton->Enabled = false;
+  RawConnectButton->Caption = "Connecting...";
+  
+  // Start connection in separate thread to keep UI responsive
+  TConnectionThread* connectionThread = new TConnectionThread(RawIpAddress->Text, 30002, false);
+  connectionThread->Resume();
  }
  else
   {
@@ -1856,11 +1863,37 @@ void __fastcall TTCPClientRawHandleThread::Execute(void)
 	if (!UseFileInsteadOfNetwork)
 	 {
 	  try {
-		   if (!Form1->IdTCPClientRaw->Connected()) Terminate();
-	       StringMsgBuffer=Form1->IdTCPClientRaw->IOHandler->ReadLn();
+		   if (!Form1->IdTCPClientRaw->Connected()) {
+			   Terminate();
+			   break;
+		   }
+		   
+		   // Check if data is available before reading
+		   if (Form1->IdTCPClientRaw->IOHandler->InputBuffer->Size > 0) {
+			   StringMsgBuffer = Form1->IdTCPClientRaw->IOHandler->ReadLn();
+		   } else {
+			   // No data available, sleep briefly to prevent busy waiting
+			   Sleep(10);
+			   continue;
+		   }
 		  }
+       catch (const EIdReadTimeout& e)
+		{
+		 // Handle read timeout specifically
+		 printf("Raw Read timeout: %s\n", AnsiString(e.Message).c_str());
+		 TThread::Synchronize(StopTCPClient);
+		 break;
+		}
+       catch (const EIdException& e)
+		{
+		 // Handle other Indy exceptions
+		 printf("Raw Indy exception: %s\n", AnsiString(e.Message).c_str());
+		 TThread::Synchronize(StopTCPClient);
+		 break;
+		}
        catch (...)
 		{
+		 printf("Raw General exception\n");
 		 TThread::Synchronize(StopTCPClient);
 		 break;
 		}
@@ -1901,14 +1934,18 @@ void __fastcall TTCPClientRawHandleThread::Execute(void)
 		 break;
 		}
 	   }
-     try
-      {
-	   // Synchronize method to safely access UI components
-	   TThread::Synchronize(HandleInput);
-      }
-	 catch (...)
-     {
-      ShowMessage("TTCPClientRawHandleThread::Execute Exception 3");
+	   
+	 // Only process if we have data
+	 if (StringMsgBuffer.Length() > 0) {
+		 try
+		  {
+		   // Synchronize method to safely access UI components
+		   TThread::Synchronize(HandleInput);
+		  }
+		 catch (...)
+		 {
+		  ShowMessage("TTCPClientRawHandleThread::Execute Exception 3");
+		 }
 	 }
   }
 }
@@ -1930,28 +1967,15 @@ void __fastcall TForm1::CycleImagesClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::SBSConnectButtonClick(TObject *Sender)
 {
- IdTCPClientSBS->Host=SBSIpAddress->Text;
- IdTCPClientSBS->Port=5002;
-
- // test code
-//  SBSTimeoutPopupShown = false;
-//  LastSBSDataReceiveTime = GetCurrentTimeInMsec();
-//  SBSConnectButton->Caption="SBS Disconnect";
-
  if ((SBSConnectButton->Caption=="SBS Connect") && (Sender!=NULL))
  {
-  try
-   {
-   IdTCPClientSBS->Connect();
-   TCPClientSBSHandleThread = new TTCPClientSBSHandleThread(true);
-   TCPClientSBSHandleThread->UseFileInsteadOfNetwork=false;
-   TCPClientSBSHandleThread->FreeOnTerminate=TRUE;
-   TCPClientSBSHandleThread->Resume();
-   }
-   catch (const EIdException& e)
-   {
-	ShowMessage("Error while connecting: "+e.Message);
-   }
+  // Disable button to prevent multiple clicks
+  SBSConnectButton->Enabled = false;
+  SBSConnectButton->Caption = "Connecting...";
+  
+  // Start connection in separate thread to keep UI responsive
+  TConnectionThread* connectionThread = new TConnectionThread(SBSIpAddress->Text, 5002, true);
+  connectionThread->Resume();
  }
  else
   {
@@ -1961,7 +1985,6 @@ void __fastcall TForm1::SBSConnectButtonClick(TObject *Sender)
 	SBSConnectButton->Caption="SBS Connect";
 	SBSPlaybackButton->Enabled=true;
   }
-
 }
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
@@ -1998,8 +2021,13 @@ void __fastcall TTCPClientSBSHandleThread::HandleInput(void)
 	  SBSTimeoutPopupShown = false;
   }
   
-  SBS_Message_Decode( StringMsgBuffer.c_str());
-
+  // Process SBS message - this should be fast and not block
+  try {
+    SBS_Message_Decode( StringMsgBuffer.c_str());
+  } catch (...) {
+    // Log error but don't crash the thread
+    printf("Error in SBS_Message_Decode\n");
+  }
 }
 //---------------------------------------------------------------------------
 // Constructor for the thread class
@@ -2026,11 +2054,35 @@ void __fastcall TTCPClientSBSHandleThread::Execute(void)
 			{
 				if (!Form1->IdTCPClientSBS->Connected()) {
 					Terminate();
+					break;
 				}
-				StringMsgBuffer=Form1->IdTCPClientSBS->IOHandler->ReadLn();
+				
+				// Check if data is available before reading
+				if (Form1->IdTCPClientSBS->IOHandler->InputBuffer->Size > 0) {
+					StringMsgBuffer = Form1->IdTCPClientSBS->IOHandler->ReadLn();
+				} else {
+					// No data available, sleep briefly to prevent busy waiting
+					Sleep(10);
+					continue;
+				}
+			}
+			catch (const EIdReadTimeout& e)
+			{
+				// Handle read timeout specifically
+				printf("SBS Read timeout: %s\n", AnsiString(e.Message).c_str());
+				TThread::Synchronize(StopTCPClient);
+				break;
+			}
+			catch (const EIdException& e)
+			{
+				// Handle other Indy exceptions
+				printf("SBS Indy exception: %s\n", AnsiString(e.Message).c_str());
+				TThread::Synchronize(StopTCPClient);
+				break;
 			}
 			catch (...)
 			{
+				printf("SBS General exception\n");
 				TThread::Synchronize(StopTCPClient);
 				break;
 			}
@@ -2075,14 +2127,18 @@ void __fastcall TTCPClientSBSHandleThread::Execute(void)
 				break;
 			}
 		}
-		try
-		{
-			// Synchronize method to safely access UI components
-			TThread::Synchronize(HandleInput);
-		}
-		catch (...)
-		{
-			ShowMessage("TTCPClientSBSHandleThread::Execute Exception 3");
+		
+		// Only process if we have data
+		if (StringMsgBuffer.Length() > 0) {
+			try
+			{
+				// Synchronize method to safely access UI components
+				TThread::Synchronize(HandleInput);
+			}
+			catch (...)
+			{
+				ShowMessage("TTCPClientSBSHandleThread::Execute Exception 3");
+			}
 		}
 	}
 }
@@ -3053,4 +3109,208 @@ void __fastcall TForm1::TogglePanels()
 }
 //---------------------------------------------------------------------------
 
+//---------------------------------------------------------------------------
+// Constructor for the connection thread class
+__fastcall TConnectionThread::TConnectionThread(AnsiString host, int port, bool isSBS) : TThread(true)
+{
+	Host = host;
+	Port = port;
+	IsSBS = isSBS;
+	FreeOnTerminate = true;
+}
+//---------------------------------------------------------------------------
+// Destructor for the connection thread class
+__fastcall TConnectionThread::~TConnectionThread()
+{
+	// Clean up resources if needed
+}
+//---------------------------------------------------------------------------
+// Execute method for connection thread
+void __fastcall TConnectionThread::Execute(void)
+{
+	try {
+		if (IsSBS) {
+			Form1->IdTCPClientSBS->Host = Host;
+			Form1->IdTCPClientSBS->Port = Port;
+			Form1->IdTCPClientSBS->ConnectTimeout = 5000;
+			Form1->IdTCPClientSBS->ReadTimeout = 10000;
+			Form1->IdTCPClientSBS->Connect();
+		} else {
+			Form1->IdTCPClientRaw->Host = Host;
+			Form1->IdTCPClientRaw->Port = Port;
+			Form1->IdTCPClientRaw->ConnectTimeout = 5000;
+			Form1->IdTCPClientRaw->ReadTimeout = 10000;
+			Form1->IdTCPClientRaw->Connect();
+		}
+		
+		// Connection successful, update UI on main thread
+		TThread::Synchronize(OnConnectionComplete);
+	}
+	catch (const Exception& e) {
+		// Store error message and restore UI on main thread
+		ErrorMessage = e.Message;
+		TThread::Synchronize(OnConnectionFailed);
+	}
+}
+//---------------------------------------------------------------------------
+// UI update method called on main thread
+void __fastcall TConnectionThread::OnConnectionComplete(void)
+{
+	if (IsSBS) {
+		Form1->TCPClientSBSHandleThread = new TTCPClientSBSHandleThread(true);
+		Form1->TCPClientSBSHandleThread->UseFileInsteadOfNetwork = false;
+		Form1->TCPClientSBSHandleThread->FreeOnTerminate = TRUE;
+		Form1->TCPClientSBSHandleThread->Resume();
+		Form1->SBSConnectButton->Caption = "SBS Disconnect";
+		Form1->SBSConnectButton->Enabled = true;
+		
+		// Add to IP history
+		Form1->AddToIpHistory(Form1->SBSIpAddress->Text, true);
+	} else {
+		Form1->TCPClientRawHandleThread = new TTCPClientRawHandleThread(true);
+		Form1->TCPClientRawHandleThread->UseFileInsteadOfNetwork = false;
+		Form1->TCPClientRawHandleThread->FreeOnTerminate = TRUE;
+		Form1->TCPClientRawHandleThread->Resume();
+		Form1->RawConnectButton->Caption = "Raw Disconnect";
+		Form1->RawConnectButton->Enabled = true;
+		
+		// Add to IP history
+		Form1->AddToIpHistory(Form1->RawIpAddress->Text, false);
+	}
+}
+//---------------------------------------------------------------------------
+// UI update method called on main thread when connection fails
+void __fastcall TConnectionThread::OnConnectionFailed(void)
+{
+	if (IsSBS) {
+		Form1->SBSConnectButton->Caption = "SBS Connect";
+		Form1->SBSConnectButton->Enabled = true;
+	} else {
+		Form1->RawConnectButton->Caption = "Raw Connect";
+		Form1->RawConnectButton->Enabled = true;
+	}
+	ShowMessage("Connection failed: " + ErrorMessage);
+}
+
+//---------------------------------------------------------------------------
+// IP 히스토리 로드
+void __fastcall TForm1::LoadIpHistory()
+{
+	SBSIpHistory = new TStringList();
+	RawIpHistory = new TStringList();
+	
+	AnsiString configPath = ExtractFilePath(Application->ExeName) + "ip_history.ini";
+	
+	if (FileExists(configPath)) {
+		TIniFile* ini = new TIniFile(configPath);
+		try {
+			// SBS IP 히스토리 로드
+			int sbsCount = ini->ReadInteger("SBS", "Count", 0);
+			for (int i = 0; i < sbsCount && i < MAX_IP_HISTORY; i++) {
+				AnsiString ip = ini->ReadString("SBS", "IP" + IntToStr(i), "");
+				if (ip != "") {
+					SBSIpHistory->Add(ip);
+				}
+			}
+			
+			// Raw IP 히스토리 로드
+			int rawCount = ini->ReadInteger("Raw", "Count", 0);
+			for (int i = 0; i < rawCount && i < MAX_IP_HISTORY; i++) {
+				AnsiString ip = ini->ReadString("Raw", "IP" + IntToStr(i), "");
+				if (ip != "") {
+					RawIpHistory->Add(ip);
+				}
+			}
+		}
+		__finally {
+			delete ini;
+		}
+	}
+	
+	// 기본값 추가 (히스토리가 비어있는 경우)
+	if (SBSIpHistory->Count == 0) {
+		SBSIpHistory->Add("data.adsbhub.org");
+		SBSIpHistory->Add("128.237.96.41");
+	}
+	
+	if (RawIpHistory->Count == 0) {
+		RawIpHistory->Add("raspberrypi");
+		RawIpHistory->Add("127.0.0.1");
+		RawIpHistory->Add("192.168.1.100");
+	}
+
+	LoadIpHistoryToComboBox();
+}
+//---------------------------------------------------------------------------
+// IP 히스토리 저장
+void __fastcall TForm1::SaveIpHistory()
+{
+	AnsiString configPath = ExtractFilePath(Application->ExeName) + "ip_history.ini";
+	TIniFile* ini = new TIniFile(configPath);
+	
+	try {
+		// SBS IP 히스토리 저장
+		ini->WriteInteger("SBS", "Count", SBSIpHistory->Count);
+		for (int i = 0; i < SBSIpHistory->Count; i++) {
+			ini->WriteString("SBS", "IP" + IntToStr(i), SBSIpHistory->Strings[i]);
+		}
+		
+		// Raw IP 히스토리 저장
+		ini->WriteInteger("Raw", "Count", RawIpHistory->Count);
+		for (int i = 0; i < RawIpHistory->Count; i++) {
+			ini->WriteString("Raw", "IP" + IntToStr(i), RawIpHistory->Strings[i]);
+		}
+	}
+	__finally {
+		delete ini;
+	}
+}
+//---------------------------------------------------------------------------
+// IP 히스토리에 추가
+void __fastcall TForm1::AddToIpHistory(AnsiString ip, bool isSBS)
+{
+	TStringList* history = isSBS ? SBSIpHistory : RawIpHistory;
+	
+	// 이미 존재하는지 확인
+	int existingIndex = history->IndexOf(ip);
+	if (existingIndex >= 0) {
+		// 이미 존재하면 맨 위로 이동
+		history->Move(existingIndex, 0);
+	} else {
+		// 새로 추가
+		history->Insert(0, ip);
+		
+		// 최대 개수 제한
+		if (history->Count > MAX_IP_HISTORY) {
+			history->Delete(MAX_IP_HISTORY);
+		}
+	}
+	
+	// 히스토리 저장
+	SaveIpHistory();
+	LoadIpHistoryToComboBox();
+}
+//---------------------------------------------------------------------------
+// ComboBox에 히스토리 로드
+void __fastcall TForm1::LoadIpHistoryToComboBox()
+{
+	// SBS ComboBox 업데이트
+	SBSIpAddress->Items->Clear();
+	for (int i = 0; i < SBSIpHistory->Count; i++) {
+		SBSIpAddress->Items->Add(SBSIpHistory->Strings[i]);
+	}
+	if (SBSIpAddress->Items->Count > 0) {
+		SBSIpAddress->Text = SBSIpHistory->Strings[0];
+	}
+	
+	// Raw ComboBox 업데이트
+	RawIpAddress->Items->Clear();
+	for (int i = 0; i < RawIpHistory->Count; i++) {
+		RawIpAddress->Items->Add(RawIpHistory->Strings[i]);
+	}
+	if (RawIpAddress->Items->Count > 0) {
+		RawIpAddress->Text = RawIpHistory->Strings[0];
+	}
+}
+//---------------------------------------------------------------------------
 

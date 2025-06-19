@@ -300,7 +300,7 @@ bool SBS_Message_Decode( char *msg)
          ADS_B_Aircraft->HaveLatLon=false;
          ADS_B_Aircraft->HaveSpeedAndHeading=false;
          ADS_B_Aircraft->HaveFlightNum=false;
-         ADS_B_Aircraft->SpriteImage=Form1->CurrentSpriteImage;
+         ADS_B_Aircraft->SpriteImage=Form1->getAirplaneType(addr);
          if (Form1->CycleImages->Checked)
               Form1->CurrentSpriteImage=(Form1->CurrentSpriteImage+1)%Form1->NumSpriteImages;
 		 if (ght_insert(Form1->HashTable,ADS_B_Aircraft,sizeof(addr), &addr) < 0)

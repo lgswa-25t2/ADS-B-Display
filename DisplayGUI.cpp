@@ -389,10 +389,10 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
      lastCacheCheck = CurrentTime;
  }
  
-   // RawData Ÿ�Ӿƿ� üũ
+   // Check RawData Timeout
   __int64 now = GetCurrentTimeInMsec();
   if (RawConnectButton->Caption=="Raw Disconnect") {
-	if (!RawTimeoutPopupShown && (now - LastHeartbeatTime > 10000)) // 10��
+	if (!RawTimeoutPopupShown && (now - LastHeartbeatTime > 10000)) // 10 Sec
 	{
 		RawTimeoutPopupShown = true;
 		if (Form1->IdTCPClientRaw->Connected()) {
@@ -406,9 +406,9 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
 	}
   }
 
-	 // SBSData ������ Ÿ�Ӿƿ� üũ
+	 // Check SBSData Timeout
   if (SBSConnectButton->Caption=="SBS Disconnect") {
-	if (!SBSTimeoutPopupShown && (now - LastSBSDataReceiveTime > 10000)) // 10��
+	if (!SBSTimeoutPopupShown && (now - LastSBSDataReceiveTime > 10000)) // 10 Sec
 	{
 		SBSTimeoutPopupShown = true;
 		if (Form1->IdTCPClientSBS->Connected()) {
@@ -427,7 +427,7 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::DrawObjects(void)
 {
-    // ĳ�� ���� ����
+    // Cache remove
     cleanupOldCache();
     
     double ScrX, ScrY;
@@ -645,7 +645,7 @@ void __fastcall TForm1::DrawObjects(void)
 			// Convert screen corner coordinates to latitude and longitude
 			LatLon2XY(Data->Latitude, Data->Longitude, aircraftX, aircraftY);
 
-			// ȭ�� ���� �װ����� �������� ����
+			// outside display Airplane not Calculate 
 			if (!(0 <= aircraftX && aircraftX < screenWidth && 0 <= aircraftY && aircraftY < screenHeight))
 			{
 				continue;
@@ -657,13 +657,13 @@ void __fastcall TForm1::DrawObjects(void)
 			double airportX, airportY;
 			for (const auto& airport : visibleAirports) {
 			  LatLon2XY(airport.latitude, airport.longitude, airportX, airportY);
-			  // ȭ�� ���� ������ �������� ����
+			  // outside display Airport not Calculate 
 			  if (!(0 <= airportX && airportX < screenWidth && 0 <= airportY && airportY < screenHeight))
 			  {
 				continue;
 			  }
 
-			  // ĳ�õ� �Ÿ� ���� ����
+			  // Use Cached distance
 			  double distance = getCachedDistance(Data->ICAO, airport.icao,
 											   Data->Latitude, Data->Longitude,
 											   airport.latitude, airport.longitude);
@@ -988,9 +988,24 @@ void __fastcall TForm1::DrawObjects(void)
     }
 }
 
+int __fastcall TForm1::getAirplaneType(uint32_t addr)
+{
+	int rtn = 0;
+	if (aircraft_is_helicopter(addr, NULL)) {
+		rtn = 46;  // Orange for helicopters
+	}
+	else if (IsAircraftMilitary(addr)) {
+		rtn = 7;   // Fluorescent green for military
+	}
+	else{
+		rtn = Form1->CurrentSpriteImage;
+	}
+	return rtn;
+}
+
 void __fastcall TForm1::DrawCircleWithNumber(float x, float y, float radius, int number)
 {
-    // �� �׸���
+    // Draw Circle
     glBegin(GL_TRIANGLE_FAN);
     glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
     glVertex2f(x, y);
@@ -1000,7 +1015,7 @@ void __fastcall TForm1::DrawCircleWithNumber(float x, float y, float radius, int
     }
     glEnd();
 
-    // �� �׵θ� �׸���
+    // Draw Circle outline
     /*
     glBegin(GL_LINE_LOOP);
     glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
@@ -1011,16 +1026,16 @@ void __fastcall TForm1::DrawCircleWithNumber(float x, float y, float radius, int
     glEnd();
     */
 
-    // ���� �׸���
+    // Draw Number
     char numStr[10];
     sprintf(numStr, "%d", number);
     
-    // ���� ��ġ ���� (�߾� ����)
+    // Calculate Number Position (Center Align)
     int textWidth = strlen(numStr) * 8;
     float textX = x - textWidth / 2.0f - textWidth / 2.0f;
     float textY = y - 10.0f;
 
-    // ���� �׸���
+    // Draw Number
     glColor4f(0.1f, 0.1f, 0.1f, 1.0f);
     glRasterPos2i(textX,textY);
 	ObjectDisplay->Draw2DText(numStr);
@@ -1656,7 +1671,7 @@ void __fastcall TTCPClientRawHandleThread::HandleInput(void)
 			ADS_B_Aircraft->HaveLatLon = false;
 			ADS_B_Aircraft->HaveSpeedAndHeading = false;
 			ADS_B_Aircraft->HaveFlightNum = false;
-			ADS_B_Aircraft->SpriteImage = Form1->CurrentSpriteImage;
+			ADS_B_Aircraft->SpriteImage = Form1->getAirplaneType(addr);
 			// init value for tracking
 			ADS_B_Aircraft->HistoryIndex = 0;
 			ADS_B_Aircraft->HistoryCount = 0;
@@ -1681,7 +1696,7 @@ void __fastcall TTCPClientRawHandleThread::HandleInput(void)
   }
   else
   {
-	 //�������� �ƴҵ�
+	 //Not User Scene
 	 //ShowMessage("Error while connecting: E%.2d"+Status);
   }
   
@@ -1960,7 +1975,7 @@ void __fastcall TTCPClientSBSHandleThread::HandleInput(void)
 	}
   }
 
-	// SBS �޽��� ó�� �� Ÿ�Ӿƿ� ����
+	// Detect SBS Message Timeout
   if (StringMsgBuffer.Length() > 0) {
 	  LastSBSDataReceiveTime = GetCurrentTimeInMsec();
 	  SBSTimeoutPopupShown = false;

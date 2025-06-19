@@ -325,6 +325,7 @@ public:		// User declarations
 
     void DrawAirportIcon(double lat, double lon, bool isDeparture);
 	void DrawAirportInfo(double lat, double lon, const char* name, bool isDeparture);
+	int __fastcall getAirplaneType(uint32_t addr);
 
 	// Airport management
 	AirportDataManager        *airportManager;

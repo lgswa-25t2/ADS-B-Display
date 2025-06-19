@@ -857,6 +857,17 @@ object Form1: TForm1
         OnClick = Exit1Click
       end
     end
+    object Help1: TMenuItem
+      Caption = 'Help'
+      object UserManual1: TMenuItem
+        Caption = 'Documentation'
+        OnClick = UserManual1Click
+      end
+      object AboutADSBDisplay1: TMenuItem
+        Caption = 'About'
+        OnClick = AboutADSBDisplay1Click
+      end
+    end
   end
   object Timer1: TTimer
     Interval = 500

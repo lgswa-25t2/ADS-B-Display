@@ -63,16 +63,16 @@ typedef struct
  bool        Selected;
 }TArea;
 
-// �Ÿ� ���� ������ ������ ����ü
+// 거리 계산 결과를 저장할 구조체
 struct DistanceCache {
     double distance;
     std::chrono::system_clock::time_point timestamp;
 };
 
-// ĳ�� ���� �ð� (�и���)
-const int CACHE_EXPIRY_MS = 3000; // 3��
-const int CACHE_CLEANUP_INTERVAL_MS = 5000; // 5�ʸ��� ĳ�� ����
-const int CACHE_MAX_AGE_MS = 30000; // 30�� �̻� �� ĳ�� ����
+// 캐시 만료 시간 (밀리초)
+const int CACHE_EXPIRY_MS = 3000; // 3 Sec
+const int CACHE_CLEANUP_INTERVAL_MS = 5000; // 5초마다 캐시 정리
+const int CACHE_MAX_AGE_MS = 30000; // 30초 이상 된 캐시 제거
 
 //---------------------------------------------------------------------------
 class  TTCPClientRawHandleThread : public TThread
@@ -197,6 +197,9 @@ __published:	// IDE-managed Components
 	TMenuItem *LoadARTCCBoundaries1;
 	TCheckBox *DisplayAirportCheckBox;
 	TTrackBar *PlaybackSpeedTrackBar;
+	TMenuItem *Help1;
+	TMenuItem *AboutADSBDisplay1;
+	TMenuItem *UserManual1;
 	void __fastcall ObjectDisplayInit(TObject *Sender);
 	void __fastcall ObjectDisplayResize(TObject *Sender);
 	void __fastcall ObjectDisplayPaint(TObject *Sender);
@@ -245,20 +248,22 @@ __published:	// IDE-managed Components
 	void __fastcall DisplayAirportCheckBoxClick(TObject *Sender);
 	void __fastcall PlaybackSpeedTrackBarChanged(TObject *Sender);
 	void __fastcall DrawCircleWithNumber(float x, float y, float radius, int number);
+	void __fastcall AboutADSBDisplay1Click(TObject *Sender);
+	void __fastcall UserManual1Click(TObject *Sender);
 
 private:	// User declarations
-	// �װ���-���� �Ÿ� ĳ��
+	// 항공기-공항 거리 캐시
 	std::map<std::pair<uint32_t, std::string>, DistanceCache> distanceCache;
 	
-	// ĳ�õ� �Ÿ� ���� �Լ�
+	// 캐시된 거리 계산 함수
 	double getCachedDistance(uint32_t aircraftICAO, const std::string& airportICAO, 
 						   double aircraftLat, double aircraftLon,
 						   double airportLat, double airportLon);
 
-	// ĳ�� ���� �Լ�
+	// 캐시 정리 함수
 	void cleanupOldCache();
 	
-	// ������ ĳ�� ���� �ð�
+	// 마지막 캐시 정리 시간
 	std::chrono::system_clock::time_point lastCleanupTime;
 
 public:		// User declarations

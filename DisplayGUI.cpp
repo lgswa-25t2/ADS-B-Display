@@ -10,6 +10,7 @@
 #include <filesystem>
 #include <fileapi.h>
 #include <chrono>
+#include <ShellAPI.h>
 
 #pragma hdrstop
 
@@ -2777,3 +2778,18 @@ void __fastcall TForm1::PlaybackSpeedTrackBarChanged(TObject *Sender)
     printf("PlaybackSpeedTrackBar Changed - Position: %d\n", trackBarValue);
 }
 //---------------------------------------------------------------------------
+void __fastcall TForm1::AboutADSBDisplay1Click(TObject *Sender)
+{
+	printf("About Clicked\n");
+	ShowMessage("Team : SW Architect #2 Challenger\n");
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::UserManual1Click(TObject *Sender)
+{
+   	printf("User Manual Clicked\n");
+	ShellExecute(0, L"open", L"https://www.naver.com", NULL, NULL, SW_SHOWNORMAL);
+}
+//---------------------------------------------------------------------------
+
+

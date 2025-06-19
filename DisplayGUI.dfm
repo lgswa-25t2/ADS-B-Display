@@ -579,7 +579,7 @@ object Form1: TForm1
       Width = 248
       Height = 25
       Align = alTop
-      Caption = 'Control Menu'
+      Caption = 'Control Menu '#9660
       Color = clSkyBlue
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -1652,8 +1652,8 @@ object Form1: TForm1
   object ObjectDisplay: TOpenGLPanel
     Left = 0
     Top = 0
-    Width = 996
-    Height = 804
+    Width = 978
+    Height = 788
     Cursor = crCross
     Align = alClient
     TabOrder = 1

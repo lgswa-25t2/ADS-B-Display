@@ -11,6 +11,7 @@
 #include <fileapi.h>
 #include <chrono>
 #include <ShellAPI.h>
+#include <IniFiles.hpp>
 
 #pragma hdrstop
 
@@ -194,7 +195,13 @@ static char *stristr(const char *String, const char *Pattern)
 __fastcall TForm1::TForm1(TComponent* Owner)
 	: TForm(Owner)
 {
-  AircraftDBPathFileName=ExtractFilePath(ExtractFileDir(Application->ExeName)) +AnsiString("..\\AircraftDB\\")+AIRCRAFT_DATABASE_FILE;
+	// Initialize IP history
+	LoadIpHistory();
+	
+	// Initialize cache cleanup time
+	lastCleanupTime = std::chrono::system_clock::now();
+	
+	AircraftDBPathFileName=ExtractFilePath(ExtractFileDir(Application->ExeName)) +AnsiString("..\\AircraftDB\\")+AIRCRAFT_DATABASE_FILE;
   ARTCCBoundaryDataPathFileName=ExtractFilePath(ExtractFileDir(Application->ExeName)) +AnsiString("..\\ARTCC_Boundary_Data\\")+ARTCC_BOUNDARY_FILE;
   BigQueryPath=ExtractFilePath(ExtractFileDir(Application->ExeName)) +AnsiString("..\\BigQuery\\");
   BigQueryPythonScript= BigQueryPath+ AnsiString(BIG_QUERY_RUN_FILENAME);
@@ -282,7 +289,20 @@ __fastcall TForm1::TForm1(TComponent* Owner)
 //---------------------------------------------------------------------------
 __fastcall TForm1::~TForm1()
 {
- Timer1->Enabled=false;
+	// Save IP history before closing
+	SaveIpHistory();
+	
+	// Clean up IP history
+	if (SBSIpHistory) {
+		delete SBSIpHistory;
+		SBSIpHistory = NULL;
+	}
+	if (RawIpHistory) {
+		delete RawIpHistory;
+		RawIpHistory = NULL;
+	}
+	
+	Timer1->Enabled=false;
  Timer2->Enabled=false;
  delete g_EarthView;
  if (g_GETileManager) delete g_GETileManager;
@@ -2905,6 +2925,9 @@ void __fastcall TConnectionThread::OnConnectionComplete(void)
 		Form1->TCPClientSBSHandleThread->Resume();
 		Form1->SBSConnectButton->Caption = "SBS Disconnect";
 		Form1->SBSConnectButton->Enabled = true;
+		
+		// Add to IP history
+		Form1->AddToIpHistory(Form1->SBSIpAddress->Text, true);
 	} else {
 		Form1->TCPClientRawHandleThread = new TTCPClientRawHandleThread(true);
 		Form1->TCPClientRawHandleThread->UseFileInsteadOfNetwork = false;
@@ -2912,6 +2935,9 @@ void __fastcall TConnectionThread::OnConnectionComplete(void)
 		Form1->TCPClientRawHandleThread->Resume();
 		Form1->RawConnectButton->Caption = "Raw Disconnect";
 		Form1->RawConnectButton->Enabled = true;
+		
+		// Add to IP history
+		Form1->AddToIpHistory(Form1->RawIpAddress->Text, false);
 	}
 }
 //---------------------------------------------------------------------------
@@ -2928,4 +2954,125 @@ void __fastcall TConnectionThread::OnConnectionFailed(void)
 	ShowMessage("Connection failed: " + ErrorMessage);
 }
 
+//---------------------------------------------------------------------------
+// IP 히스토리 로드
+void __fastcall TForm1::LoadIpHistory()
+{
+	SBSIpHistory = new TStringList();
+	RawIpHistory = new TStringList();
+	
+	AnsiString configPath = ExtractFilePath(Application->ExeName) + "ip_history.ini";
+	
+	if (FileExists(configPath)) {
+		TIniFile* ini = new TIniFile(configPath);
+		try {
+			// SBS IP 히스토리 로드
+			int sbsCount = ini->ReadInteger("SBS", "Count", 0);
+			for (int i = 0; i < sbsCount && i < MAX_IP_HISTORY; i++) {
+				AnsiString ip = ini->ReadString("SBS", "IP" + IntToStr(i), "");
+				if (ip != "") {
+					SBSIpHistory->Add(ip);
+				}
+			}
+			
+			// Raw IP 히스토리 로드
+			int rawCount = ini->ReadInteger("Raw", "Count", 0);
+			for (int i = 0; i < rawCount && i < MAX_IP_HISTORY; i++) {
+				AnsiString ip = ini->ReadString("Raw", "IP" + IntToStr(i), "");
+				if (ip != "") {
+					RawIpHistory->Add(ip);
+				}
+			}
+		}
+		__finally {
+			delete ini;
+		}
+	}
+	
+	// 기본값 추가 (히스토리가 비어있는 경우)
+	if (SBSIpHistory->Count == 0) {
+		SBSIpHistory->Add("data.adsbhub.org");
+		SBSIpHistory->Add("128.237.96.41");
+	}
+	
+	if (RawIpHistory->Count == 0) {
+		RawIpHistory->Add("raspberrypi");
+		RawIpHistory->Add("127.0.0.1");
+		RawIpHistory->Add("192.168.1.100");
+	}
+
+	LoadIpHistoryToComboBox();
+}
+//---------------------------------------------------------------------------
+// IP 히스토리 저장
+void __fastcall TForm1::SaveIpHistory()
+{
+	AnsiString configPath = ExtractFilePath(Application->ExeName) + "ip_history.ini";
+	TIniFile* ini = new TIniFile(configPath);
+	
+	try {
+		// SBS IP 히스토리 저장
+		ini->WriteInteger("SBS", "Count", SBSIpHistory->Count);
+		for (int i = 0; i < SBSIpHistory->Count; i++) {
+			ini->WriteString("SBS", "IP" + IntToStr(i), SBSIpHistory->Strings[i]);
+		}
+		
+		// Raw IP 히스토리 저장
+		ini->WriteInteger("Raw", "Count", RawIpHistory->Count);
+		for (int i = 0; i < RawIpHistory->Count; i++) {
+			ini->WriteString("Raw", "IP" + IntToStr(i), RawIpHistory->Strings[i]);
+		}
+	}
+	__finally {
+		delete ini;
+	}
+}
+//---------------------------------------------------------------------------
+// IP 히스토리에 추가
+void __fastcall TForm1::AddToIpHistory(AnsiString ip, bool isSBS)
+{
+	TStringList* history = isSBS ? SBSIpHistory : RawIpHistory;
+	
+	// 이미 존재하는지 확인
+	int existingIndex = history->IndexOf(ip);
+	if (existingIndex >= 0) {
+		// 이미 존재하면 맨 위로 이동
+		history->Move(existingIndex, 0);
+	} else {
+		// 새로 추가
+		history->Insert(0, ip);
+		
+		// 최대 개수 제한
+		if (history->Count > MAX_IP_HISTORY) {
+			history->Delete(MAX_IP_HISTORY);
+		}
+	}
+	
+	// 히스토리 저장
+	SaveIpHistory();
+	LoadIpHistoryToComboBox();
+}
+//---------------------------------------------------------------------------
+// ComboBox에 히스토리 로드
+void __fastcall TForm1::LoadIpHistoryToComboBox()
+{
+	// SBS ComboBox 업데이트
+	SBSIpAddress->Items->Clear();
+	for (int i = 0; i < SBSIpHistory->Count; i++) {
+		SBSIpAddress->Items->Add(SBSIpHistory->Strings[i]);
+	}
+	if (SBSIpAddress->Items->Count > 0) {
+		SBSIpAddress->Text = SBSIpHistory->Strings[0];
+	}
+	
+	// Raw ComboBox 업데이트
+	RawIpAddress->Items->Clear();
+	for (int i = 0; i < RawIpHistory->Count; i++) {
+		RawIpAddress->Items->Add(RawIpHistory->Strings[i]);
+	}
+	if (RawIpAddress->Items->Count > 0) {
+		RawIpAddress->Text = RawIpHistory->Strings[0];
+	}
+}
+//---------------------------------------------------------------------------
 

@@ -154,7 +154,7 @@ __published:	// IDE-managed Components
 	TButton *RawConnectButton;
 	TLabel *Label16;
 	TLabel *Label17;
-	TEdit *RawIpAddress;
+	TComboBox *RawIpAddress;
 	TIdTCPClient *IdTCPClientRaw;
 	TSaveDialog *RecordRawSaveDialog;
 	TOpenDialog *PlaybackRawDialog;
@@ -194,7 +194,7 @@ __published:	// IDE-managed Components
 	TButton *RawRecordButton;
 	TIdTCPClient *IdTCPClientSBS;
 	TButton *SBSConnectButton;
-	TEdit *SBSIpAddress;
+	TComboBox *SBSIpAddress;
 	TButton *SBSRecordButton;
 	TButton *SBSPlaybackButton;
 	TSaveDialog *RecordSBSSaveDialog;
@@ -283,6 +283,16 @@ private:	// User declarations
 	// 마지막 캐시 정리 시간
 	std::chrono::system_clock::time_point lastCleanupTime;
 
+	// IP 주소 히스토리 관리
+	TStringList* SBSIpHistory;
+	TStringList* RawIpHistory;
+	const int MAX_IP_HISTORY = 10; // 최대 10개까지 저장
+	
+	// IP 히스토리 관리 함수들
+	void LoadIpHistory();
+	void SaveIpHistory();
+	void LoadIpHistoryToComboBox();
+
 public:		// User declarations
 	__fastcall TForm1(TComponent* Owner);
 	__fastcall ~TForm1();
@@ -346,6 +356,9 @@ public:		// User declarations
 
 	// Airport management
 	AirportDataManager        *airportManager;
+
+	// IP 히스토리에 추가 (public으로 이동)
+	void AddToIpHistory(AnsiString ip, bool isSBS);
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TForm1 *Form1;

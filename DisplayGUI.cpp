@@ -1882,11 +1882,6 @@ void __fastcall TForm1::SBSConnectButtonClick(TObject *Sender)
  IdTCPClientSBS->Host=SBSIpAddress->Text;
  IdTCPClientSBS->Port=5002;
 
- // test code
-//  SBSTimeoutPopupShown = false;
-//  LastSBSDataReceiveTime = GetCurrentTimeInMsec();
-//  SBSConnectButton->Caption="SBS Disconnect";
-
  if ((SBSConnectButton->Caption=="SBS Connect") && (Sender!=NULL))
  {
   try

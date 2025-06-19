@@ -1709,32 +1709,15 @@ void __fastcall TTCPClientRawHandleThread::HandleInput(void)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::RawConnectButtonClick(TObject *Sender)
 {
- IdTCPClientRaw->Host=RawIpAddress->Text;
- IdTCPClientRaw->Port=30002;
-
- // Set connection timeout to prevent hanging
- IdTCPClientRaw->ConnectTimeout = 5000; // 5 seconds timeout
- IdTCPClientRaw->ReadTimeout = 10000;   // 10 seconds read timeout
-
- //test code
- //LastHeartbeatTime = GetCurrentTimeInMsec();
- //RawTimeoutPopupShown = false;
- //RawConnectButton->Caption="Raw Disconnect";
-
  if ((RawConnectButton->Caption=="Raw Connect") && (Sender!=NULL))
  {
-  try
-   {
-   IdTCPClientRaw->Connect();
-   TCPClientRawHandleThread = new TTCPClientRawHandleThread(true);
-   TCPClientRawHandleThread->UseFileInsteadOfNetwork=false;
-   TCPClientRawHandleThread->FreeOnTerminate=TRUE;
-   TCPClientRawHandleThread->Resume();
-   }
-   catch (const Exception& e)
-   {
-    ShowMessage("Error while connecting: "+e.Message);
-   }
+  // Disable button to prevent multiple clicks
+  RawConnectButton->Enabled = false;
+  RawConnectButton->Caption = "Connecting...";
+  
+  // Start connection in separate thread to keep UI responsive
+  TConnectionThread* connectionThread = new TConnectionThread(RawIpAddress->Text, 30002, false);
+  connectionThread->Resume();
  }
  else
   {
@@ -1955,32 +1938,15 @@ void __fastcall TForm1::CycleImagesClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::SBSConnectButtonClick(TObject *Sender)
 {
- IdTCPClientSBS->Host=SBSIpAddress->Text;
- IdTCPClientSBS->Port=5002;
-
- // Set connection timeout to prevent hanging
- IdTCPClientSBS->ConnectTimeout = 5000; // 5 seconds timeout
- IdTCPClientSBS->ReadTimeout = 10000;   // 10 seconds read timeout
-
- // test code
-//  SBSTimeoutPopupShown = false;
-//  LastSBSDataReceiveTime = GetCurrentTimeInMsec();
-//  SBSConnectButton->Caption="SBS Disconnect";
-
  if ((SBSConnectButton->Caption=="SBS Connect") && (Sender!=NULL))
  {
-  try
-   {
-   IdTCPClientSBS->Connect();
-   TCPClientSBSHandleThread = new TTCPClientSBSHandleThread(true);
-   TCPClientSBSHandleThread->UseFileInsteadOfNetwork=false;
-   TCPClientSBSHandleThread->FreeOnTerminate=TRUE;
-   TCPClientSBSHandleThread->Resume();
-   }
-   catch (const Exception& e)
-   {
-	ShowMessage("Error while connecting: "+e.Message);
-   }
+  // Disable button to prevent multiple clicks
+  SBSConnectButton->Enabled = false;
+  SBSConnectButton->Caption = "Connecting...";
+  
+  // Start connection in separate thread to keep UI responsive
+  TConnectionThread* connectionThread = new TConnectionThread(SBSIpAddress->Text, 5002, true);
+  connectionThread->Resume();
  }
  else
   {
@@ -1990,7 +1956,6 @@ void __fastcall TForm1::SBSConnectButtonClick(TObject *Sender)
 	SBSConnectButton->Caption="SBS Connect";
 	SBSPlaybackButton->Enabled=true;
   }
-
 }
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
@@ -2885,5 +2850,82 @@ void __fastcall TForm1::UserManual1Click(TObject *Sender)
 	ShellExecute(0, L"open", L"https://www.naver.com", NULL, NULL, SW_SHOWNORMAL);
 }
 //---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+// Constructor for the connection thread class
+__fastcall TConnectionThread::TConnectionThread(AnsiString host, int port, bool isSBS) : TThread(true)
+{
+	Host = host;
+	Port = port;
+	IsSBS = isSBS;
+	FreeOnTerminate = true;
+}
+//---------------------------------------------------------------------------
+// Destructor for the connection thread class
+__fastcall TConnectionThread::~TConnectionThread()
+{
+	// Clean up resources if needed
+}
+//---------------------------------------------------------------------------
+// Execute method for connection thread
+void __fastcall TConnectionThread::Execute(void)
+{
+	try {
+		if (IsSBS) {
+			Form1->IdTCPClientSBS->Host = Host;
+			Form1->IdTCPClientSBS->Port = Port;
+			Form1->IdTCPClientSBS->ConnectTimeout = 5000;
+			Form1->IdTCPClientSBS->ReadTimeout = 10000;
+			Form1->IdTCPClientSBS->Connect();
+		} else {
+			Form1->IdTCPClientRaw->Host = Host;
+			Form1->IdTCPClientRaw->Port = Port;
+			Form1->IdTCPClientRaw->ConnectTimeout = 5000;
+			Form1->IdTCPClientRaw->ReadTimeout = 10000;
+			Form1->IdTCPClientRaw->Connect();
+		}
+		
+		// Connection successful, update UI on main thread
+		TThread::Synchronize(OnConnectionComplete);
+	}
+	catch (const Exception& e) {
+		// Store error message and restore UI on main thread
+		ErrorMessage = e.Message;
+		TThread::Synchronize(OnConnectionFailed);
+	}
+}
+//---------------------------------------------------------------------------
+// UI update method called on main thread
+void __fastcall TConnectionThread::OnConnectionComplete(void)
+{
+	if (IsSBS) {
+		Form1->TCPClientSBSHandleThread = new TTCPClientSBSHandleThread(true);
+		Form1->TCPClientSBSHandleThread->UseFileInsteadOfNetwork = false;
+		Form1->TCPClientSBSHandleThread->FreeOnTerminate = TRUE;
+		Form1->TCPClientSBSHandleThread->Resume();
+		Form1->SBSConnectButton->Caption = "SBS Disconnect";
+		Form1->SBSConnectButton->Enabled = true;
+	} else {
+		Form1->TCPClientRawHandleThread = new TTCPClientRawHandleThread(true);
+		Form1->TCPClientRawHandleThread->UseFileInsteadOfNetwork = false;
+		Form1->TCPClientRawHandleThread->FreeOnTerminate = TRUE;
+		Form1->TCPClientRawHandleThread->Resume();
+		Form1->RawConnectButton->Caption = "Raw Disconnect";
+		Form1->RawConnectButton->Enabled = true;
+	}
+}
+//---------------------------------------------------------------------------
+// UI update method called on main thread when connection fails
+void __fastcall TConnectionThread::OnConnectionFailed(void)
+{
+	if (IsSBS) {
+		Form1->SBSConnectButton->Caption = "SBS Connect";
+		Form1->SBSConnectButton->Enabled = true;
+	} else {
+		Form1->RawConnectButton->Caption = "Raw Connect";
+		Form1->RawConnectButton->Enabled = true;
+	}
+	ShowMessage("Connection failed: " + ErrorMessage);
+}
 
 

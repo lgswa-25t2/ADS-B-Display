@@ -111,6 +111,23 @@ public:
 };
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
+class  TConnectionThread : public TThread
+{
+private:
+	AnsiString Host;
+	int Port;
+	bool IsSBS;
+	AnsiString ErrorMessage;
+	void __fastcall OnConnectionComplete(void);
+	void __fastcall OnConnectionFailed(void);
+protected:
+	void __fastcall Execute(void);
+public:
+	__fastcall TConnectionThread(AnsiString host, int port, bool isSBS);
+	~TConnectionThread();
+};
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 class TForm1 : public TForm
 {
 __published:	// IDE-managed Components

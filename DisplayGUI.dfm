@@ -506,7 +506,7 @@ object Form1: TForm1
       object SBSPlaybackButton: TButton
         Left = 115
         Top = 150
-        Width = 96
+        Width = 120
         Height = 17
         Caption = 'SBS Playback'
         Font.Charset = ANSI_CHARSET
@@ -579,7 +579,7 @@ object Form1: TForm1
       Width = 248
       Height = 25
       Align = alTop
-      Caption = 'Control Menu'
+      Caption = 'Control Menu '#9660
       Color = clSkyBlue
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -609,7 +609,7 @@ object Form1: TForm1
       object PanelTitle2: TLabel
         Left = 1
         Top = 1
-        Width = 246
+        Width = 123
         Height = 18
         Align = alTop
         Alignment = taCenter
@@ -622,7 +622,6 @@ object Form1: TForm1
         Font.Style = [fsBold]
         ParentColor = False
         ParentFont = False
-        ExplicitWidth = 123
       end
       object Panel4: TScrollBox
         Left = 1
@@ -1652,8 +1651,8 @@ object Form1: TForm1
   object ObjectDisplay: TOpenGLPanel
     Left = 0
     Top = 0
-    Width = 996
-    Height = 804
+    Width = 978
+    Height = 788
     Cursor = crCross
     Align = alClient
     TabOrder = 1
@@ -1676,6 +1675,8 @@ object Form1: TForm1
     OnInit = ObjectDisplayInit
     OnResize = ObjectDisplayResize
     OnPaint = ObjectDisplayPaint
+    ExplicitWidth = 996
+    ExplicitHeight = 804
     object PlaybackSpeedTrackBar: TTrackBar
       Left = 542
       Top = 0

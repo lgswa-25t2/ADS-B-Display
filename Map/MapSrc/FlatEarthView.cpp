@@ -154,3 +154,37 @@ void FlatEarthView::NormalizeEye() {
 	if (m_Eye.h > MAX_HEIGHT)	m_Eye.h = MAX_HEIGHT;
 }
 
+int FlatEarthView::ZoomAtPoint(int x, int y, int flags) {
+    // 1. 현재 뷰포트 크기에 따른 스팬 계산
+    double yspan = m_Eye.yspan((double)m_ViewportWidth/(double)m_ViewportHeight);
+    double xspan = m_Eye.xspan((double)m_ViewportWidth/(double)m_ViewportHeight);
+
+    // 2. 마우스 위치를 화면 중심 기준 상대 좌표로 변환
+    double mouseX = (double)(x - m_ViewportWidth/2) / (double)m_ViewportWidth;
+    double mouseY = (double)(y - m_ViewportHeight/2) / (double)m_ViewportHeight;
+
+    // 3. 마우스 위치의 세계 좌표 계산
+    double worldX = m_Eye.x + mouseX * xspan;
+    double worldY = m_Eye.y - mouseY * yspan;  // Y축은 반전
+
+    // 4. 줌 레벨 조정
+    double zoomFactor = 1.3;
+    if (flags & NAV_ZOOM_IN) {
+        m_Eye.h /= zoomFactor;
+    } else if (flags & NAV_ZOOM_OUT) {
+        m_Eye.h *= zoomFactor;
+    }
+
+    // 5. 새로운 스팬 계산
+    double newYspan = m_Eye.yspan((double)m_ViewportWidth/(double)m_ViewportHeight);
+    double newXspan = m_Eye.xspan((double)m_ViewportWidth/(double)m_ViewportHeight);
+
+    // 6. 마우스 위치를 중심으로 Eye 좌표 조정
+    m_Eye.x = worldX - mouseX * newXspan;
+    m_Eye.y = worldY + mouseY * newYspan;
+
+    // 7. 좌표 정규화
+    NormalizeEye();
+
+    return 1;
+}

@@ -633,6 +633,7 @@ void __fastcall TForm1::DrawObjects(void)
 	{
 	  if (Data->HaveLatLon)
 	  {
+		  ViewableAircraft++;
 		  double aircraftX, aircraftY;
 		  // calculate distance between aircraft and airport
 		  bool isNearAirport = false;
@@ -677,7 +678,6 @@ void __fastcall TForm1::DrawObjects(void)
 		  }
 
 			UpdateAircraftHistory(Data);
-			ViewableAircraft++;
 
 	   LatLon2XY(Data->Latitude,Data->Longitude, ScrX, ScrY);
 	   

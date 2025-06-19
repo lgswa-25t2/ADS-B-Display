@@ -840,6 +840,17 @@ void __fastcall TForm1::DrawObjects(void)
 					continue;
 				}
 
+				// Error Handling - Check difference with previous value
+				if (i > 0) {
+					int prevIdx = (Data->HistoryIndex - i + FLIGHT_TRACK_HISTORY_COUNT) % FLIGHT_TRACK_HISTORY_COUNT;
+					double latDiff = fabs(Data->PrevLatitude[idx] - Data->PrevLatitude[prevIdx]);
+					double lonDiff = fabs(Data->PrevLongitude[idx] - Data->PrevLongitude[prevIdx]);
+					if (latDiff > 0.8 || lonDiff > 0.8) {
+						printf("Too big diff: %s idx=%d prevIdx=%d latDiff=%.6f lonDiff=%.6f\n", Data->HexAddr, idx, prevIdx, latDiff, lonDiff);
+						continue;
+					}
+				}
+
 				glColor4f(1.0, 1.0, 1.0, 0.7);
 				glLineWidth(3.0);
 				double historyScrX, historyScrY;

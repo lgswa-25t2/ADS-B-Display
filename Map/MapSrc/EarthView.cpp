@@ -46,3 +46,7 @@ int EarthView::StopMovement(int flags) {
 int EarthView::SingleMovement(int flags) {
 	return 0;
 }
+
+int EarthView::ZoomAtPoint(int x, int y, int flags) {
+    return 0;
+}

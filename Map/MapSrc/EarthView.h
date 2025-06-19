@@ -37,6 +37,7 @@ public:
 	virtual int StartMovement(int flags);
 	virtual int StopMovement(int flags);
 	virtual int SingleMovement(int flags);
+    virtual int ZoomAtPoint(int x, int y, int flags);
 	Eye             m_Eye;			///< Current viewer's position
 protected:
 	MasterLayer     *m_MasterLayer;		///< Master layer to use

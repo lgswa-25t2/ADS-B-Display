@@ -42,6 +42,8 @@ public:
 	int StartMovement(int flags);
 	int StopMovement(int flags);
 	int SingleMovement(int flags);
+	// 마우스 위치 기준 줌 메서드 추가
+	int ZoomAtPoint(int x, int y, int flags);
 
 private:
 	/**

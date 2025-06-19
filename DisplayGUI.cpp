@@ -1645,10 +1645,33 @@ void __fastcall TForm1::DeleteAllAreas(void)
 void __fastcall TForm1::FormMouseWheel(TObject *Sender, TShiftState Shift,
 	  int WheelDelta, TPoint &MousePos, bool &Handled)
 {
+/*
  if (WheelDelta>0)
 	  g_EarthView->SingleMovement(NAV_ZOOM_IN);
  else g_EarthView->SingleMovement(NAV_ZOOM_OUT);
   ObjectDisplay->Repaint();
+*/
+
+      // 마우스 위치가 ObjectDisplay 내부인지 확인
+	if (MousePos.x >= 0 && MousePos.x < ObjectDisplay->Width &&
+		MousePos.y >= 0 && MousePos.y < ObjectDisplay->Height) {
+
+		// 마우스 위치 기준 줌
+		if (WheelDelta > 0) {
+			g_EarthView->ZoomAtPoint(MousePos.x, MousePos.y, NAV_ZOOM_IN);
+		} else {
+			g_EarthView->ZoomAtPoint(MousePos.x, MousePos.y, NAV_ZOOM_OUT);
+		}
+	} else {
+        // 화면 밖이면 기존 방식 (화면 중심 기준)
+		if (WheelDelta > 0) {
+            g_EarthView->SingleMovement(NAV_ZOOM_IN);
+		} else {
+			g_EarthView->SingleMovement(NAV_ZOOM_OUT);
+        }
+	}
+
+	ObjectDisplay->Repaint();
 }                                  
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------

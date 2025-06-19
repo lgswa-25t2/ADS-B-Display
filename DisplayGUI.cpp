@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 
 #include <vcl.h>
 #include <new>
@@ -229,6 +229,7 @@ __fastcall TForm1::TForm1(TComponent* Owner)
  //MapComboBox->ItemIndex=SkyVector_VFR;
  //MapComboBox->ItemIndex=SkyVector_IFR_Low;
  //MapComboBox->ItemIndex=SkyVector_IFR_High;
+ //MapComboBox->ItemIndex=OpenStreetMaps;
  LoadMap(MapComboBox->ItemIndex);
 
  g_EarthView->m_Eye.h /= pow(1.3,18);//pow(1.3,43);
@@ -387,10 +388,10 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
      lastCacheCheck = CurrentTime;
  }
  
-   // RawData Å¸ÀÓ¾Æ¿ô Ã¼Å©
+   // RawData Å¸ï¿½Ó¾Æ¿ï¿½ Ã¼Å©
   __int64 now = GetCurrentTimeInMsec();
   if (RawConnectButton->Caption=="Raw Disconnect") {
-	if (!RawTimeoutPopupShown && (now - LastHeartbeatTime > 10000)) // 10ÃÊ
+	if (!RawTimeoutPopupShown && (now - LastHeartbeatTime > 10000)) // 10ï¿½ï¿½
 	{
 		RawTimeoutPopupShown = true;
 		if (Form1->IdTCPClientRaw->Connected()) {
@@ -404,9 +405,9 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
 	}
   }
 
-	 // SBSData ³»¿¡¼­ Å¸ÀÓ¾Æ¿ô Ã¼Å©
+	 // SBSData ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½Ó¾Æ¿ï¿½ Ã¼Å©
   if (SBSConnectButton->Caption=="SBS Disconnect") {
-	if (!SBSTimeoutPopupShown && (now - LastSBSDataReceiveTime > 10000)) // 10ÃÊ
+	if (!SBSTimeoutPopupShown && (now - LastSBSDataReceiveTime > 10000)) // 10ï¿½ï¿½
 	{
 		SBSTimeoutPopupShown = true;
 		if (Form1->IdTCPClientSBS->Connected()) {
@@ -425,7 +426,7 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::DrawObjects(void)
 {
-    // Ä³½Ã Á¤¸® ½ÇÇà
+    // Ä³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     cleanupOldCache();
     
     double ScrX, ScrY;
@@ -643,7 +644,7 @@ void __fastcall TForm1::DrawObjects(void)
 			// Convert screen corner coordinates to latitude and longitude
 			LatLon2XY(Data->Latitude, Data->Longitude, aircraftX, aircraftY);
 
-			// È­¸é ¹ÛÀÇ Ç×°ø±â´Â °è»êÇÏÁö ¾ÊÀ½
+			// È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½×°ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			if (!(0 <= aircraftX && aircraftX < screenWidth && 0 <= aircraftY && aircraftY < screenHeight))
 			{
 				continue;
@@ -655,13 +656,13 @@ void __fastcall TForm1::DrawObjects(void)
 			double airportX, airportY;
 			for (const auto& airport : visibleAirports) {
 			  LatLon2XY(airport.latitude, airport.longitude, airportX, airportY);
-			  // È­¸é ¹ÛÀÇ °øÇ×Àº °è»êÇÏÁö ¾ÊÀ½
+			  // È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			  if (!(0 <= airportX && airportX < screenWidth && 0 <= airportY && airportY < screenHeight))
 			  {
 				continue;
 			  }
 
-			  // Ä³½ÃµÈ °Å¸® °è»ê »ç¿ë
+			  // Ä³ï¿½Ãµï¿½ ï¿½Å¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			  double distance = getCachedDistance(Data->ICAO, airport.icao,
 											   Data->Latitude, Data->Longitude,
 											   airport.latitude, airport.longitude);
@@ -965,7 +966,7 @@ void __fastcall TForm1::DrawObjects(void)
 
 void __fastcall TForm1::DrawCircleWithNumber(float x, float y, float radius, int number)
 {
-    // ¿ø ±×¸®±â
+    // ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½
     glBegin(GL_TRIANGLE_FAN);
     glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
     glVertex2f(x, y);
@@ -975,7 +976,7 @@ void __fastcall TForm1::DrawCircleWithNumber(float x, float y, float radius, int
     }
     glEnd();
 
-    // ¿ø Å×µÎ¸® ±×¸®±â
+    // ï¿½ï¿½ ï¿½×µÎ¸ï¿½ ï¿½×¸ï¿½ï¿½ï¿½
     /*
     glBegin(GL_LINE_LOOP);
     glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
@@ -986,16 +987,16 @@ void __fastcall TForm1::DrawCircleWithNumber(float x, float y, float radius, int
     glEnd();
     */
 
-    // ¼ýÀÚ ±×¸®±â
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½
     char numStr[10];
     sprintf(numStr, "%d", number);
     
-    // ¼ýÀÚ À§Ä¡ °è»ê (Áß¾Ó Á¤·Ä)
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ (ï¿½ß¾ï¿½ ï¿½ï¿½ï¿½ï¿½)
     int textWidth = strlen(numStr) * 8;
     float textX = x - textWidth / 2.0f - textWidth / 2.0f;
     float textY = y - 10.0f;
 
-    // ¼ýÀÚ ±×¸®±â
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½
     glColor4f(0.1f, 0.1f, 0.1f, 1.0f);
     glRasterPos2i(textX,textY);
 	ObjectDisplay->Draw2DText(numStr);
@@ -1657,7 +1658,7 @@ void __fastcall TTCPClientRawHandleThread::HandleInput(void)
   }
   else
   {
-	 //°í°´¾ÀÀº ¾Æ´Òµí
+	 //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ´Òµï¿½
 	 //ShowMessage("Error while connecting: E%.2d"+Status);
   }
   
@@ -1936,7 +1937,7 @@ void __fastcall TTCPClientSBSHandleThread::HandleInput(void)
 	}
   }
 
-	// SBS ¸Þ½ÃÁö Ã³¸® ½Ã Å¸ÀÓ¾Æ¿ô °¨Áö
+	// SBS ï¿½Þ½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½ ï¿½ï¿½ Å¸ï¿½Ó¾Æ¿ï¿½ ï¿½ï¿½ï¿½ï¿½
   if (StringMsgBuffer.Length() > 0) {
 	  LastSBSDataReceiveTime = GetCurrentTimeInMsec();
 	  SBSTimeoutPopupShown = false;
@@ -2140,6 +2141,7 @@ void __fastcall TForm1::TimeToGoTrackBarChange(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::LoadMap(int Type)
 {
+   info("%s: Loading map type %d\n", __func__, Type);
    AnsiString  HomeDir = ExtractFilePath(ExtractFileDir(Application->ExeName));
     if (Type==GoogleMaps)
    {
@@ -2217,9 +2219,25 @@ void __fastcall TForm1::LoadMap(int Type)
 	    g_Storage->SetNextLoadStorage(g_Keyhole);
 	   }
     }
-//	else if(Type==OpenStreetMap){
-//
-//    }
+	else if (Type==OpenStreetMaps)
+	{
+	    HomeDir= "D:\\OpenstreetMap";
+	    if (LoadMapFromInternet) HomeDir+= "_Live\\";
+	    else  HomeDir+= "\\";
+	    std::string cachedir;
+	    cachedir=HomeDir.c_str();
+
+	    if (mkdir(cachedir.c_str()) != 0 && errno != EEXIST)
+	    	throw Sysutils::Exception("Can not create cache directory");
+
+	    g_Storage = new FilesystemStorage(cachedir, true, OpenStreetMaps);
+	    if (LoadMapFromInternet)
+	    {
+	        g_Keyhole = new KeyholeConnection(OpenStreetMaps);
+	        g_Keyhole->SetSaveStorage(g_Storage);
+	        g_Storage->SetNextLoadStorage(g_Keyhole);
+	    }
+	}
    g_GETileManager = new TileManager(g_Storage);
    
    // dynamic cache by system memory
@@ -2242,7 +2260,11 @@ void __fastcall TForm1::LoadMap(int Type)
        g_GETileManager->SetMaxTextures(maxTextures);
        printf("System RAM: %lld MB, Max Textures: %d\n", totalPhysMB, maxTextures);
    }
-   g_MasterLayer = new GoogleLayer(g_GETileManager);
+   if (Type == OpenStreetMaps) {
+       g_MasterLayer = new OsmLayer(g_GETileManager);
+   } else {
+       g_MasterLayer = new GoogleLayer(g_GETileManager);
+   }
 
    g_EarthView = new FlatEarthView(g_MasterLayer);
    g_EarthView->Resize(ObjectDisplay->Width,ObjectDisplay->Height);
@@ -2277,11 +2299,11 @@ void __fastcall TForm1::MapComboBoxCloseUp(TObject *Sender)
     // update map index that is really selected
     SelectedMapIndex = MapComboBox->ItemIndex;
     
-    if (SelectedMapIndex==0)   LoadMap(GoogleMaps);
-    else if (SelectedMapIndex==1)  LoadMap(SkyVector_VFR);
-    else if (SelectedMapIndex==2)  LoadMap(SkyVector_IFR_Low);
-    else if (SelectedMapIndex==3)   LoadMap(SkyVector_IFR_High);
-    //else if (SelectedMapIndex==4)   LoadMap(OpenStreetMap);
+    if (MapComboBox->ItemIndex==GoogleMaps)   LoadMap(GoogleMaps);
+    else if (MapComboBox->ItemIndex==SkyVector_VFR)  LoadMap(SkyVector_VFR);
+    else if (MapComboBox->ItemIndex==SkyVector_IFR_Low)  LoadMap(SkyVector_IFR_Low);
+    else if (MapComboBox->ItemIndex==SkyVector_IFR_High)   LoadMap(SkyVector_IFR_High);
+    else if (MapComboBox->ItemIndex==OpenStreetMaps)   LoadMap(OpenStreetMaps);
 
      g_EarthView->m_Eye.h =m_Eyeh;
      g_EarthView->m_Eye.x=m_Eyex;
@@ -2666,17 +2688,17 @@ void __fastcall TForm1::DrawAirportInfo(double lat, double lon, const char* name
     ObjectDisplay->Draw2DText(name);
 }
 
-// Ä³½ÃµÈ °Å¸® °è»ê ÇÔ¼ö ±¸Çö
+// Ä³ï¿½Ãµï¿½ ï¿½Å¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ ï¿½ï¿½ï¿½ï¿½
 double TForm1::getCachedDistance(uint32_t aircraftICAO, const std::string& airportICAO,
                                double aircraftLat, double aircraftLon,
                                double airportLat, double airportLon) {
     auto now = std::chrono::system_clock::now();
     auto key = std::make_pair(aircraftICAO, airportICAO);
     
-    // Ä³½Ã¿¡¼­ °Å¸® Ã£±â
+    // Ä³ï¿½Ã¿ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½ Ã£ï¿½ï¿½
     auto it = distanceCache.find(key);
     if (it != distanceCache.end()) {
-        // Ä³½Ã°¡ ¸¸·áµÇÁö ¾Ê¾Ò´ÂÁö È®ÀÎ
+        // Ä³ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¾Ò´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
         auto age = std::chrono::duration_cast<std::chrono::milliseconds>(
             now - it->second.timestamp).count();
         if (age < CACHE_EXPIRY_MS) {
@@ -2684,14 +2706,14 @@ double TForm1::getCachedDistance(uint32_t aircraftICAO, const std::string& airpo
         }
     }
     
-    // Ä³½Ã¿¡ ¾ø°Å³ª ¸¸·áµÈ °æ¿ì »õ·Î °è»ê
+    // Ä³ï¿½Ã¿ï¿½ ï¿½ï¿½ï¿½Å³ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     double dlat = aircraftLat - airportLat;
     double dlon = aircraftLon - airportLon;
     double latDist = dlat * 60.0;
     double lonDist = dlon * 60.0 * cos(aircraftLat * M_PI/180.0);
     double distance = sqrt(latDist * latDist + lonDist * lonDist);
     
-    // °á°ú¸¦ Ä³½Ã¿¡ ÀúÀå
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ä³ï¿½Ã¿ï¿½ ï¿½ï¿½ï¿½ï¿½
     DistanceCache cache;
     cache.distance = distance;
     cache.timestamp = now;
@@ -2700,18 +2722,18 @@ double TForm1::getCachedDistance(uint32_t aircraftICAO, const std::string& airpo
     return distance;
 }
 
-// Ä³½Ã Á¤¸® ÇÔ¼ö ±¸Çö
+// Ä³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ ï¿½ï¿½ï¿½ï¿½
 void TForm1::cleanupOldCache() {
     auto now = std::chrono::system_clock::now();
     
-    // ¸¶Áö¸· Á¤¸® ÀÌÈÄ ÀÏÁ¤ ½Ã°£ÀÌ Áö³µ´ÂÁö È®ÀÎ
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È®ï¿½ï¿½
     auto timeSinceLastCleanup = std::chrono::duration_cast<std::chrono::milliseconds>(
         now - lastCleanupTime).count();
     if (timeSinceLastCleanup < CACHE_CLEANUP_INTERVAL_MS) {
         return;
     }
     
-    // ¿À·¡µÈ Ä³½Ã Ç×¸ñ Á¦°Å
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ä³ï¿½ï¿½ ï¿½×¸ï¿½ ï¿½ï¿½ï¿½ï¿½
     for (auto it = distanceCache.begin(); it != distanceCache.end();) {
         auto age = std::chrono::duration_cast<std::chrono::milliseconds>(
             now - it->second.timestamp).count();

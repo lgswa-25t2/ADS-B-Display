@@ -24,7 +24,7 @@ public:
 	 *
 	 * @param root path to root directory of the storage
 	 */
-	FilesystemStorage(std::string root,bool UseGE);
+	FilesystemStorage(std::string root,bool UseGE, int maptype=GoogleMaps);
 
 	/**
 	 * Destructor.
@@ -50,6 +50,7 @@ private:
 private:
 	std::string	m_StorageRoot;	///< Root directory of the storage
 	bool m_UseGE;
+	int m_MapType;	///< Map type, used to determine path structure
 };
 //---------------------------------------------------------------------------
 #endif

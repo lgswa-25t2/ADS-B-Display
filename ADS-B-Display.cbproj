@@ -283,6 +283,10 @@
             <DependentOn>Map\MapSrc\GoogleLayer.h</DependentOn>
             <BuildOrder>24</BuildOrder>
         </CppCompile>
+        <CppCompile Include="Map\MapSrc\OsmLayer.cpp">
+            <DependentOn>Map\MapSrc\OsmLayer.h</DependentOn>
+            <BuildOrder>24</BuildOrder>
+        </CppCompile>
         <CppCompile Include="Map\MapSrc\KeyholeConnection.cpp">
             <DependentOn>Map\MapSrc\KeyholeConnection.h</DependentOn>
             <BuildOrder>24</BuildOrder>

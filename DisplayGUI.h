@@ -17,6 +17,7 @@
 #include "FilesystemStorage.h"
 #include "KeyholeConnection.h"
 #include "GoogleLayer.h"
+#include "OsmLayer.h"
 #include "FlatEarthView.h"
 #include "ght_hash_table.h"
 #include "TriangulatPoly.h"
@@ -62,16 +63,16 @@ typedef struct
  bool        Selected;
 }TArea;
 
-// °Å¸® °è»ê °á°ú¸¦ ÀúÀåÇÒ ±¸Á¶Ã¼
+// ï¿½Å¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã¼
 struct DistanceCache {
     double distance;
     std::chrono::system_clock::time_point timestamp;
 };
 
-// Ä³½Ã ¸¸·á ½Ã°£ (¹Ð¸®ÃÊ)
-const int CACHE_EXPIRY_MS = 3000; // 3ÃÊ
-const int CACHE_CLEANUP_INTERVAL_MS = 5000; // 5ÃÊ¸¶´Ù Ä³½Ã Á¤¸®
-const int CACHE_MAX_AGE_MS = 30000; // 30ÃÊ ÀÌ»ó µÈ Ä³½Ã Á¦°Å
+// Ä³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ (ï¿½Ð¸ï¿½ï¿½ï¿½)
+const int CACHE_EXPIRY_MS = 3000; // 3ï¿½ï¿½
+const int CACHE_CLEANUP_INTERVAL_MS = 5000; // 5ï¿½Ê¸ï¿½ï¿½ï¿½ Ä³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+const int CACHE_MAX_AGE_MS = 30000; // 30ï¿½ï¿½ ï¿½Ì»ï¿½ ï¿½ï¿½ Ä³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 //---------------------------------------------------------------------------
 class  TTCPClientRawHandleThread : public TThread
@@ -246,18 +247,18 @@ __published:	// IDE-managed Components
 	void __fastcall DrawCircleWithNumber(float x, float y, float radius, int number);
 
 private:	// User declarations
-	// Ç×°ø±â-°øÇ× °Å¸® Ä³½Ã
+	// ï¿½×°ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½ Ä³ï¿½ï¿½
 	std::map<std::pair<uint32_t, std::string>, DistanceCache> distanceCache;
 	
-	// Ä³½ÃµÈ °Å¸® °è»ê ÇÔ¼ö
+	// Ä³ï¿½Ãµï¿½ ï¿½Å¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
 	double getCachedDistance(uint32_t aircraftICAO, const std::string& airportICAO, 
 						   double aircraftLat, double aircraftLon,
 						   double airportLat, double airportLon);
 
-	// Ä³½Ã Á¤¸® ÇÔ¼ö
+	// Ä³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
 	void cleanupOldCache();
 	
-	// ¸¶Áö¸· Ä³½Ã Á¤¸® ½Ã°£
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ä³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½
 	std::chrono::system_clock::time_point lastCleanupTime;
 
 public:		// User declarations

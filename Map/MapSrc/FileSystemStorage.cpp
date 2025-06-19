@@ -13,9 +13,10 @@
 
 
 
-FilesystemStorage::FilesystemStorage(std::string root,bool UseGE) {
+FilesystemStorage::FilesystemStorage(std::string root,bool UseGE,int maptype) {
 	m_StorageRoot = root;
 	m_UseGE=UseGE;
+	m_MapType=maptype;
 }
 
 FilesystemStorage::~FilesystemStorage() {
@@ -108,7 +109,14 @@ std::string FilesystemStorage::PathFromCoordsGE(int x, int y, int level, int typ
 
 	if (type == TILETYPE_TEXTURE)
 		ext =(char *) ".jpg";
-
+	if (m_MapType == OpenStreetMaps) {
+		// OpenStreetMaps uses a different path structure
+		if (level > 9) level = 9;
+		if (x > (1 << level) - 1) x = (1 << level) - 1;
+		if (y > (1 << level) - 1) y = (1 << level) - 1;
+		name = std::to_string(level) + "_" + std::to_string(x) + "_" + std::to_string(y);
+		return name + ext;
+	}
 	int deepness = 0;
 	for (; level >= 0; level--) {
 		int middle = 1 << level;

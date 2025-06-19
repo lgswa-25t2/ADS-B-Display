@@ -22,8 +22,16 @@ void debug(const char *fmt, ...);
 #define debug(format, args...)
 #endif
 
+void info(const char *fmt, ...);
 void warning(const char *fmt, ...);
 void fatal(const char *fmt, ...);
+
+#define GoogleMaps             0
+#define SkyVector_VFR          1
+#define SkyVector_IFR_Low      2
+#define SkyVector_IFR_High     3
+#define OpenStreetMaps         4
+#define SkyVector              5
 
 //---------------------------------------------------------------------------
 #endif

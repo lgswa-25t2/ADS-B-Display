@@ -49,6 +49,18 @@ void warning(const char *fmt, ...) {
 	va_end(arglist);
 }
 
+void info(const char *fmt, ...) {
+	struct timeval tv;
+	gettimeofday(&tv, 0);
+
+	fprintf(stdout, "%ld.%06ld ", tv.tv_sec, tv.tv_usec);
+
+	va_list arglist;
+	va_start(arglist, fmt);
+	vfprintf(stdout, fmt, arglist);
+	va_end(arglist);
+}
+
 void fatal(const char *fmt, ...) {
 	struct timeval tv;
 	gettimeofday(&tv, 0);

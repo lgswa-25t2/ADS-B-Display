@@ -1712,6 +1712,10 @@ void __fastcall TForm1::RawConnectButtonClick(TObject *Sender)
  IdTCPClientRaw->Host=RawIpAddress->Text;
  IdTCPClientRaw->Port=30002;
 
+ // Set connection timeout to prevent hanging
+ IdTCPClientRaw->ConnectTimeout = 5000; // 5 seconds timeout
+ IdTCPClientRaw->ReadTimeout = 10000;   // 10 seconds read timeout
+
  //test code
  //LastHeartbeatTime = GetCurrentTimeInMsec();
  //RawTimeoutPopupShown = false;
@@ -1727,7 +1731,7 @@ void __fastcall TForm1::RawConnectButtonClick(TObject *Sender)
    TCPClientRawHandleThread->FreeOnTerminate=TRUE;
    TCPClientRawHandleThread->Resume();
    }
-   catch (const EIdException& e)
+   catch (const Exception& e)
    {
     ShowMessage("Error while connecting: "+e.Message);
    }
@@ -1847,11 +1851,37 @@ void __fastcall TTCPClientRawHandleThread::Execute(void)
 	if (!UseFileInsteadOfNetwork)
 	 {
 	  try {
-		   if (!Form1->IdTCPClientRaw->Connected()) Terminate();
-	       StringMsgBuffer=Form1->IdTCPClientRaw->IOHandler->ReadLn();
+		   if (!Form1->IdTCPClientRaw->Connected()) {
+			   Terminate();
+			   break;
+		   }
+		   
+		   // Check if data is available before reading
+		   if (Form1->IdTCPClientRaw->IOHandler->InputBuffer->Size > 0) {
+			   StringMsgBuffer = Form1->IdTCPClientRaw->IOHandler->ReadLn();
+		   } else {
+			   // No data available, sleep briefly to prevent busy waiting
+			   Sleep(10);
+			   continue;
+		   }
 		  }
+       catch (const EIdReadTimeout& e)
+		{
+		 // Handle read timeout specifically
+		 printf("Raw Read timeout: %s\n", AnsiString(e.Message).c_str());
+		 TThread::Synchronize(StopTCPClient);
+		 break;
+		}
+       catch (const EIdException& e)
+		{
+		 // Handle other Indy exceptions
+		 printf("Raw Indy exception: %s\n", AnsiString(e.Message).c_str());
+		 TThread::Synchronize(StopTCPClient);
+		 break;
+		}
        catch (...)
 		{
+		 printf("Raw General exception\n");
 		 TThread::Synchronize(StopTCPClient);
 		 break;
 		}
@@ -1892,14 +1922,18 @@ void __fastcall TTCPClientRawHandleThread::Execute(void)
 		 break;
 		}
 	   }
-     try
-      {
-	   // Synchronize method to safely access UI components
-	   TThread::Synchronize(HandleInput);
-      }
-	 catch (...)
-     {
-      ShowMessage("TTCPClientRawHandleThread::Execute Exception 3");
+	   
+	 // Only process if we have data
+	 if (StringMsgBuffer.Length() > 0) {
+		 try
+		  {
+		   // Synchronize method to safely access UI components
+		   TThread::Synchronize(HandleInput);
+		  }
+		 catch (...)
+		 {
+		  ShowMessage("TTCPClientRawHandleThread::Execute Exception 3");
+		 }
 	 }
   }
 }
@@ -1924,6 +1958,10 @@ void __fastcall TForm1::SBSConnectButtonClick(TObject *Sender)
  IdTCPClientSBS->Host=SBSIpAddress->Text;
  IdTCPClientSBS->Port=5002;
 
+ // Set connection timeout to prevent hanging
+ IdTCPClientSBS->ConnectTimeout = 5000; // 5 seconds timeout
+ IdTCPClientSBS->ReadTimeout = 10000;   // 10 seconds read timeout
+
  // test code
 //  SBSTimeoutPopupShown = false;
 //  LastSBSDataReceiveTime = GetCurrentTimeInMsec();
@@ -1939,7 +1977,7 @@ void __fastcall TForm1::SBSConnectButtonClick(TObject *Sender)
    TCPClientSBSHandleThread->FreeOnTerminate=TRUE;
    TCPClientSBSHandleThread->Resume();
    }
-   catch (const EIdException& e)
+   catch (const Exception& e)
    {
 	ShowMessage("Error while connecting: "+e.Message);
    }
@@ -1989,8 +2027,13 @@ void __fastcall TTCPClientSBSHandleThread::HandleInput(void)
 	  SBSTimeoutPopupShown = false;
   }
   
-  SBS_Message_Decode( StringMsgBuffer.c_str());
-
+  // Process SBS message - this should be fast and not block
+  try {
+    SBS_Message_Decode( StringMsgBuffer.c_str());
+  } catch (...) {
+    // Log error but don't crash the thread
+    printf("Error in SBS_Message_Decode\n");
+  }
 }
 //---------------------------------------------------------------------------
 // Constructor for the thread class
@@ -2017,11 +2060,35 @@ void __fastcall TTCPClientSBSHandleThread::Execute(void)
 			{
 				if (!Form1->IdTCPClientSBS->Connected()) {
 					Terminate();
+					break;
 				}
-				StringMsgBuffer=Form1->IdTCPClientSBS->IOHandler->ReadLn();
+				
+				// Check if data is available before reading
+				if (Form1->IdTCPClientSBS->IOHandler->InputBuffer->Size > 0) {
+					StringMsgBuffer = Form1->IdTCPClientSBS->IOHandler->ReadLn();
+				} else {
+					// No data available, sleep briefly to prevent busy waiting
+					Sleep(10);
+					continue;
+				}
+			}
+			catch (const EIdReadTimeout& e)
+			{
+				// Handle read timeout specifically
+				printf("SBS Read timeout: %s\n", AnsiString(e.Message).c_str());
+				TThread::Synchronize(StopTCPClient);
+				break;
+			}
+			catch (const EIdException& e)
+			{
+				// Handle other Indy exceptions
+				printf("SBS Indy exception: %s\n", AnsiString(e.Message).c_str());
+				TThread::Synchronize(StopTCPClient);
+				break;
 			}
 			catch (...)
 			{
+				printf("SBS General exception\n");
 				TThread::Synchronize(StopTCPClient);
 				break;
 			}
@@ -2066,14 +2133,18 @@ void __fastcall TTCPClientSBSHandleThread::Execute(void)
 				break;
 			}
 		}
-		try
-		{
-			// Synchronize method to safely access UI components
-			TThread::Synchronize(HandleInput);
-		}
-		catch (...)
-		{
-			ShowMessage("TTCPClientSBSHandleThread::Execute Exception 3");
+		
+		// Only process if we have data
+		if (StringMsgBuffer.Length() > 0) {
+			try
+			{
+				// Synchronize method to safely access UI components
+				TThread::Synchronize(HandleInput);
+			}
+			catch (...)
+			{
+				ShowMessage("TTCPClientSBSHandleThread::Execute Exception 3");
+			}
 		}
 	}
 }

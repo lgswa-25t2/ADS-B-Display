@@ -1678,10 +1678,11 @@ object Form1: TForm1
     ExplicitWidth = 996
     ExplicitHeight = 804
     object PlaybackSpeedTrackBar: TTrackBar
-      Left = 542
+      Left = 524
       Top = 0
       Width = 454
       Height = 48
+      Anchors = [akTop, akRight]
       TabOrder = 0
       Visible = False
       OnChange = PlaybackSpeedTrackBarChanged

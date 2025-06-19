@@ -74,7 +74,7 @@ namespace DMS
     frac = frac - (double)min ;
 
     // fix the DDD MM 60 case
-    // TODO: nearbyint isn’t alway available (Visual C++,
+    // TODO: nearbyint isn't alway available (Visual C++,
     //       for example)
     double sec = nearbyint(frac * 600000.0) ;
     sec /= 10000.0 ;

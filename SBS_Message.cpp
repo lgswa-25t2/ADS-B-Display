@@ -313,7 +313,7 @@ bool SBS_Message_Decode( char *msg)
     }
     if (ght_insert(Form1->HashTable,ADS_B_Aircraft,sizeof(addr), &addr) < 0)
     {
-      printf("ght_insert Error-Should Not Happen");
+      printf("ght_insert Error-Should Not Happen\n");
     }
   }
 

@@ -2971,8 +2971,8 @@ double TForm1::getCachedDistance(uint32_t aircraftICAO, const std::string &airpo
     // 캐시에서 거리 찾기
 	auto it = distanceCache.find(key);
 	if (it != distanceCache.end())
+    {
         // 캐시가 만료되지 않았는지 확인
-		// ĳ�ð� �������� �ʾҴ��� Ȯ��
 		auto age = std::chrono::duration_cast<std::chrono::milliseconds>(
 					   now - it->second.timestamp)
 					   .count();

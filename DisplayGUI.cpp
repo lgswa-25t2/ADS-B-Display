@@ -2960,7 +2960,7 @@ void __fastcall TForm1::DrawAirportInfo(double lat, double lon, const char *name
 	ObjectDisplay->Draw2DText(name);
 }
 
-// ĳ�õ� �Ÿ� ���� �Լ� ����
+// 캐시된 거리 계산 함수 구현
 double TForm1::getCachedDistance(uint32_t aircraftICAO, const std::string &airportICAO,
 								 double aircraftLat, double aircraftLon,
 								 double airportLat, double airportLon)
@@ -2968,10 +2968,10 @@ double TForm1::getCachedDistance(uint32_t aircraftICAO, const std::string &airpo
 	auto now = std::chrono::system_clock::now();
 	auto key = std::make_pair(aircraftICAO, airportICAO);
 
-	// ĳ�ÿ��� �Ÿ� ã��
+    // 캐시에서 거리 찾기
 	auto it = distanceCache.find(key);
 	if (it != distanceCache.end())
-	{
+        // 캐시가 만료되지 않았는지 확인
 		// ĳ�ð� �������� �ʾҴ��� Ȯ��
 		auto age = std::chrono::duration_cast<std::chrono::milliseconds>(
 					   now - it->second.timestamp)
@@ -2982,14 +2982,14 @@ double TForm1::getCachedDistance(uint32_t aircraftICAO, const std::string &airpo
 		}
 	}
 
-	// ĳ�ÿ� ���ų� ������ ���� ���� ����
+    // 캐시에 없거나 만료된 경우 새로 계산
 	double dlat = aircraftLat - airportLat;
 	double dlon = aircraftLon - airportLon;
 	double latDist = dlat * 60.0;
 	double lonDist = dlon * 60.0 * cos(aircraftLat * M_PI / 180.0);
 	double distance = sqrt(latDist * latDist + lonDist * lonDist);
 
-	// ������ ĳ�ÿ� ����
+    // 결과를 캐시에 저장
 	DistanceCache cache;
 	cache.distance = distance;
 	cache.timestamp = now;
@@ -2998,12 +2998,12 @@ double TForm1::getCachedDistance(uint32_t aircraftICAO, const std::string &airpo
 	return distance;
 }
 
-// ĳ�� ���� �Լ� ����
+// 캐시 정리 함수 구현
 void TForm1::cleanupOldCache()
 {
 	auto now = std::chrono::system_clock::now();
 
-	// ������ ���� ���� ���� �ð��� �������� Ȯ��
+    // 마지막 정리 이후 일정 시간이 지났는지 확인
 	auto timeSinceLastCleanup = std::chrono::duration_cast<std::chrono::milliseconds>(
 									now - lastCleanupTime)
 									.count();
@@ -3012,7 +3012,7 @@ void TForm1::cleanupOldCache()
 		return;
 	}
 
-	// ������ ĳ�� �׸� ����
+    // 오래된 캐시 항목 제거
 	for (auto it = distanceCache.begin(); it != distanceCache.end();)
 	{
 		auto age = std::chrono::duration_cast<std::chrono::milliseconds>(

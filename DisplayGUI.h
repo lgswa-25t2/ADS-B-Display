@@ -34,33 +34,32 @@ class AirportDataManager;
 
 typedef float T_GL_Color[4];
 
-
 typedef struct
 {
- bool Valid_CC;
- bool Valid_CPA;
- uint32_t ICAO_CC;
- uint32_t ICAO_CPA;
+	bool Valid_CC;
+	bool Valid_CPA;
+	uint32_t ICAO_CC;
+	uint32_t ICAO_CPA;
 }TTrackHook;
 
 typedef struct
 {
- double lat;
- double lon;
- double hae;
+	double lat;
+	double lon;
+	double hae;
 }TPolyLine;
 
 
 #define MAX_AREA_POINTS 500
 typedef struct
 {
- AnsiString  Name;
- TColor      Color;
- DWORD       NumPoints;
- pfVec3      Points[MAX_AREA_POINTS];
- pfVec3      PointsAdj[MAX_AREA_POINTS];
- TTriangles *Triangles;
- bool        Selected;
+	AnsiString  Name;
+	TColor      Color;
+	DWORD       NumPoints;
+	pfVec3      Points[MAX_AREA_POINTS];
+	pfVec3      PointsAdj[MAX_AREA_POINTS];
+	TTriangles *Triangles;
+	bool        Selected;
 }TArea;
 
 // 거리 계산 결과를 저장할 구조체
@@ -85,9 +84,9 @@ private:
 protected:
 	void __fastcall Execute(void);
 public:
-	 bool UseFileInsteadOfNetwork;
-	 bool First;
-	 __int64 LastTime;
+	bool UseFileInsteadOfNetwork;
+	bool First;
+	__int64 LastTime;
 	__fastcall TTCPClientRawHandleThread(bool value);
 	~TTCPClientRawHandleThread();
 };
@@ -103,9 +102,9 @@ private:
 protected:
 	void __fastcall Execute(void);
 public:
-	 bool UseFileInsteadOfNetwork;
-	 bool First;
-	 __int64 LastTime;
+	bool UseFileInsteadOfNetwork;
+	bool First;
+	__int64 LastTime;
 	__fastcall TTCPClientSBSHandleThread(bool value);
 	~TTCPClientSBSHandleThread();
 };
@@ -431,6 +430,5 @@ public:		// User declarations
 //---------------------------------------------------------------------------
 extern PACKAGE TForm1 *Form1;
 //---------------------------------------------------------------------------
-
 
 #endif

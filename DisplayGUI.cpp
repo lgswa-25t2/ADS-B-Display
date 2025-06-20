@@ -32,6 +32,7 @@
 #include "csv.h"
 #include "AirportDB.h"
 #include "AirportDataManager.h"
+#include "Logger.h"
 
 #define AIRCRAFT_DATABASE_URL   "https://opensky-network.org/datasets/metadata/aircraftDatabase.zip"
 #define AIRCRAFT_DATABASE_FILE   "aircraftDatabase.csv"
@@ -260,6 +261,7 @@ __fastcall TForm1::TForm1(TComponent* Owner)
  BigQueryFileCount=0;
  InitAircraftDB(AircraftDBPathFileName);
  printf("init complete\n");
+ LOG_ERROR("ADS-B Display Application Started");
  //init airport db
  AnsiString AirportDBFile = ExtractFilePath(ExtractFileDir(Application->ExeName)) +AnsiString("..\\AirportDB\\")+"airports.csv";
  if (FileExists(AirportDBFile)) {

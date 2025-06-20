@@ -256,6 +256,10 @@
             <DependentOn>LatLonConv.h</DependentOn>
             <BuildOrder>33</BuildOrder>
         </CppCompile>
+        <CppCompile Include="Logger.cpp">
+            <DependentOn>Logger.h</DependentOn>
+            <BuildOrder>46</BuildOrder>
+        </CppCompile>
         <CppCompile Include="Map\MapSrc\EarthView.cpp">
             <DependentOn>Map\MapSrc\EarthView.h</DependentOn>
             <BuildOrder>23</BuildOrder>
@@ -283,10 +287,6 @@
             <DependentOn>Map\MapSrc\GoogleLayer.h</DependentOn>
             <BuildOrder>24</BuildOrder>
         </CppCompile>
-        <CppCompile Include="Map\MapSrc\OsmLayer.cpp">
-            <DependentOn>Map\MapSrc\OsmLayer.h</DependentOn>
-            <BuildOrder>24</BuildOrder>
-        </CppCompile>
         <CppCompile Include="Map\MapSrc\KeyholeConnection.cpp">
             <DependentOn>Map\MapSrc\KeyholeConnection.h</DependentOn>
             <BuildOrder>24</BuildOrder>
@@ -297,6 +297,10 @@
         <CppCompile Include="Map\MapSrc\MasterLayer.cpp">
             <DependentOn>Map\MapSrc\MasterLayer.h</DependentOn>
             <BuildOrder>25</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="Map\MapSrc\OsmLayer.cpp">
+            <DependentOn>Map\MapSrc\OsmLayer.h</DependentOn>
+            <BuildOrder>24</BuildOrder>
         </CppCompile>
         <CppCompile Include="Map\MapSrc\RawBuffer.cpp">
             <DependentOn>Map\MapSrc\RawBuffer.h</DependentOn>

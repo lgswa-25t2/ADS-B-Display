@@ -3,6 +3,7 @@
 #include <vcl.h>
 #pragma hdrstop
 #include <tchar.h>
+#include "Logger.h"
 //---------------------------------------------------------------------------
 USEFORM("DisplayGUI.cpp", Form1);
 USEFORM("AreaDialog.cpp", AreaConfirm);
@@ -24,6 +25,11 @@ int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 	try
 	{
         SetStdOutToNewConsole();
+
+		AnsiString logPath = "app.log";
+		if (!Logger::getInstance()->initialize(logPath.c_str(), LogLevel::LOG_LEVEL_DEBUG)) {
+			//ShowMessage("Failed to initialize logger");
+		}
 		Application->Initialize();
 		Application->MainFormOnTaskBar = true;
 		Application->CreateForm(__classid(TForm1), &Form1);

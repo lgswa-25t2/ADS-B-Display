@@ -89,7 +89,7 @@ object Form1: TForm1
       Top = 400
       Width = 248
       Height = 122
-      Color = clWhitesmoke
+      Color = clCream
       ParentBackground = False
       TabOrder = 0
       object Label12: TLabel
@@ -224,7 +224,7 @@ object Form1: TForm1
       Height = 375
       Align = alTop
       BevelEdges = []
-      Color = clWhitesmoke
+      Color = clCream
       Constraints.MinHeight = 70
       Ctl3D = True
       ParentBackground = False
@@ -360,7 +360,7 @@ object Form1: TForm1
       object Complete: TButton
         Left = 45
         Top = 350
-        Width = 57
+        Width = 59
         Height = 18
         Caption = 'Complete'
         Enabled = False
@@ -543,7 +543,7 @@ object Form1: TForm1
       Top = 199
       Width = 248
       Height = 59
-      Color = clWhitesmoke
+      Color = clCream
       ParentBackground = False
       TabOrder = 2
       object MapComboBox: TComboBox
@@ -584,7 +584,7 @@ object Form1: TForm1
       Height = 25
       Align = alTop
       Caption = 'Control Menu '#9660
-      Color = clSkyBlue
+      Color = clMoneyGreen
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -13
@@ -601,7 +601,7 @@ object Form1: TForm1
       Width = 248
       Height = 465
       Align = alBottom
-      Color = clSkyBlue
+      Color = clMoneyGreen
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -13
@@ -618,7 +618,7 @@ object Form1: TForm1
         Align = alTop
         Alignment = taCenter
         Caption = 'Aircraft Information'
-        Color = clBeige
+        Color = clMoneyGreen
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -15
@@ -636,7 +636,7 @@ object Form1: TForm1
         Align = alBottom
         BevelEdges = []
         BevelKind = bkFlat
-        Color = clBtnFace
+        Color = clCream
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
@@ -1511,6 +1511,7 @@ object Form1: TForm1
         Align = alClient
         BevelEdges = []
         BevelKind = bkFlat
+        Color = clCream
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
@@ -1660,16 +1661,24 @@ object Form1: TForm1
     Height = 40
     Align = alBottom
     BevelOuter = bvLowered
+    Color = clCream
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -10
+    Font.Name = 'Consolas'
+    Font.Style = [fsBold]
+    ParentBackground = False
+    ParentFont = False
     TabOrder = 2
     object LegendTitle: TLabel
-      Left = 8
-      Top = 2
-      Width = 74
-      Height = 13
+      Left = 7
+      Top = 6
+      Width = 87
+      Height = 15
       Caption = 'Aircraft Legend:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -11
+      Font.Height = -13
       Font.Name = 'Calibri'
       Font.Style = [fsBold]
       ParentFont = False
@@ -1685,18 +1694,18 @@ object Form1: TForm1
     object HelicopterLabel: TLabel
       Left = 118
       Top = 6
-      Width = 50
-      Height = 13
+      Width = 57
+      Height = 15
       Caption = 'Helicopter'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -11
+      Font.Height = -13
       Font.Name = 'Calibri'
       Font.Style = []
       ParentFont = False
     end
     object MilitaryColorBox: TShape
-      Left = 180
+      Left = 188
       Top = 8
       Width = 12
       Height = 12
@@ -1704,20 +1713,20 @@ object Form1: TForm1
       Shape = stCircle
     end
     object MilitaryLabel: TLabel
-      Left = 198
+      Left = 206
       Top = 6
-      Width = 37
-      Height = 13
+      Width = 45
+      Height = 15
       Caption = 'Military'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -11
+      Font.Height = -13
       Font.Name = 'Calibri'
       Font.Style = []
       ParentFont = False
     end
     object CivilianColorBox: TShape
-      Left = 245
+      Left = 261
       Top = 8
       Width = 12
       Height = 12
@@ -1725,20 +1734,20 @@ object Form1: TForm1
       Shape = stCircle
     end
     object CivilianLabel: TLabel
-      Left = 263
+      Left = 279
       Top = 6
-      Width = 35
-      Height = 13
+      Width = 43
+      Height = 15
       Caption = 'Civilian'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -11
+      Font.Height = -13
       Font.Name = 'Calibri'
       Font.Style = []
       ParentFont = False
     end
     object UnknownColorBox: TShape
-      Left = 310
+      Left = 334
       Top = 8
       Width = 12
       Height = 12
@@ -1746,14 +1755,14 @@ object Form1: TForm1
       Shape = stCircle
     end
     object UnknownLabel: TLabel
-      Left = 328
+      Left = 352
       Top = 6
-      Width = 44
-      Height = 13
+      Width = 51
+      Height = 15
       Caption = 'Unknown'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -11
+      Font.Height = -13
       Font.Name = 'Calibri'
       Font.Style = []
       ParentFont = False
@@ -1769,18 +1778,18 @@ object Form1: TForm1
     object NearAirportLabel: TLabel
       Left = 118
       Top = 20
-      Width = 58
-      Height = 13
+      Width = 68
+      Height = 15
       Caption = 'Near Airport'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -11
+      Font.Height = -13
       Font.Name = 'Calibri'
       Font.Style = []
       ParentFont = False
     end
     object SelectedColorBox: TShape
-      Left = 190
+      Left = 198
       Top = 22
       Width = 12
       Height = 12
@@ -1790,34 +1799,34 @@ object Form1: TForm1
       Shape = stCircle
     end
     object SelectedLabel: TLabel
-      Left = 208
+      Left = 216
       Top = 20
-      Width = 41
-      Height = 13
+      Width = 45
+      Height = 15
       Caption = 'Selected'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -11
+      Font.Height = -13
       Font.Name = 'Calibri'
       Font.Style = []
       ParentFont = False
     end
     object TrackHistoryColorBox: TShape
-      Left = 260
+      Left = 276
       Top = 22
       Width = 12
       Height = 12
       Pen.Color = clGray
     end
     object TrackHistoryLabel: TLabel
-      Left = 278
+      Left = 294
       Top = 20
-      Width = 60
-      Height = 13
+      Width = 72
+      Height = 15
       Caption = 'Track History'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -11
+      Font.Height = -13
       Font.Name = 'Calibri'
       Font.Style = []
       ParentFont = False

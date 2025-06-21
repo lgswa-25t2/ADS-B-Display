@@ -306,6 +306,9 @@ __fastcall TForm1::TForm1(TComponent *Owner)
 	}
 	// printf("=== End Airport Data Loading Debug ===\n");
 
+ 	// init Area filter variables
+ 	selectedFilterAreas = new TList();
+ 	areaFilterEnabled = false;
 	// Set to initial state
 	ClearAircraftInfo();
 
@@ -351,6 +354,11 @@ __fastcall TForm1::~TForm1()
 	{
 		delete airportManager;
 		airportManager = nullptr;
+    }
+
+    if (selectedFilterAreas) {
+        selectedFilterAreas->Clear();
+        delete selectedFilterAreas;
 	}
 }
 //---------------------------------------------------------------------------
@@ -688,12 +696,19 @@ void __fastcall TForm1::DrawObjects(void)
 		}
 	}
 
+    int filteredAircraftCount = 0;
 	AircraftCountLabel->Caption = IntToStr((int)ght_size(HashTable));
 	for (Data = (TADS_B_Aircraft *)ght_first(HashTable, &iterator, (const void **)&Key);
 		 Data; Data = (TADS_B_Aircraft *)ght_next(HashTable, &iterator, (const void **)&Key))
 	{
 		if (Data->HaveLatLon)
 		{
+			//feature selectedAreas
+            if(!IsAircraftInSelectedAreas(Data)){
+                continue;
+            }		
+		
+		
 			ViewableAircraft++;
 			double aircraftX, aircraftY;
 			// calculate distance between aircraft and airport
@@ -853,6 +868,18 @@ void __fastcall TForm1::DrawObjects(void)
 		}
 	}
 	ViewableAircraftCountLabel->Caption = ViewableAircraft;
+ 	// feature selectedAreas (multiple filter)
+ 	if (areaFilterEnabled && selectedFilterAreas->Count > 0) {
+    	AnsiString filterInfo = "Filtered by " + IntToStr(selectedFilterAreas->Count) + " area(s): ";
+    	for (int i = 0; i < selectedFilterAreas->Count; i++) {
+        	TArea* area = (TArea*)selectedFilterAreas->Items[i];
+        	if (area) {
+            	if (i > 0) filterInfo += ", ";
+            	filterInfo += area->Name;
+        	}
+    	}
+    	printf("%s\n", filterInfo.c_str());
+ 	}
 	if (TrackHook.Valid_CC)
 	{
 		Data = (TADS_B_Aircraft *)ght_get(HashTable, sizeof(TrackHook.ICAO_CC), (void *)&TrackHook.ICAO_CC);
@@ -1579,34 +1606,67 @@ void __fastcall TForm1::CompleteClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::AreaListViewSelectItem(TObject *Sender, TListItem *Item,
-											   bool Selected)
+      bool Selected)
 {
-	DWORD Count;
-	TArea *AreaS = (TArea *)Item->Data;
-	bool HaveSelected = false;
-	Count = Areas->Count;
-	for (unsigned int i = 0; i < Count; i++)
-	{
-		TArea *Area = (TArea *)Areas->Items[i];
-		if (Area == AreaS)
-		{
-			if (Item->Selected)
-			{
-				Area->Selected = true;
-				HaveSelected = true;
-			}
-			else
-				Area->Selected = false;
-		}
-		else
-			Area->Selected = false;
-	}
-	if (HaveSelected)
-		Delete->Enabled = true;
-	else
-		Delete->Enabled = false;
-	ObjectDisplay->Repaint();
+    if (!Item) return;
+    
+    TArea *AreaS = (TArea *)Item->Data;
+    if (!AreaS) return;
+    
+    // Ctrl 키 상태 확인
+    bool ctrlPressed = (GetKeyState(VK_CONTROL) & 0x8000) != 0;
+    
+    printf("AreaListViewSelectItem: Area=%s, Selected=%s, Ctrl=%s\n", 
+           AreaS->Name.c_str(), Selected ? "true" : "false", ctrlPressed ? "true" : "false");
+    
+    if (Selected) {
+        // 아이템이 선택된 경우
+        AreaS->Selected = true;
+        
+        if (ctrlPressed) {
+            // Ctrl+클릭: 다중 선택 모드 - 해당 Area를 필터에 추가
+            AddAreaToFilter(AreaS);
+        } else {
+            // 일반 클릭: 단일 선택 모드 - 다른 모든 선택 해제 후 해당 Area만 선택
+            
+            // 다른 모든 Area들의 선택 상태 해제 (UI와 내부 상태 모두)
+            for (int i = 0; i < AreaListView->Items->Count; i++) {
+                TListItem *listItem = AreaListView->Items->Item[i];
+                TArea *area = (TArea *)listItem->Data;
+                if (area && area != AreaS) {
+                    area->Selected = false;
+                    // UI에서도 선택 해제 (현재 처리중인 아이템 제외)
+                    if (listItem != Item) {
+                        listItem->Selected = false;
+                    }
+                }
+            }
+            
+            // 필터 클리어 후 현재 Area만 추가
+            ClearAreaFilter();
+            AddAreaToFilter(AreaS);
+        }
+        
+        Delete->Enabled = true;
+    } else {
+        // 아이템이 선택 해제된 경우
+        AreaS->Selected = false;
+        RemoveAreaFromFilter(AreaS);
+        
+        // 선택된 아이템이 있는지 확인
+        bool hasSelected = false;
+        for (int i = 0; i < AreaListView->Items->Count; i++) {
+            if (AreaListView->Items->Item[i]->Selected) {
+                hasSelected = true;
+                break;
+            }
+        }
+        Delete->Enabled = hasSelected;
+    }
+
+    ObjectDisplay->Repaint();
 }
+
 //---------------------------------------------------------------------------
 void __fastcall TForm1::DeleteClick(TObject *Sender)
 {
@@ -3536,5 +3596,182 @@ void __fastcall TForm1::LoadIpHistoryToComboBox()
 	{
 		RawIpAddress->Text = RawIpHistory->Strings[0];
 	}
+}
+
+//feature AreaFilter
+bool __fastcall TForm1::IsAircraftInSelectedAreas(TADS_B_Aircraft* aircraft)
+{
+    // 1. aircraft 유효성 체크
+    if (!aircraft) {
+        return false;
+    }
+
+    // 2. 위치 데이터 유효성 체크
+    if (!aircraft->HaveLatLon) {
+        return false;
+    }
+
+    // 3. 필터가 비활성화되어 있거나 선택된 Area가 없으면 모든 유효한 항공기 표시
+    if (!areaFilterEnabled || selectedFilterAreas->Count == 0) {
+        return true;
+    }
+
+    // 4. 항공기 위치를 pfVec3 형태로 변환
+    pfVec3 aircraftPoint;
+    aircraftPoint[0] = aircraft->Longitude;
+    aircraftPoint[1] = aircraft->Latitude;
+    aircraftPoint[2] = 0.0;
+
+    // 5. 선택된 Area들 중 하나라도 포함되면 true (OR 조건)
+    for (int i = 0; i < selectedFilterAreas->Count; i++) {
+        TArea* area = (TArea*)selectedFilterAreas->Items[i];
+        if (area && PointInPolygon(area->Points, area->NumPoints, aircraftPoint)) {
+            return true;  // 하나의 Area에라도 포함되면 표시
+        }
+    }
+
+    return false;  // 어떤 Area에도 포함되지 않으면 숨김
+}
+
+void __fastcall TForm1::AddAreaToFilter(TArea* area)
+{
+    if (!area || IsAreaInFilter(area)) {
+        return;  // NULL이거나 이미 필터에 있으면 무시
+    }
+
+    selectedFilterAreas->Add(area);
+    areaFilterEnabled = true;
+
+    printf("Area added to filter: %s (Total: %d areas)\n",
+           area->Name.c_str(), selectedFilterAreas->Count);
+
+    ObjectDisplay->Repaint();
+}
+
+
+void __fastcall TForm1::RemoveAreaFromFilter(TArea* area)
+{
+    if (!area) {
+        return;
+    }
+
+    int index = selectedFilterAreas->IndexOf(area);
+    if (index >= 0) {
+        selectedFilterAreas->Delete(index);
+        printf("Area removed from filter: %s (Remaining: %d areas)\n",
+               area->Name.c_str(), selectedFilterAreas->Count);
+
+        // 필터에 Area가 없으면 필터 비활성화
+        if (selectedFilterAreas->Count == 0) {
+            areaFilterEnabled = false;
+        }
+
+        ObjectDisplay->Repaint();
+    }
+}
+
+void __fastcall TForm1::ClearAreaFilter()
+{
+    selectedFilterAreas->Clear();
+    areaFilterEnabled = false;
+    printf("All area filters cleared\n");
+    ObjectDisplay->Repaint();
+}
+
+void __fastcall TForm1::ToggleAreaInFilter(TArea* area)
+{
+    if (!area) {
+        return;
+    }
+
+    if (IsAreaInFilter(area)) {
+        RemoveAreaFromFilter(area);
+    } else {
+        AddAreaToFilter(area);
+    }
+}
+
+bool __fastcall TForm1::IsAreaInFilter(TArea* area)
+{
+    if (!area) {
+        return false;
+    }
+
+    return selectedFilterAreas->IndexOf(area) >= 0;
+}
+
+int __fastcall TForm1::GetFilteredAreaCount()
+{
+    return selectedFilterAreas->Count;
+}
+
+void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shift)
+{
+    switch (Key) {
+        case VK_F1:  // F1 키로 필터 토글 (현재 선택된 Area들)
+            if (selectedFilterAreas->Count > 0) {
+                areaFilterEnabled = !areaFilterEnabled;
+                printf("Area filter %s (%d areas)\n",
+                       areaFilterEnabled ? "enabled" : "disabled",
+                       selectedFilterAreas->Count);
+                ObjectDisplay->Repaint();
+            } else {
+                printf("No areas selected for filtering\n");
+            }
+            break;
+            
+        case VK_ESCAPE:  // ESC 키로 모든 필터 해제
+            if (selectedFilterAreas->Count > 0) {
+                ClearAreaFilter();
+                // UI에서도 모든 선택 해제
+                for (int i = 0; i < AreaListView->Items->Count; i++) {
+                    AreaListView->Items->Item[i]->Selected = false;
+                    TArea* area = (TArea*)AreaListView->Items->Item[i]->Data;
+                    if (area) {
+                        area->Selected = false;
+                    }
+                }
+                Delete->Enabled = false;
+                printf("All selections and filters cleared\n");
+            }
+            break;
+            
+        case 'A':  // Ctrl+A로 모든 Area 선택
+            if (Shift.Contains(ssCtrl)) {
+                for (int i = 0; i < AreaListView->Items->Count; i++) {
+                    TListItem* item = AreaListView->Items->Item[i];
+                    TArea* area = (TArea*)item->Data;
+                    if (area) {
+                        item->Selected = true;
+                        area->Selected = true;
+                        AddAreaToFilter(area);
+                    }
+                }
+                Delete->Enabled = (AreaListView->Items->Count > 0);
+                printf("All areas selected (%d areas)\n", AreaListView->Items->Count);
+                ObjectDisplay->Repaint();
+            }
+            break;
+            
+        case VK_DELETE:  // Delete 키로 선택된 Area들 삭제
+            if (Delete->Enabled) {
+                DeleteClick(nullptr);
+            }
+            break;
+            
+        case VK_F2:  // F2 키로 필터 상태 정보 출력
+            printf("=== Area Filter Status ===\n");
+            printf("Filter enabled: %s\n", areaFilterEnabled ? "Yes" : "No");
+            printf("Selected areas: %d\n", selectedFilterAreas->Count);
+            printf("Total areas: %d\n", Areas->Count);
+            for (int i = 0; i < selectedFilterAreas->Count; i++) {
+                TArea* area = (TArea*)selectedFilterAreas->Items[i];
+                if (area) {
+                    printf("  - %s\n", area->Name.c_str());
+                }
+            }
+            printf("========================\n");
+            break;
+    }
 }
 //---------------------------------------------------------------------------

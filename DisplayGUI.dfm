@@ -320,6 +320,7 @@ object Form1: TForm1
         Font.Height = -12
         Font.Name = 'Calibri'
         Font.Style = [fsBold]
+        MultiSelect = True
         ReadOnly = True
         RowSelect = True
         ParentFont = False

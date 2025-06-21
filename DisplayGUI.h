@@ -354,6 +354,10 @@ private:	// User declarations
 	void LoadIpHistory();
 	void SaveIpHistory();
 	void LoadIpHistoryToComboBox();
+	
+	// Area Filter
+	TList *selectedFilterAreas;  // selected filtering Area  s
+    bool areaFilterEnabled;     // enable Area filter
 
 public:		// User declarations
 	__fastcall TForm1(TComponent* Owner);
@@ -374,6 +378,15 @@ public:		// User declarations
 	void __fastcall UpdateAircraftHistory(TADS_B_Aircraft* aircraft);
 	void __fastcall PurgeOldHistory(TADS_B_Aircraft* aircraft, __int64 currentTime);
   	void __fastcall TogglePanels();  // Panel Menu Visible
+	//Area Filter functions
+    bool __fastcall IsAircraftInSelectedAreas(TADS_B_Aircraft* aircraft);
+    void __fastcall AddAreaToFilter(TArea* area);
+    void __fastcall RemoveAreaFromFilter(TArea* area);
+    void __fastcall ClearAreaFilter();
+    void __fastcall ToggleAreaInFilter(TArea* area);
+    bool __fastcall IsAreaInFilter(TArea* area);
+    int __fastcall GetFilteredAreaCount();
+    void __fastcall FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shift);
 
 	int                        MouseDownX,MouseDownY;
 	bool                       MouseDown;

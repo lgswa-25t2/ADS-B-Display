@@ -79,7 +79,7 @@ object Form1: TForm1
     Left = 978
     Top = 0
     Width = 250
-    Height = 788
+    Height = 748
     Align = alRight
     Color = clWindow
     Constraints.MaxWidth = 250
@@ -306,8 +306,9 @@ object Form1: TForm1
         Top = 250
         Width = 235
         Height = 97
-		Hint = 
-          'Area-Selection Guide:'#13#10' - Single Click: Select one area'#13#10'- Ctrl+Click: Add/remove areas'#13#10' - ESC: Clear all selections'
+        Hint = 
+          'Area-Selection Guide:'#13#10' - Single Click: Select one area'#13#10'- Ctrl+' +
+          'Click: Add/remove areas'#13#10' - ESC: Clear all selections'
         Columns = <
           item
             Caption = 'Area'
@@ -596,7 +597,7 @@ object Form1: TForm1
     end
     object Panel7: TPanel
       Left = 1
-      Top = 322
+      Top = 282
       Width = 248
       Height = 465
       Align = alBottom
@@ -612,7 +613,7 @@ object Form1: TForm1
       object PanelTitle2: TLabel
         Left = 1
         Top = 1
-        Width = 123
+        Width = 246
         Height = 18
         Align = alTop
         Alignment = taCenter
@@ -625,6 +626,7 @@ object Form1: TForm1
         Font.Style = [fsBold]
         ParentColor = False
         ParentFont = False
+        ExplicitWidth = 123
       end
       object Panel4: TScrollBox
         Left = 1
@@ -1651,11 +1653,181 @@ object Form1: TForm1
       end
     end
   end
+  object LegendPanel: TPanel
+    Left = 0
+    Top = 748
+    Width = 1228
+    Height = 40
+    Align = alBottom
+    BevelOuter = bvLowered
+    TabOrder = 2
+    object LegendTitle: TLabel
+      Left = 8
+      Top = 2
+      Width = 74
+      Height = 13
+      Caption = 'Aircraft Legend:'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Calibri'
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object HelicopterColorBox: TShape
+      Left = 100
+      Top = 8
+      Width = 12
+      Height = 12
+      Brush.Color = 26367
+      Shape = stCircle
+    end
+    object HelicopterLabel: TLabel
+      Left = 118
+      Top = 6
+      Width = 50
+      Height = 13
+      Caption = 'Helicopter'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Calibri'
+      Font.Style = []
+      ParentFont = False
+    end
+    object MilitaryColorBox: TShape
+      Left = 180
+      Top = 8
+      Width = 12
+      Height = 12
+      Brush.Color = clLime
+      Shape = stCircle
+    end
+    object MilitaryLabel: TLabel
+      Left = 198
+      Top = 6
+      Width = 37
+      Height = 13
+      Caption = 'Military'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Calibri'
+      Font.Style = []
+      ParentFont = False
+    end
+    object CivilianColorBox: TShape
+      Left = 245
+      Top = 8
+      Width = 12
+      Height = 12
+      Brush.Color = clFuchsia
+      Shape = stCircle
+    end
+    object CivilianLabel: TLabel
+      Left = 263
+      Top = 6
+      Width = 35
+      Height = 13
+      Caption = 'Civilian'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Calibri'
+      Font.Style = []
+      ParentFont = False
+    end
+    object UnknownColorBox: TShape
+      Left = 310
+      Top = 8
+      Width = 12
+      Height = 12
+      Brush.Color = clAqua
+      Shape = stCircle
+    end
+    object UnknownLabel: TLabel
+      Left = 328
+      Top = 6
+      Width = 44
+      Height = 13
+      Caption = 'Unknown'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Calibri'
+      Font.Style = []
+      ParentFont = False
+    end
+    object NearAirportColorBox: TShape
+      Left = 100
+      Top = 22
+      Width = 12
+      Height = 12
+      Brush.Color = clYellow
+      Shape = stCircle
+    end
+    object NearAirportLabel: TLabel
+      Left = 118
+      Top = 20
+      Width = 58
+      Height = 13
+      Caption = 'Near Airport'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Calibri'
+      Font.Style = []
+      ParentFont = False
+    end
+    object SelectedColorBox: TShape
+      Left = 190
+      Top = 22
+      Width = 12
+      Height = 12
+      Brush.Style = bsClear
+      Pen.Color = clRed
+      Pen.Width = 2
+      Shape = stCircle
+    end
+    object SelectedLabel: TLabel
+      Left = 208
+      Top = 20
+      Width = 41
+      Height = 13
+      Caption = 'Selected'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Calibri'
+      Font.Style = []
+      ParentFont = False
+    end
+    object TrackHistoryColorBox: TShape
+      Left = 260
+      Top = 22
+      Width = 12
+      Height = 12
+      Pen.Color = clGray
+    end
+    object TrackHistoryLabel: TLabel
+      Left = 278
+      Top = 20
+      Width = 60
+      Height = 13
+      Caption = 'Track History'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Calibri'
+      Font.Style = []
+      ParentFont = False
+    end
+  end
   object ObjectDisplay: TOpenGLPanel
     Left = 0
     Top = 0
     Width = 978
-    Height = 788
+    Height = 748
     Cursor = crCross
     Align = alClient
     TabOrder = 1
@@ -1678,8 +1850,9 @@ object Form1: TForm1
     OnInit = ObjectDisplayInit
     OnResize = ObjectDisplayResize
     OnPaint = ObjectDisplayPaint
-    ExplicitWidth = 996
-    ExplicitHeight = 804
+    DesignSize = (
+      978
+      748)
     object PlaybackSpeedTrackBar: TTrackBar
       Left = 524
       Top = 0

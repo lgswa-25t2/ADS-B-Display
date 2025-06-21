@@ -276,6 +276,22 @@ __published:	// IDE-managed Components
 	TLabel *TransitAirport2Location;
 	TLabel *Label55;
 	TLabel *TransitAirport2Country;
+	TPanel *LegendPanel;
+	TLabel *LegendTitle;
+	TShape *HelicopterColorBox;
+	TLabel *HelicopterLabel;
+	TShape *MilitaryColorBox;
+	TLabel *MilitaryLabel;
+	TShape *CivilianColorBox;
+	TLabel *CivilianLabel;
+	TShape *UnknownColorBox;
+	TLabel *UnknownLabel;
+	TShape *NearAirportColorBox;
+	TLabel *NearAirportLabel;
+	TShape *SelectedColorBox;
+	TLabel *SelectedLabel;
+	TShape *TrackHistoryColorBox;
+	TLabel *TrackHistoryLabel;
 	void __fastcall ObjectDisplayInit(TObject *Sender);
 	void __fastcall ObjectDisplayResize(TObject *Sender);
 	void __fastcall ObjectDisplayPaint(TObject *Sender);
@@ -439,6 +455,8 @@ public:		// User declarations
 
 	// IP 히스토리에 추가 (public으로 이동)
 	void AddToIpHistory(AnsiString ip, bool isSBS);
+  // Draw all airport in the map by checkbox
+  void __fastcall DrawAllAirports();
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TForm1 *Form1;

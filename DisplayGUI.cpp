@@ -510,88 +510,8 @@ void __fastcall TForm1::DrawObjects(void)
 	glPointSize(4.0);
 
 	LatLon2XY(MapCenterLat, MapCenterLon, ScrX, ScrY);
-
-	// display Airports Info (DisplayAirportCheckBox is checked)
-	if (DisplayAirportCheckBox->Checked && airportManager)
-	{
-		/*
-		printf("=== Airport Display Debug ===\n");
-		printf("DisplayAirportCheckBox is checked: %s\n", DisplayAirportCheckBox->Checked ? "true" : "false");
-		printf("airportManager exists: %s\n", airportManager ? "true" : "false");
-		*/
-		// calculate current screen
-		double minLat, maxLat, minLon, maxLon;
-		int screenWidth = ObjectDisplay->Width;
-		int screenHeight = ObjectDisplay->Height;
-
-		// printf("Screen size: %dx%d\n", screenWidth, screenHeight);
-
-		// Convert screen corner coordinates to latitude and longitude
-		XY2LatLon2(0, 0, minLat, maxLon);
-		XY2LatLon2(screenWidth, screenHeight, maxLat, minLon);
-		/*
-		printf("Screen bounds: Lat[%.6f, %.6f], Lon[%.6f, %.6f]\n",
-			   minLat, maxLat, minLon, maxLon);
-		*/
-		// current zoon level (not used at the moment)
-		int zoomLevel = (int)(log(g_EarthView->m_Eye.h) / log(1.3));
-		// printf("Current zoom level: %d (Eye.h = %.6f)\n", zoomLevel, g_EarthView->m_Eye.h);
-
-		// for test: Conversion using known coordinates.
-		/*
-	  double testLat = 37.5665;  // Seoul Lat
-	  double testLon = 126.9780; // Seoul Long
-	  double testX, testY;
-	  LatLon2XY(testLat, testLon, testX, testY);
-	  printf("Test coordinate: Seoul(%.6f,%.6f) -> Screen(%.2f,%.2f)\n",
-			 testLat, testLon, testX, testY);  */
-
-		// get airports to display on the screen.
-		auto visibleAirports = airportManager->getVisibleAirports(
-			minLat, maxLat, minLon, maxLon, zoomLevel);
-
-		// printf("Found %d visible airports\n", (int)visibleAirports.size());
-
-		// Draw airports on the screen (in the same way as aircraft).
-		glColor4f(0.8, 0.0, 0.0, 1.0); // red
-
-		int drawnCount = 0;
-		for (const auto &airport : visibleAirports)
-		{
-			double airportX, airportY;
-			LatLon2XY(airport.latitude, airport.longitude, airportX, airportY);
-			/*
-			if (drawnCount < 10) {  // Detailed log for the first 10 items only.
-				printf("Airport %s: lat=%.6f,lon=%.6f -> screen=(%.2f,%.2f)\n",
-					   airport.icao.c_str(), airport.latitude, airport.longitude,
-					   airportX, airportY);
-			}
-			*/
-			// Draw airports as triangles icon.
-			// float size = 8.0f;  // size of triangle
-			float size = airportManager->getAirportIconSize(airport, zoomLevel);
-			glBegin(GL_TRIANGLES);
-			glVertex2f(airportX, airportY - size);		  // Top vertex
-			glVertex2f(airportX - size, airportY + size); // left vertex
-			glVertex2f(airportX + size, airportY + size); // right vertex
-			glEnd();
-
-			drawnCount++;
-		}
-		/*
-		printf("Actually drew %d airports\n", drawnCount);
-		printf("=== End Airport Debug ===\n");
-		*/
-	}
-	else
-	{
-		/*
-		printf("Airport display skipped - CheckBox:%s, Manager:%s\n",
-			   DisplayAirportCheckBox->Checked ? "checked" : "unchecked",
-			   airportManager ? "exists" : "null");
-		*/
-	}
-
+  //draw all airports in the map by checkbox
+  DrawAllAirports();
 	if (DrawMap->Checked)
 		glColor4f(1, 1, 1, 1.0); // white
 	else
@@ -3772,6 +3692,66 @@ void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shif
             }
             printf("========================\n");
             break;
+    }
+}
+
+void __fastcall TForm1::DrawAllAirports()
+{
+    // Display Airports Info (DisplayAirportCheckBox is checked)
+    if (!DisplayAirportCheckBox->Checked || !airportManager)
+    {
+        return; // Early return if conditions not met
+    }
+
+    // Calculate current screen bounds
+    double minLat, maxLat, minLon, maxLon;
+    int screenWidth = ObjectDisplay->Width;
+    int screenHeight = ObjectDisplay->Height;
+
+    // Convert screen corner coordinates to latitude and longitude
+    XY2LatLon2(0, 0, minLat, maxLon);
+    XY2LatLon2(screenWidth, screenHeight, maxLat, minLon);
+
+    // Current zoom level
+    int zoomLevel = (int)(log(g_EarthView->m_Eye.h) / log(1.3));
+
+    // Get airports to display on the screen
+    auto visibleAirports = airportManager->getVisibleAirports(
+        minLat, maxLat, minLon, maxLon, zoomLevel);
+
+    // Set airport color
+    glColor4f(0.8, 0.0, 0.0, 1.0); // red
+
+    // Draw airports on the screen
+    for (const auto &airport : visibleAirports)
+    {
+        double airportX, airportY;
+        LatLon2XY(airport.latitude, airport.longitude, airportX, airportY);
+
+        // Get icon size based on zoom level
+        float size = airportManager->getAirportIconSize(airport, zoomLevel);
+
+        // Draw base building (rectangle)
+        glBegin(GL_LINE_LOOP);
+        glVertex2f(airportX - size, airportY - size * 0.6f);  // bottom left
+        glVertex2f(airportX + size, airportY - size * 0.6f);  // bottom right
+        glVertex2f(airportX + size, airportY + size * 0.2f);  // top right
+        glVertex2f(airportX - size, airportY + size * 0.2f);  // top left
+        glEnd();
+
+        // Draw control tower (smaller rectangle on top)
+        glBegin(GL_LINE_LOOP);
+        glVertex2f(airportX - size * 0.5f, airportY + size * 0.2f);  // bottom left
+        glVertex2f(airportX + size * 0.5f, airportY + size * 0.2f);  // bottom right
+        glVertex2f(airportX + size * 0.5f, airportY + size);         // top right
+        glVertex2f(airportX - size * 0.5f, airportY + size);         // top left
+        glEnd();
+
+        // Draw antenna on top
+        glBegin(GL_LINES);
+        glVertex2f(airportX, airportY + size);           // tower top
+        glVertex2f(airportX, airportY + size * 1.3f);    // antenna top
+        glEnd();
     }
 }
 //---------------------------------------------------------------------------

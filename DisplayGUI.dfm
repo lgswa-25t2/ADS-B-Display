@@ -306,6 +306,8 @@ object Form1: TForm1
         Top = 250
         Width = 235
         Height = 97
+		Hint = 
+          'Area-Selection Guide:'#13#10' - Single Click: Select one area'#13#10'- Ctrl+Click: Add/remove areas'#13#10' - ESC: Clear all selections'
         Columns = <
           item
             Caption = 'Area'

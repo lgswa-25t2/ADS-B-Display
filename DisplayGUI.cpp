@@ -3098,7 +3098,9 @@ void __fastcall TForm1::PlaybackSpeedTrackBarChanged(TObject *Sender)
 void __fastcall TForm1::AboutADSBDisplay1Click(TObject *Sender)
 {
 	printf("About Clicked\n");
-	ShowMessage("Team : SW Architect #2 Challenger\n");
+	ShowMessage("ADS-B-Display Version 25.07.03\n"
+				"Copyright 2025 Solvit. All Rights Reserved.\n"
+				"Product by SW Architect #2 Challengers\n");
 }
 //---------------------------------------------------------------------------
 

@@ -68,6 +68,13 @@ struct DistanceCache {
     std::chrono::system_clock::time_point timestamp;
 };
 
+enum TAircraftTypeFilter {
+    atfAll = 0,
+    atfHelicopters = 1,
+    atfMilitary = 2,
+    atfKnownCivilian = 3,
+    atfUnknown = 4
+};
 // 캐시 만료 시간 (밀리초)
 const int CACHE_EXPIRY_MS = 3000; // 3 Sec
 const int CACHE_CLEANUP_INTERVAL_MS = 5000; // 5초마다 캐시 정리
@@ -292,6 +299,7 @@ __published:	// IDE-managed Components
 	TLabel *SelectedLabel;
 	TShape *TrackHistoryColorBox;
 	TLabel *TrackHistoryLabel;
+    TComboBox *AircraftTypeFilterComboBox;
 	void __fastcall ObjectDisplayInit(TObject *Sender);
 	void __fastcall ObjectDisplayResize(TObject *Sender);
 	void __fastcall ObjectDisplayPaint(TObject *Sender);
@@ -343,6 +351,7 @@ __published:	// IDE-managed Components
 	void __fastcall AboutADSBDisplay1Click(TObject *Sender);
 	void __fastcall UserManual1Click(TObject *Sender);
 	void __fastcall PanelTitle1Click(TObject *Sender);
+  void __fastcall AircraftTypeFilterComboBoxCloseUp(TObject *Sender);
 private:	// User declarations
 	// 항공기-공항 거리 캐시
 	std::map<std::pair<uint32_t, std::string>, DistanceCache> distanceCache;
@@ -373,7 +382,7 @@ private:	// User declarations
 	
 	// Area Filter
 	TList *selectedFilterAreas;  // selected filtering Area  s
-    bool areaFilterEnabled;     // enable Area filter
+  bool areaFilterEnabled;     // enable Area filter
 
 public:		// User declarations
 	__fastcall TForm1(TComponent* Owner);
@@ -386,23 +395,23 @@ public:		// User declarations
 	void __fastcall Purge(void);
 	void __fastcall SendCotMessage(AnsiString IP_address, unsigned short Port,char *Buffer,DWORD Length);
 	void __fastcall RegisterWithCoTRouter(void);
-    void __fastcall SetMapCenter(double &x, double &y);
-    void __fastcall LoadMap(int Type);
-    void __fastcall CreateBigQueryCSV(void);
-    void __fastcall CloseBigQueryCSV(void);
-    bool __fastcall LoadARTCCBoundaries(AnsiString FileName);
+  void __fastcall SetMapCenter(double &x, double &y);
+  void __fastcall LoadMap(int Type);
+  void __fastcall CreateBigQueryCSV(void);
+  void __fastcall CloseBigQueryCSV(void);
+  bool __fastcall LoadARTCCBoundaries(AnsiString FileName);
 	void __fastcall UpdateAircraftHistory(TADS_B_Aircraft* aircraft);
 	void __fastcall PurgeOldHistory(TADS_B_Aircraft* aircraft, __int64 currentTime);
-  	void __fastcall TogglePanels();  // Panel Menu Visible
+  void __fastcall TogglePanels();  // Panel Menu Visible
 	//Area Filter functions
-    bool __fastcall IsAircraftInSelectedAreas(TADS_B_Aircraft* aircraft);
-    void __fastcall AddAreaToFilter(TArea* area);
-    void __fastcall RemoveAreaFromFilter(TArea* area);
-    void __fastcall ClearAreaFilter();
-    void __fastcall ToggleAreaInFilter(TArea* area);
-    bool __fastcall IsAreaInFilter(TArea* area);
-    int __fastcall GetFilteredAreaCount();
-    void __fastcall FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shift);
+  bool __fastcall IsAircraftInSelectedAreas(TADS_B_Aircraft* aircraft);
+  void __fastcall AddAreaToFilter(TArea* area);
+  void __fastcall RemoveAreaFromFilter(TArea* area);
+  void __fastcall ClearAreaFilter();
+  void __fastcall ToggleAreaInFilter(TArea* area);
+  bool __fastcall IsAreaInFilter(TArea* area);
+  int __fastcall GetFilteredAreaCount();
+  void __fastcall FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shift);
 
 	int                        MouseDownX,MouseDownY;
 	bool                       MouseDown;
@@ -441,14 +450,15 @@ public:		// User declarations
 	AnsiString                 AircraftDBPathFileName;
 	AnsiString                 ARTCCBoundaryDataPathFileName;
 	int                        SelectedMapIndex;
+  int 											 SelectedAircraftTypeFilter;
 
-    void DrawAirportIcon(double lat, double lon, bool isDeparture);
+  void DrawAirportIcon(double lat, double lon, bool isDeparture);
 	void DrawAirportInfo(double lat, double lon, const char* name, bool isDeparture);
 	int __fastcall getAirplaneType(uint32_t addr);
-  	void UpdateAircraftInfo(TADS_B_Aircraft* Data);
-  	void UpdateRouteInfo(TADS_B_Aircraft* Data);
-  	void ClearAircraftInfo();
-  	void ClearRouteInfo();
+  void UpdateAircraftInfo(TADS_B_Aircraft* Data);
+  void UpdateRouteInfo(TADS_B_Aircraft* Data);
+  void ClearAircraftInfo();
+  void ClearRouteInfo();
 
 	// Airport management
 	AirportDataManager        *airportManager;

@@ -1831,6 +1831,23 @@ object Form1: TForm1
       Font.Style = []
       ParentFont = False
     end
+    object AircraftTypeFilterComboBox: TComboBox
+      Left = 478
+      Top = 6
+      Width = 120
+      Height = 20
+      Style = csDropDownList
+      ItemIndex = 0
+      TabOrder = 0
+      Text = 'All'
+      OnCloseUp = AircraftTypeFilterComboBoxCloseUp
+      Items.Strings = (
+        'All'
+        'Helicopters'
+        'Military'
+        'Known Civilian'
+        'Unknown')
+    end
   end
   object ObjectDisplay: TOpenGLPanel
     Left = 0

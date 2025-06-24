@@ -315,6 +315,8 @@ __fastcall TForm1::TForm1(TComponent *Owner)
 	lastCleanupTime = std::chrono::system_clock::now();
 	// Initial Trackbar Value
 	PlaybackSpeedTrackBar->Visible = false;
+	AircraftTypeFilterComboBox->ItemIndex = 0; // "All" 선택
+  SelectedAircraftTypeFilter = 0;
 }
 //---------------------------------------------------------------------------
 __fastcall TForm1::~TForm1()
@@ -616,13 +618,44 @@ void __fastcall TForm1::DrawObjects(void)
 		}
 	}
 
-    int filteredAircraftCount = 0;
+  TAircraftTypeFilter selectedAircraftTypeFilter = (TAircraftTypeFilter)SelectedAircraftTypeFilter;
 	AircraftCountLabel->Caption = IntToStr((int)ght_size(HashTable));
 	for (Data = (TADS_B_Aircraft *)ght_first(HashTable, &iterator, (const void **)&Key);
 		 Data; Data = (TADS_B_Aircraft *)ght_next(HashTable, &iterator, (const void **)&Key))
 	{
 		if (Data->HaveLatLon)
 		{
+  			// 1. Aircraft type 판별 (한 번만)
+            bool isHelicopter = aircraft_is_helicopter(Data->ICAO, NULL);
+            bool isMilitary = IsAircraftMilitary(Data->ICAO);
+            const TAircraftData *a = (TAircraftData *)ght_get(AircraftDBHashTable, sizeof(Data->ICAO), &Data->ICAO);
+            bool isKnownCivilian = (a != NULL && !isHelicopter && !isMilitary);
+            bool isUnknown = (!a && !isHelicopter && !isMilitary);
+            
+            // 2. 필터링 체크
+            bool shouldShow = true;
+            switch(selectedAircraftTypeFilter) {
+                case atfHelicopters:
+                    shouldShow = isHelicopter;
+                    break;
+                case atfMilitary:
+                    shouldShow = isMilitary;
+                    break;
+                case atfKnownCivilian:
+                    shouldShow = isKnownCivilian;
+                    break;
+                case atfUnknown:
+                    shouldShow = isUnknown;
+                    break;
+                case atfAll:
+                default:
+                    shouldShow = true;
+                    break;
+            }
+            
+            if (!shouldShow) {
+                continue; // 이 항공기는 건너뛰기
+            }
 			//feature selectedAreas
             if(!IsAircraftInSelectedAreas(Data)){
                 continue;
@@ -698,27 +731,17 @@ void __fastcall TForm1::DrawObjects(void)
 
 			// DrawPoint(ScrX,ScrY);
 
-			// Set aircraft color based on type (map-independent)
-			if (aircraft_is_helicopter(Data->ICAO, NULL))
-			{
-				glColor4f(1.0f, 0.65f, 0.0f, 1.0f); // Orange for helicopters
-			}
-			else if (IsAircraftMilitary(Data->ICAO))
-			{
-				glColor4f(0.0f, 1.0f, 0.0f, 1.0f); // Fluorescent green for military
-			}
-			else
-			{
-				const TAircraftData *a = (TAircraftData *)ght_get(AircraftDBHashTable, sizeof(Data->ICAO), &Data->ICAO);
-				if (!a)
-				{
-					glColor4f(0.0f, 0.75f, 1.0f, 1.0f); //  for unknown
-				}
-				else
-				{
-					glColor4f(1.0, 0.0, 1.0, 1.0); // magenta for known civilian aircraft
-				}
-			}
+			//색깔 설정 (이미 판별된 값 사용)
+            if (isHelicopter) {
+                glColor4f(1.0f, 0.65f, 0.0f, 1.0f); // Orange
+            } else if (isMilitary) {
+                glColor4f(0.0f, 1.0f, 0.0f, 1.0f); // Green
+            } else if (isKnownCivilian) {
+                glColor4f(1.0, 0.0, 1.0, 1.0); // Magenta
+            } else { // isUnknown
+                glColor4f(0.0f, 0.75f, 1.0f, 1.0f); // Light blue
+            }
+			
 			if (airportManager && isNearAirport)
 			{
 				glColor4f(1.0, 1.0, 0.0, 1.0); // yellow
@@ -3752,6 +3775,17 @@ void __fastcall TForm1::DrawAllAirports()
         glVertex2f(airportX, airportY + size);           // tower top
         glVertex2f(airportX, airportY + size * 1.3f);    // antenna top
         glEnd();
+    }
+}
+
+
+void __fastcall TForm1::AircraftTypeFilterComboBoxCloseUp(TObject *Sender)
+{
+    // 실제로 선택이 바뀌었을 때만 처리
+    if (SelectedAircraftTypeFilter != AircraftTypeFilterComboBox->ItemIndex)
+    {
+        SelectedAircraftTypeFilter = AircraftTypeFilterComboBox->ItemIndex;
+        ObjectDisplay->Repaint();
     }
 }
 //---------------------------------------------------------------------------

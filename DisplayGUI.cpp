@@ -205,6 +205,28 @@ __fastcall TForm1::TForm1(TComponent *Owner)
 	// Initialize cache cleanup time
 	lastCleanupTime = std::chrono::system_clock::now();
 
+	// Create vertical scrollbar
+	MapVScrollBar = new TScrollBar(this);
+	MapVScrollBar->Parent = this; // 스크롤바를 폼에 직접 추가 (ObjectDisplay와 같은 레벨)
+	MapVScrollBar->Kind = sbVertical;
+	MapVScrollBar->Align = alNone; // 자동 정렬 비활성화
+	MapVScrollBar->Width = 17; // 스크롤바 너비 설정
+	MapVScrollBar->Visible = false; // 처음에는 숨김
+	MapVScrollBar->OnScroll = MapVScrollBarScroll;
+	
+	// Create horizontal scrollbar
+	MapHScrollBar = new TScrollBar(this);
+	MapHScrollBar->Parent = this; // 스크롤바를 폼에 직접 추가 (ObjectDisplay와 같은 레벨)
+	MapHScrollBar->Kind = sbHorizontal;
+	MapHScrollBar->Align = alNone; // 자동 정렬 비활성화
+	MapHScrollBar->Height = 17; // 스크롤바 높이 설정
+	MapHScrollBar->Visible = false; // 처음에는 숨김
+	MapHScrollBar->OnScroll = MapHScrollBarScroll;
+	
+	// ObjectDisplay는 원래 부모로 복원 (지도 표시용)
+	// ObjectDisplay->Parent = Panel7; // 이 줄 제거
+	// ObjectDisplay->Align = alClient; // 이 줄 제거
+
 	AircraftDBPathFileName = ExtractFilePath(ExtractFileDir(Application->ExeName)) + AnsiString("..\\AircraftDB\\") + AIRCRAFT_DATABASE_FILE;
 	ARTCCBoundaryDataPathFileName = ExtractFilePath(ExtractFileDir(Application->ExeName)) + AnsiString("..\\ARTCC_Boundary_Data\\") + ARTCC_BOUNDARY_FILE;
 	BigQueryPath = ExtractFilePath(ExtractFileDir(Application->ExeName)) + AnsiString("..\\BigQuery\\");
@@ -258,6 +280,11 @@ __fastcall TForm1::TForm1(TComponent *Owner)
 
 	g_EarthView->m_Eye.h /= pow(1.3, 18); // pow(1.3,43);
 	SetMapCenter(g_EarthView->m_Eye.x, g_EarthView->m_Eye.y);
+	
+	// 스크롤바 초기화
+	UpdateScrollBarRanges();
+	UpdateScrollBarPositions();
+	
 	TimeToGoTrackBar->Position = 120;
 	BigQueryCSV = NULL;
 	BigQueryRowCount = 0;
@@ -405,6 +432,10 @@ void __fastcall TForm1::ObjectDisplayResize(TObject *Sender)
 	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	g_EarthView->Resize(ObjectDisplay->Width, ObjectDisplay->Height);
+	
+	// 스크롤바 범위와 위치 업데이트
+	UpdateScrollBarRanges();
+	UpdateScrollBarPositions();
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::ObjectDisplayPaint(TObject *Sender)
@@ -1444,6 +1475,8 @@ int __fastcall TForm1::XY2LatLon2(int x, int y, double &lat, double &lon)
 void __fastcall TForm1::ZoomInClick(TObject *Sender)
 {
 	g_EarthView->SingleMovement(NAV_ZOOM_IN);
+	UpdateScrollBarRanges(); // 줌 후 스크롤바 범위 업데이트
+	UpdateScrollBarPositions(); // 스크롤바 위치 업데이트
 	ObjectDisplay->Repaint();
 }
 //---------------------------------------------------------------------------
@@ -1451,7 +1484,7 @@ void __fastcall TForm1::ZoomInClick(TObject *Sender)
 void __fastcall TForm1::ZoomOutClick(TObject *Sender)
 {
 	g_EarthView->SingleMovement(NAV_ZOOM_OUT);
-
+	UpdateScrollBarRanges(); // 줌 후 스크롤바 범위 업데이트
 	ObjectDisplay->Repaint();
 }
 //---------------------------------------------------------------------------
@@ -1775,6 +1808,9 @@ void __fastcall TForm1::FormMouseWheel(TObject *Sender, TShiftState Shift,
 		}
 	}
 
+	// 줌 후 스크롤바 업데이트
+	UpdateScrollBarRanges();
+	UpdateScrollBarPositions();
 	ObjectDisplay->Repaint();
 }
 //---------------------------------------------------------------------------
@@ -3828,3 +3864,527 @@ void __fastcall TForm1::GetTimeToGoLineColor(double speed, float &r, float &g, f
 }
 
 //---------------------------------------------------------------------------
+
+void __fastcall TForm1::MapScrollBoxScroll(TObject *Sender, TScrollBarKind ScrollBarKind, int ScrollCode, int &ScrollPos)
+{
+	// 스크롤바를 통한 지도 네비게이션 처리
+	if (ScrollCode == SB_THUMBPOSITION || ScrollCode == SB_THUMBTRACK)
+	{
+		double deltaX = 0, deltaY = 0;
+		
+		if (ScrollBarKind == sbHorizontal)
+		{
+			// 수평 스크롤 - 경도 변경
+			// 스크롤바 위치를 경도로 변환 (0~36000 -> -180~180)
+			double newLon = (ScrollPos / 100.0) - 180.0;
+			deltaX = newLon - MapCenterLon;
+		}
+		else if (ScrollBarKind == sbVertical)
+		{
+			// 수직 스크롤 - 위도 변경
+			// 스크롤바 위치를 위도로 변환 (0~17000 -> -85~85)
+			double newLat = (ScrollPos / 100.0) - 85.0;
+			deltaY = newLat - MapCenterLat;
+		}
+		
+		// 지도 중심점 업데이트
+		if (deltaX != 0 || deltaY != 0)
+		{
+			MapCenterLon += deltaX;
+			MapCenterLat += deltaY;
+			
+			
+			// 경계값 체크
+			if (MapCenterLat > 85.0) MapCenterLat = 85.0;
+			if (MapCenterLat < -85.0) MapCenterLat = -85.0;
+			if (MapCenterLon > 180.0) MapCenterLon = 180.0;
+			if (MapCenterLon < -180.0) MapCenterLon = -180.0;
+			
+			// 지도 중심점 설정
+			SetMapCenter(g_EarthView->m_Eye.x, g_EarthView->m_Eye.y);
+			ObjectDisplay->Repaint();
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+void __fastcall TForm1::MapScrollBoxVScroll(TObject *Sender, TScrollCode ScrollCode, int &ScrollPos)
+{
+	// 수직 스크롤바를 통한 지도 네비게이션 처리
+	if (ScrollCode == scTrack || ScrollCode == scPosition)
+	{
+		// PageSize를 고려한 실제 이동 가능한 범위로 ScrollPos를 clamp
+		int actualMaxVert = MapVScrollBar->Max - MapVScrollBar->PageSize;
+		if (actualMaxVert < MapVScrollBar->Min) actualMaxVert = MapVScrollBar->Min;
+		if (ScrollPos > actualMaxVert) ScrollPos = actualMaxVert;
+		if (ScrollPos < MapVScrollBar->Min) ScrollPos = MapVScrollBar->Min;
+		
+		// 스크롤바 위치를 위도로 변환 (정확한 매핑)
+		double scrollableLatRange = actualMaxVert - MapVScrollBar->Min;
+		double latRatio = (scrollableLatRange > 0) ? (double)(ScrollPos - MapVScrollBar->Min) / scrollableLatRange : 0.0;
+		double newLat = 85.0 - (latRatio * 170.0); // 85 ~ -85 (위에서 아래로)
+		
+		// 검은색 영역을 건너뛰고 바로 지도 영역으로 이동
+		// 현재 줌 레벨에 따른 지도 높이 계산
+		double zoomLevel = g_EarthView->m_Eye.h;
+		double mapHeight = 170.0 * zoomLevel;
+		
+		// 지도가 화면을 완전히 채우는 경우의 경계값 계산
+		double maxLat = 85.0 - mapHeight / 2.0;
+		double minLat = -85.0 + mapHeight / 2.0;
+		
+		// 경계값으로 조정
+		if (newLat > maxLat) newLat = maxLat;
+		if (newLat < minLat) newLat = minLat;
+		
+		double deltaY = newLat - MapCenterLat;
+		
+		// 지도 중심점 업데이트
+		if (deltaY != 0)
+		{
+			MapCenterLat = newLat;
+			
+			// 지도 중심점 설정
+			SetMapCenter(g_EarthView->m_Eye.x, g_EarthView->m_Eye.y);
+			ObjectDisplay->Repaint();
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+void __fastcall TForm1::MapScrollBoxHScroll(TObject *Sender, TScrollCode ScrollCode, int &ScrollPos)
+{
+    // 수평 스크롤바를 통한 지도 네비게이션 처리
+    if (ScrollCode == scTrack || ScrollCode == scPosition)
+    {
+        // PageSize를 고려한 실제 이동 가능한 범위로 ScrollPos를 clamp
+        int actualMaxHorz = MapHScrollBar->Max - MapHScrollBar->PageSize;
+        if (actualMaxHorz < MapHScrollBar->Min) actualMaxHorz = MapHScrollBar->Min;
+        if (ScrollPos > actualMaxHorz) ScrollPos = actualMaxHorz;
+        if (ScrollPos < MapHScrollBar->Min) ScrollPos = MapHScrollBar->Min;
+        // 스크롤바 위치를 경도로 변환 (정확한 매핑)
+        double scrollableLonRange = actualMaxHorz - MapHScrollBar->Min;
+        double lonRatio = (scrollableLonRange > 0) ? (double)(ScrollPos - MapHScrollBar->Min) / scrollableLonRange : 0.0;
+        double newLon = (lonRatio * 360.0) - 180.0;
+        
+        // 경계값 체크 (전체 경도 범위)
+        if (newLon > 180.0) newLon = 180.0;
+        if (newLon < -180.0) newLon = -180.0;
+        
+        if (MapCenterLon != newLon)
+        {
+            MapCenterLon = newLon;
+            SetMapCenter(g_EarthView->m_Eye.x, g_EarthView->m_Eye.y);
+            ObjectDisplay->Repaint();
+        }
+    }
+    else if (ScrollCode == scLineUp || ScrollCode == scLineDown)
+    {
+        // 화살표 키 처리 (수평 스크롤바에서는 좌우 이동)
+        double deltaX = 0;
+        if (ScrollCode == scLineUp) {
+            deltaX = -MapHScrollBar->SmallChange / 100.0; // 왼쪽으로
+        } else {
+            deltaX = MapHScrollBar->SmallChange / 100.0; // 오른쪽으로
+        }
+
+        MapCenterLon += deltaX;
+
+        // 경계값 체크 (검은색 영역 제외)
+        double zoomLevel = g_EarthView->m_Eye.h;
+        double mapWidth = 360.0 * zoomLevel;
+        double maxLon = 180.0 - mapWidth / 2.0;
+        double minLon = -180.0 + mapWidth / 2.0;
+        
+        if (MapCenterLon > maxLon) MapCenterLon = maxLon;
+        if (MapCenterLon < minLon) MapCenterLon = minLon;
+
+        // 지도 중심점 설정
+        SetMapCenter(g_EarthView->m_Eye.x, g_EarthView->m_Eye.y);
+        ObjectDisplay->Repaint();
+    }
+    else if (ScrollCode == scPageUp || ScrollCode == scPageDown)
+    {
+        // Page 키 처리 (수평 스크롤바에서는 좌우 이동)
+        double deltaX = 0;
+        if (ScrollCode == scPageUp) {
+            deltaX = -MapHScrollBar->LargeChange / 100.0; // 왼쪽으로
+        } else {
+            deltaX = MapHScrollBar->LargeChange / 100.0; // 오른쪽으로
+        }
+
+        MapCenterLon += deltaX;
+
+        // 경계값 체크 (검은색 영역 제외)
+        double zoomLevel = g_EarthView->m_Eye.h;
+        double mapWidth = 360.0 * zoomLevel;
+        double maxLon = 180.0 - mapWidth / 2.0;
+        double minLon = -180.0 + mapWidth / 2.0;
+        
+        if (MapCenterLon > maxLon) MapCenterLon = maxLon;
+        if (MapCenterLon < minLon) MapCenterLon = minLon;
+
+        // 지도 중심점 설정
+        SetMapCenter(g_EarthView->m_Eye.x, g_EarthView->m_Eye.y);
+        ObjectDisplay->Repaint();
+    }
+}
+
+//---------------------------------------------------------------------------
+void __fastcall TForm1::MapVScrollBarScroll(TObject *Sender, TScrollCode ScrollCode, int &ScrollPos)
+{
+	// 수직 스크롤바를 통한 지도 네비게이션 처리
+	if (ScrollCode == scTrack || ScrollCode == scPosition)
+	{
+		// PageSize를 고려한 실제 이동 가능한 범위로 ScrollPos를 clamp
+		int actualMaxVert = MapVScrollBar->Max - MapVScrollBar->PageSize;
+		if (actualMaxVert < MapVScrollBar->Min) actualMaxVert = MapVScrollBar->Min;
+		if (ScrollPos > actualMaxVert) ScrollPos = actualMaxVert;
+		if (ScrollPos < MapVScrollBar->Min) ScrollPos = MapVScrollBar->Min;
+
+		// 스크롤바 위치를 위도로 변환 (정확한 매핑)
+		double scrollableLatRange = actualMaxVert - MapVScrollBar->Min;
+		double latRatio = (scrollableLatRange > 0) ? (double)(ScrollPos - MapVScrollBar->Min) / scrollableLatRange : 0.0;
+		double newLat = 85.0 - (latRatio * 170.0); // 85 ~ -85 (위에서 아래로)
+
+		// 경계값 체크 (전체 위도 범위)
+		if (newLat > 85.0) newLat = 85.0;
+		if (newLat < -85.0) newLat = -85.0;
+
+		if (MapCenterLat != newLat)
+		{
+			MapCenterLat = newLat;
+			SetMapCenter(g_EarthView->m_Eye.x, g_EarthView->m_Eye.y);
+			ObjectDisplay->Repaint();
+		}
+	}
+	else if (ScrollCode == scLineUp || ScrollCode == scLineDown)
+	{
+		// 화살표 키 처리 (수직 스크롤바에서는 상하 이동)
+		double deltaY = 0;
+		if (ScrollCode == scLineUp) {
+			deltaY = MapVScrollBar->SmallChange / 100.0; // 위로: 위도 증가(북쪽)
+		} else {
+			deltaY = -MapVScrollBar->SmallChange / 100.0; // 아래로: 위도 감소(남쪽)
+		}
+		
+		MapCenterLat += deltaY;
+		
+		// 경계값 체크 (검은색 영역 제외)
+		double zoomLevel = g_EarthView->m_Eye.h;
+		double mapHeight = 170.0 * zoomLevel;
+		double maxLat = 85.0 - mapHeight / 2.0;
+		double minLat = -85.0 + mapHeight / 2.0;
+		
+		if (MapCenterLat > maxLat) MapCenterLat = maxLat;
+		if (MapCenterLat < minLat) MapCenterLat = minLat;
+		
+		// 지도 중심점 설정
+		SetMapCenter(g_EarthView->m_Eye.x, g_EarthView->m_Eye.y);
+		ObjectDisplay->Repaint();
+	}
+	else if (ScrollCode == scPageUp || ScrollCode == scPageDown)
+	{
+		// Page 키 처리 (수직 스크롤바에서는 상하 이동)
+		double deltaY = 0;
+		if (ScrollCode == scPageUp) {
+			deltaY = MapVScrollBar->LargeChange / 100.0; // 위로: 위도 증가(북쪽)
+		} else {
+			deltaY = -MapVScrollBar->LargeChange / 100.0; // 아래로: 위도 감소(남쪽)
+		}
+		
+		MapCenterLat += deltaY;
+		
+		// 경계값 체크 (전체 위도 범위)
+		if (MapCenterLat > 85.0) MapCenterLat = 85.0;
+		if (MapCenterLat < -85.0) MapCenterLat = -85.0;
+		
+		// 지도 중심점 설정
+		SetMapCenter(g_EarthView->m_Eye.x, g_EarthView->m_Eye.y);
+		ObjectDisplay->Repaint();
+	}
+}
+
+//---------------------------------------------------------------------------
+void __fastcall TForm1::UpdateScrollBarRanges()
+{
+	if (!MapVScrollBar || !MapHScrollBar) return;
+	
+	// 현재 줌 레벨과 화면 크기에 따라 스크롤바 표시 여부 결정
+	double zoomLevel = g_EarthView->m_Eye.h;
+	int screenWidth = ObjectDisplay->Width;
+	int screenHeight = ObjectDisplay->Height;
+	
+	// 스크롤바는 항상 표시하되, 크기와 범위를 동적으로 조정
+	bool showScrollbars = true;
+	bool showVertical = true;
+	bool showHorizontal = true;
+	
+	// 지도가 화면 밖으로 나가서 검은색 영역이 보이는지 확인
+	bool mapOutOfBounds = false;
+	
+	// 지도의 실제 표시 영역 계산
+	double mapWidth = 360.0 * zoomLevel;  // 지도 경도 범위
+	double mapHeight = 170.0 * zoomLevel; // 지도 위도 범위
+	
+	// 지도 중심점에서 지도 영역의 경계 계산
+	double mapLeft = MapCenterLon - mapWidth / 2.0;
+	double mapRight = MapCenterLon + mapWidth / 2.0;
+	double mapTop = MapCenterLat + mapHeight / 2.0;
+	double mapBottom = MapCenterLat - mapHeight / 2.0;
+	
+	// 지도가 화면 밖으로 나가는지 확인 (디버그용)
+	if (mapLeft < -180.0 || mapRight > 180.0 || mapTop > 85.0 || mapBottom < -85.0) {
+		mapOutOfBounds = true;
+	}
+	
+	// 화면 크기가 너무 작으면 스크롤바 숨김
+	if (screenWidth < 200 || screenHeight < 200) {
+		showScrollbars = false;
+		showVertical = false;
+		showHorizontal = false;
+	}
+	
+	// 스크롤바 크기를 화면 크기에 맞게 조정
+	int scrollBarSize = 17; // 기본 크기
+	if (screenWidth > 800 && screenHeight > 600) {
+		scrollBarSize = 20; // 큰 화면에서는 더 큰 스크롤바
+	} else if (screenWidth < 400 || screenHeight < 300) {
+		scrollBarSize = 14; // 작은 화면에서는 더 작은 스크롤바
+	}
+	
+	// 스크롤바 크기 설정
+	MapVScrollBar->Width = scrollBarSize;
+	MapHScrollBar->Height = scrollBarSize;
+	
+	// 줌 레벨에 따라 스크롤바 범위와 PageSize 동적 조정
+	// 검은색 빈공간도 감안하여 PageSize 계산
+	
+	// 전체 지도 범위 (고정)
+	const int TOTAL_LON_RANGE = 36000; // -180도 ~ 180도 * 100
+	const int TOTAL_LAT_RANGE = 17000; // -85도 ~ 85도 * 100
+	
+	// 줌 레벨에 따른 현재 보이는 영역 계산
+	// 줌이 확대될수록 (zoomLevel이 작을수록) 보이는 영역이 작아짐
+	double visibleLonRange = TOTAL_LON_RANGE * zoomLevel;
+	double visibleLatRange = TOTAL_LAT_RANGE * zoomLevel;
+	
+	// 검은색 빈공간을 감안한 PageSize 계산
+	// 지도가 화면을 완전히 채우지 않을 때는 PageSize를 더 크게 설정
+	double effectiveLonRange = visibleLonRange;
+	double effectiveLatRange = visibleLatRange;
+	
+	// 지도가 화면 밖으로 나가는 경우 PageSize 조정
+	if (mapLeft < -180.0) {
+		effectiveLonRange += (-180.0 - mapLeft) * 100; // 왼쪽 검은색 영역
+	}
+	if (mapRight > 180.0) {
+		effectiveLonRange += (mapRight - 180.0) * 100; // 오른쪽 검은색 영역
+	}
+	if (mapTop > 85.0) {
+		effectiveLatRange += (mapTop - 85.0) * 100; // 위쪽 검은색 영역
+	}
+	if (mapBottom < -85.0) {
+		effectiveLatRange += (-85.0 - mapBottom) * 100; // 아래쪽 검은색 영역
+	}
+	
+	// 최소/최대 PageSize 제한 (너무 작거나 크지 않도록)
+	int minPageSize = 50;  // 최소 50
+	int maxPageSize = TOTAL_LON_RANGE / 2; // 최대 전체의 절반
+	
+	// PageSize 계산 (검은색 빈공간 감안)
+	int horzPageSize = (int)(effectiveLonRange);
+	int vertPageSize = (int)(effectiveLatRange);
+	
+	// PageSize 제한 적용
+	if (horzPageSize < minPageSize) horzPageSize = minPageSize;
+	if (horzPageSize > maxPageSize) horzPageSize = maxPageSize;
+	if (vertPageSize < minPageSize) vertPageSize = minPageSize;
+	if (vertPageSize > maxPageSize) vertPageSize = maxPageSize;
+	
+	// 수평 스크롤바 설정 (경도)
+	MapHScrollBar->Min = 0;
+	MapHScrollBar->Max = TOTAL_LON_RANGE; // 전체 범위로 설정
+	MapHScrollBar->PageSize = horzPageSize;
+	
+	// SmallChange와 LargeChange를 더 크게 설정하여 확대 시에도 움직이도록 함
+	int minSmallChange = 1000;  // 최소 10도 (1000/100)
+	int minLargeChange = 5000;  // 최소 50도 (5000/100)
+	
+	MapHScrollBar->LargeChange = max(horzPageSize / 4, minLargeChange);
+	MapHScrollBar->SmallChange = max(horzPageSize / 20, minSmallChange);
+	
+	// 수직 스크롤바 설정 (위도)
+	MapVScrollBar->Min = 0;
+	MapVScrollBar->Max = TOTAL_LAT_RANGE; // 전체 범위로 설정
+	MapVScrollBar->PageSize = vertPageSize;
+	MapVScrollBar->LargeChange = max(vertPageSize / 4, minLargeChange);
+	MapVScrollBar->SmallChange = max(vertPageSize / 20, minSmallChange);
+	
+	// 확대 완전히 했을 때도 스크롤바가 움직이도록 최소값 보장 (더 큰 값으로 설정)
+	if (MapHScrollBar->SmallChange < minSmallChange) MapHScrollBar->SmallChange = minSmallChange;
+	if (MapVScrollBar->SmallChange < minSmallChange) MapVScrollBar->SmallChange = minSmallChange;
+	if (MapHScrollBar->LargeChange < minLargeChange) MapHScrollBar->LargeChange = minLargeChange;
+	if (MapVScrollBar->LargeChange < minLargeChange) MapVScrollBar->LargeChange = minLargeChange;
+	
+	// 스크롤바 표시/숨김 설정
+	MapVScrollBar->Visible = showVertical;
+	MapHScrollBar->Visible = showHorizontal;
+	
+	// 디버그 정보 출력 (선택사항)
+	if (showScrollbars) {
+		printf("Scrollbars: zoom=%.3f, H_Page=%d/36000 (%.1f%%), V_Page=%d/17000 (%.1f%%)\n", 
+			   zoomLevel, horzPageSize, (float)horzPageSize/TOTAL_LON_RANGE*100,
+			   vertPageSize, (float)vertPageSize/TOTAL_LAT_RANGE*100);
+		printf("H_Small=%d, H_Large=%d, V_Small=%d, V_Large=%d\n",
+			   MapHScrollBar->SmallChange, MapHScrollBar->LargeChange,
+			   MapVScrollBar->SmallChange, MapVScrollBar->LargeChange);
+		
+		if (mapOutOfBounds) {
+			printf("Map out of bounds: Lat=%.2f, Lon=%.2f\n", MapCenterLat, MapCenterLon);
+		}
+	}
+}
+
+//---------------------------------------------------------------------------
+void __fastcall TForm1::UpdateScrollBarPositions()
+{
+	if (!MapVScrollBar || !MapHScrollBar) return;
+	
+	// ObjectDisplay의 위치와 크기에 따라 스크롤바 위치 설정
+	int objLeft = ObjectDisplay->Left;
+	int objTop = ObjectDisplay->Top;
+	int objWidth = ObjectDisplay->Width;
+	int objHeight = ObjectDisplay->Height;
+	
+	// 스크롤바가 보이는 경우에만 위치 조정
+	if (MapVScrollBar->Visible && MapHScrollBar->Visible) {
+		// 수직 스크롤바 위치 설정 (ObjectDisplay 오른쪽)
+		MapVScrollBar->Left = objLeft + objWidth - MapVScrollBar->Width;
+		MapVScrollBar->Top = objTop;
+		MapVScrollBar->Height = objHeight - MapHScrollBar->Height; // 수평 스크롤바 공간 제외
+		
+		// 수평 스크롤바 위치 설정 (ObjectDisplay 아래쪽)
+		MapHScrollBar->Left = objLeft;
+		MapHScrollBar->Top = objTop + objHeight - MapHScrollBar->Height;
+		MapHScrollBar->Width = objWidth - MapVScrollBar->Width; // 수직 스크롤바 공간 제외
+	} else if (MapVScrollBar->Visible) {
+		// 수직 스크롤바만 보이는 경우
+		MapVScrollBar->Left = objLeft + objWidth - MapVScrollBar->Width;
+		MapVScrollBar->Top = objTop;
+		MapVScrollBar->Height = objHeight;
+	} else if (MapHScrollBar->Visible) {
+		// 수평 스크롤바만 보이는 경우
+		MapHScrollBar->Left = objLeft;
+		MapHScrollBar->Top = objTop + objHeight - MapHScrollBar->Height;
+		MapHScrollBar->Width = objWidth;
+	}
+	
+	// 현재 지도 중심점에 따라 스크롤바 위치 업데이트
+	// 스크롤바 범위를 고려한 정확한 매핑
+	// 스크롤바 범위: 0 ~ (Max)
+	// 경도 범위: -180 ~ 180
+	// PageSize를 고려하여 실제 이동 가능한 범위 계산
+	
+	// 수평 스크롤바 위치 계산
+	double scrollableLonRange = MapHScrollBar->Max - MapHScrollBar->Min;
+	double lonRatio = (MapCenterLon + 180.0) / 360.0; // 0.0 ~ 1.0
+	int horzPos = MapHScrollBar->Min + (int)(lonRatio * scrollableLonRange);
+	
+	// 경계값 체크
+	if (horzPos > MapHScrollBar->Max) horzPos = MapHScrollBar->Max;
+	if (horzPos < MapHScrollBar->Min) horzPos = MapHScrollBar->Min;
+	MapHScrollBar->Position = horzPos;
+	
+	// 수직 스크롤바 위치 계산
+	int actualMaxVert = MapVScrollBar->Max - MapVScrollBar->PageSize;
+	if (actualMaxVert < MapVScrollBar->Min) actualMaxVert = MapVScrollBar->Min;
+	double latRatio = (85.0 - MapCenterLat) / 170.0; // 0.0 ~ 1.0 (위에서 아래로)
+	int vertPos = MapVScrollBar->Min + (int)(latRatio * (actualMaxVert - MapVScrollBar->Min));
+	if (vertPos > actualMaxVert) vertPos = actualMaxVert;
+	if (vertPos < MapVScrollBar->Min) vertPos = MapVScrollBar->Min;
+	MapVScrollBar->Position = vertPos;
+	
+	// 디버그 출력
+	printf("Scroll Debug: Lon=%.2f, Lat=%.2f, H_Pos=%d/%d, V_Pos=%d/%d\n", 
+		   MapCenterLon, MapCenterLat, horzPos, MapHScrollBar->Max, vertPos, MapVScrollBar->Max);
+}
+
+//---------------------------------------------------------------------------
+void __fastcall TForm1::MapHScrollBarScroll(TObject *Sender, TScrollCode ScrollCode, int &ScrollPos)
+{
+    // 수평 스크롤바를 통한 지도 네비게이션 처리
+    if (ScrollCode == scTrack || ScrollCode == scPosition)
+    {
+        // PageSize를 고려한 실제 이동 가능한 범위로 ScrollPos를 clamp
+        int actualMaxHorz = MapHScrollBar->Max - MapHScrollBar->PageSize;
+        if (actualMaxHorz < MapHScrollBar->Min) actualMaxHorz = MapHScrollBar->Min;
+        if (ScrollPos > actualMaxHorz) ScrollPos = actualMaxHorz;
+        if (ScrollPos < MapHScrollBar->Min) ScrollPos = MapHScrollBar->Min;
+        // 스크롤바 위치를 경도로 변환 (정확한 매핑)
+        double scrollableLonRange = actualMaxHorz - MapHScrollBar->Min;
+        double lonRatio = (scrollableLonRange > 0) ? (double)(ScrollPos - MapHScrollBar->Min) / scrollableLonRange : 0.0;
+        double newLon = (lonRatio * 360.0) - 180.0;
+        
+        // 경계값 체크 (전체 경도 범위)
+        if (newLon > 180.0) newLon = 180.0;
+        if (newLon < -180.0) newLon = -180.0;
+        
+        if (MapCenterLon != newLon)
+        {
+            MapCenterLon = newLon;
+            SetMapCenter(g_EarthView->m_Eye.x, g_EarthView->m_Eye.y);
+            ObjectDisplay->Repaint();
+        }
+    }
+    else if (ScrollCode == scLineUp || ScrollCode == scLineDown)
+    {
+        // 화살표 키 처리 (수평 스크롤바에서는 좌우 이동)
+        double deltaX = 0;
+        if (ScrollCode == scLineUp) {
+            deltaX = -MapHScrollBar->SmallChange / 100.0; // 왼쪽으로
+        } else {
+            deltaX = MapHScrollBar->SmallChange / 100.0; // 오른쪽으로
+        }
+
+        MapCenterLon += deltaX;
+
+        // 경계값 체크 (검은색 영역 제외)
+        double zoomLevel = g_EarthView->m_Eye.h;
+        double mapWidth = 360.0 * zoomLevel;
+        double maxLon = 180.0 - mapWidth / 2.0;
+        double minLon = -180.0 + mapWidth / 2.0;
+        
+        if (MapCenterLon > maxLon) MapCenterLon = maxLon;
+        if (MapCenterLon < minLon) MapCenterLon = minLon;
+
+        // 지도 중심점 설정
+        SetMapCenter(g_EarthView->m_Eye.x, g_EarthView->m_Eye.y);
+        ObjectDisplay->Repaint();
+    }
+    else if (ScrollCode == scPageUp || ScrollCode == scPageDown)
+    {
+        // Page 키 처리 (수평 스크롤바에서는 좌우 이동)
+        double deltaX = 0;
+        if (ScrollCode == scPageUp) {
+            deltaX = -MapHScrollBar->LargeChange / 100.0; // 왼쪽으로
+        } else {
+            deltaX = MapHScrollBar->LargeChange / 100.0; // 오른쪽으로
+        }
+
+        MapCenterLon += deltaX;
+
+        // 경계값 체크 (검은색 영역 제외)
+        double zoomLevel = g_EarthView->m_Eye.h;
+        double mapWidth = 360.0 * zoomLevel;
+        double maxLon = 180.0 - mapWidth / 2.0;
+        double minLon = -180.0 + mapWidth / 2.0;
+        
+        if (MapCenterLon > maxLon) MapCenterLon = maxLon;
+        if (MapCenterLon < minLon) MapCenterLon = minLon;
+
+        // 지도 중심점 설정
+        SetMapCenter(g_EarthView->m_Eye.x, g_EarthView->m_Eye.y);
+        ObjectDisplay->Repaint();
+    }
+}

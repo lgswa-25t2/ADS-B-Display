@@ -368,7 +368,18 @@ __published:	// IDE-managed Components
 	void __fastcall UserManual1Click(TObject *Sender);
 	void __fastcall PanelTitle1Click(TObject *Sender);
   void __fastcall AircraftTypeFilterComboBoxCloseUp(TObject *Sender);
+	void __fastcall MapScrollBoxScroll(TObject *Sender, TScrollBarKind ScrollBarKind, int ScrollCode, int &ScrollPos);
+	void __fastcall MapScrollBoxVScroll(TObject *Sender, TScrollCode ScrollCode, int &ScrollPos);
+	void __fastcall MapScrollBoxHScroll(TObject *Sender, TScrollCode ScrollCode, int &ScrollPos);
+	void __fastcall MapVScrollBarScroll(TObject *Sender, TScrollCode ScrollCode, int &ScrollPos);
+	void __fastcall MapHScrollBarScroll(TObject *Sender, TScrollCode ScrollCode, int &ScrollPos);
+	void __fastcall UpdateScrollBarRanges();
+	void __fastcall UpdateScrollBarPositions();
 private:	// User declarations
+	// Map scrollbars
+	TScrollBar *MapVScrollBar;
+	TScrollBar *MapHScrollBar;
+	
 	// 항공기-공항 거리 캐시
 	std::map<std::pair<uint32_t, std::string>, DistanceCache> distanceCache;
 	

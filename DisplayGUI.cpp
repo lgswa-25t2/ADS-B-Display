@@ -794,18 +794,33 @@ void __fastcall TForm1::DrawObjects(void)
 					double ScrX2, ScrY2;
 					LatLon2XY(lat, lon, ScrX2, ScrY2);
 
+					 // 속도에 따른 색상 결정
+					float r, g, b, alpha;
+					GetTimeToGoLineColor(Data->Speed, r, g, b, alpha);
 					if (DrawMap->Checked)
 					{
-						glColor4f(1.0, 1.0, 0.0, 1.0); // yellow
+						glColor4f(r, g, b, alpha);  // 동적 색상 적용
 					}
 					else
 					{
-						glColor4f(1.0, 0.58, 0.0, 0.8); // orange
+						// 맵이 없을 때는 약간 더 진하게
+						glColor4f(r * 0.8f, g * 0.8f, b * 0.8f, alpha * 0.9f);
+					}
+					
+					// 라인 두께도 속도에 따라 조정 (선택사항)
+					if (Data->Speed >= 400) {
+						glLineWidth(3.0f);  // 고속일 때 두껍게
+					} else if (Data->Speed >= 150) {
+						glLineWidth(2.0f);  // 중속일 때 보통
+					} else {
+						glLineWidth(1.5f);  // 저속일 때 얇게
 					}
 					glBegin(GL_LINE_STRIP);
 					glVertex2f(ScrX, ScrY);
 					glVertex2f(ScrX2, ScrY2);
 					glEnd();
+					// 라인 두께 원복
+        			glLineWidth(1.0f);
 				}
 			}
 		}
@@ -3788,4 +3803,26 @@ void __fastcall TForm1::AircraftTypeFilterComboBoxCloseUp(TObject *Sender)
         ObjectDisplay->Repaint();
     }
 }
+void __fastcall TForm1::GetTimeToGoLineColor(double speed, float &r, float &g, float &b, float &alpha)
+{
+    alpha = 1.0f;  // 기본 투명도
+    
+    if (speed >= 600) {
+        // 초고속 (600+ knots) - 빨간색 (위험/고속)
+        r = 1.0f; g = 0.0f; b = 0.0f;
+    }
+    else if (speed >= 400) {
+        // 고속 (400-600 knots) - 주황색
+        r = 1.0f; g = 0.5f; b = 0.0f;
+    }
+    else if (speed >= 250) {
+        // 중고속 (250-400 knots) - 노란색 (현재 기본색)
+        r = 1.0f; g = 1.0f; b = 0.0f;
+    }
+    else {
+        // 중속 (150-250 knots) - 연두색
+        r = 0.5f; g = 1.0f; b = 0.0f;
+    }
+}
+
 //---------------------------------------------------------------------------

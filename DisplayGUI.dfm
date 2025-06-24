@@ -1832,7 +1832,7 @@ object Form1: TForm1
       ParentFont = False
     end
     object AircraftTypeFilterComboBox: TComboBox
-      Left = 478
+      Left = 440
       Top = 6
       Width = 120
       Height = 20
@@ -1847,6 +1847,131 @@ object Form1: TForm1
         'Military'
         'Known Civilian'
         'Unknown')
+    end
+    object TimeToGoLegendPanel: TPanel
+      Left = 609
+      Top = 3
+      Width = 500
+      Height = 38
+      BevelEdges = []
+      BevelOuter = bvNone
+      Color = clCream
+      ParentBackground = False
+      TabOrder = 1
+      object TimeToGoLegendTitle: TLabel
+        Left = 5
+        Top = 5
+        Width = 113
+        Height = 14
+        Caption = 'Time-to-Go Line Colors'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -12
+        Font.Name = 'Calibri'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object HighSpeedShape: TShape
+        Left = 10
+        Top = 25
+        Width = 20
+        Height = 3
+        Brush.Color = clRed
+        Pen.Color = clRed
+        Pen.Width = 2
+      end
+      object HighSpeedLabel: TLabel
+        Left = 35
+        Top = 20
+        Width = 48
+        Height = 13
+        Caption = '600+ kts'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Consolas'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object MedHighSpeedShape: TShape
+        Left = 89
+        Top = 25
+        Width = 20
+        Height = 3
+        Brush.Color = clOrange
+        Pen.Color = clOrange
+        Pen.Width = 2
+      end
+      object MedHighSpeedLabel: TLabel
+        Left = 115
+        Top = 20
+        Width = 66
+        Height = 13
+        Caption = '400-600 kts'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Consolas'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object MedSpeedShape: TShape
+        Left = 185
+        Top = 25
+        Width = 20
+        Height = 3
+        Brush.Color = clYellow
+        Pen.Color = clYellow
+        Pen.Width = 2
+      end
+      object MedSpeedLabel: TLabel
+        Left = 211
+        Top = 20
+        Width = 66
+        Height = 13
+        Caption = '250-400 kts'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Consolas'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object LowMedSpeedShape: TShape
+        Left = 280
+        Top = 25
+        Width = 20
+        Height = 3
+        Brush.Color = clLime
+        Pen.Color = clLime
+        Pen.Width = 2
+      end
+      object VeryLowSpeedLabel: TLabel
+        Left = 310
+        Top = 122
+        Width = 42
+        Height = 13
+        Caption = '30-80 kts'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Calibri'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object LowMedSpeedLabel: TLabel
+        Left = 306
+        Top = 20
+        Width = 54
+        Height = 13
+        Caption = '0~250 kts'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Consolas'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
     end
   end
   object ObjectDisplay: TOpenGLPanel

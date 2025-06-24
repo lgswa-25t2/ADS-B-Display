@@ -300,6 +300,17 @@ __published:	// IDE-managed Components
 	TShape *TrackHistoryColorBox;
 	TLabel *TrackHistoryLabel;
     TComboBox *AircraftTypeFilterComboBox;
+	TPanel *TimeToGoLegendPanel;
+	TLabel *TimeToGoLegendTitle;
+	TShape *HighSpeedShape;
+	TLabel *HighSpeedLabel;
+	TShape *MedHighSpeedShape;
+	TLabel *MedHighSpeedLabel;
+	TShape *MedSpeedShape;
+	TLabel *MedSpeedLabel;
+	TShape *LowMedSpeedShape;
+	TLabel *VeryLowSpeedLabel;
+	TLabel *LowMedSpeedLabel;
 	void __fastcall ObjectDisplayInit(TObject *Sender);
 	void __fastcall ObjectDisplayResize(TObject *Sender);
 	void __fastcall ObjectDisplayPaint(TObject *Sender);
@@ -363,6 +374,8 @@ private:	// User declarations
 
 	// 캐시 정리 함수
 	void cleanupOldCache();
+
+	 void __fastcall GetTimeToGoLineColor(double speed, float &r, float &g, float &b, float &alpha);
 	
 	// 마지막 캐시 정리 시간
 	std::chrono::system_clock::time_point lastCleanupTime;

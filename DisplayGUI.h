@@ -142,7 +142,6 @@ __published:	// IDE-managed Components
 	TMenuItem *File1;
 	TMenuItem *Exit1;
 	TTimer *Timer1;
-	TOpenGLPanel *ObjectDisplay;
 	TPanel *Panel1;
 	TPanel *Panel3;
 	TButton *ZoomIn;
@@ -311,6 +310,12 @@ __published:	// IDE-managed Components
 	TShape *LowMedSpeedShape;
 	TLabel *VeryLowSpeedLabel;
 	TLabel *LowMedSpeedLabel;
+	TOpenGLPanel *ObjectDisplay;
+	TLabel *x1;
+	TLabel *x5;
+	TLabel *x10;
+	TPanel *PlaybackSpeedPanel;
+	TPanel *PlaybackControlTitle;
 	void __fastcall ObjectDisplayInit(TObject *Sender);
 	void __fastcall ObjectDisplayResize(TObject *Sender);
 	void __fastcall ObjectDisplayPaint(TObject *Sender);

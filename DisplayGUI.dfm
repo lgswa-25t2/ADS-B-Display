@@ -15,6 +15,9 @@ object Form1: TForm1
   Position = poScreenCenter
   WindowState = wsMaximized
   OnMouseWheel = FormMouseWheel
+  DesignSize = (
+    1228
+    788)
   TextHeight = 12
   object Label16: TLabel
     Left = 74
@@ -1669,7 +1672,7 @@ object Form1: TForm1
     Font.Style = [fsBold]
     ParentBackground = False
     ParentFont = False
-    TabOrder = 2
+    TabOrder = 1
     object LegendTitle: TLabel
       Left = 7
       Top = 6
@@ -1981,7 +1984,7 @@ object Form1: TForm1
     Height = 748
     Cursor = crCross
     Align = alClient
-    TabOrder = 1
+    TabOrder = 2
     PFDFlags = [f_PFD_DRAW_TO_WINDOW, f_PFD_SUPPORT_OPENGL, f_PFD_DOUBLEBUFFER]
     Font3D_Type.Charset = ANSI_CHARSET
     Font3D_Type.Color = clWindowText
@@ -2001,18 +2004,69 @@ object Form1: TForm1
     OnInit = ObjectDisplayInit
     OnResize = ObjectDisplayResize
     OnPaint = ObjectDisplayPaint
+  end
+  object PlaybackSpeedPanel: TPanel
+    Left = 577
+    Top = 0
+    Width = 401
+    Height = 85
+    Anchors = [akTop, akRight]
+    Color = clCream
+    ParentBackground = False
+    TabOrder = 3
+    Visible = False
     DesignSize = (
-      978
-      748)
+      401
+      85)
+    object x5: TLabel
+      Left = 194
+      Top = 65
+      Width = 13
+      Height = 12
+      Caption = 'x5'
+    end
+    object x10: TLabel
+      Left = 373
+      Top = 65
+      Width = 20
+      Height = 12
+      Caption = 'x10'
+    end
+    object x1: TLabel
+      Left = 4
+      Top = 65
+      Width = 13
+      Height = 12
+      Caption = 'x1'
+    end
     object PlaybackSpeedTrackBar: TTrackBar
-      Left = 524
-      Top = 0
-      Width = 454
+      Left = 0
+      Top = 32
+      Width = 401
       Height = 48
       Anchors = [akTop, akRight]
+      ParentShowHint = False
+      ShowHint = False
       TabOrder = 0
-      Visible = False
       OnChange = PlaybackSpeedTrackBarChanged
+    end
+    object PlaybackControlTitle: TPanel
+      Left = 1
+      Top = 1
+      Width = 399
+      Height = 25
+      Align = alTop
+      Caption = 'Playback Speed Control'
+      Color = clMoneyGreen
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Calibri'
+      Font.Style = [fsBold]
+      ParentBackground = False
+      ParentFont = False
+      TabOrder = 1
+      OnClick = PanelTitle1Click
     end
   end
   object MainMenu1: TMainMenu

@@ -314,7 +314,7 @@ __fastcall TForm1::TForm1(TComponent *Owner)
 
 	lastCleanupTime = std::chrono::system_clock::now();
 	// Initial Trackbar Value
-	PlaybackSpeedTrackBar->Visible = false;
+	PlaybackSpeedPanel->Visible = false;
 	AircraftTypeFilterComboBox->ItemIndex = 0; // "All" 선택
   SelectedAircraftTypeFilter = 0;
 }
@@ -885,7 +885,7 @@ void __fastcall TForm1::DrawObjects(void)
 			// Display Tracking history
 			if (Data && Data->HistoryCount > 0 && Data->HistoryIndex >= 0 && Data->HistoryIndex < FLIGHT_TRACK_HISTORY_COUNT)
 			{
-				// printf("[Data] %s HistoryCount=%d HistoryIndex=%d\n", Data->HexAddr, Data->HistoryCount, Data->HistoryIndex);
+				//printf("[Data] %s HistoryCount=%d HistoryIndex=%d\n", Data->HexAddr, Data->HistoryCount, Data->HistoryIndex);
 				glBegin(GL_LINE_STRIP);
 				for (int i = 0; i < Data->HistoryCount && i < FLIGHT_TRACK_HISTORY_COUNT; i++)
 				{
@@ -894,20 +894,21 @@ void __fastcall TForm1::DrawObjects(void)
 					// Error Handling
 					if (idx < 0 || idx >= FLIGHT_TRACK_HISTORY_COUNT)
 					{
+						//printf("[NG] Invalid history: %s idx=%d\n", Data->HexAddr, idx);
 						continue;
 					}
 
 					// Error Handling - -90 < LAT < 90, -180 < LON < 180
 					if (fabs(Data->PrevLatitude[idx]) > 90.0 || fabs(Data->PrevLongitude[idx]) > 180.0)
 					{
-						// printf("[NG] Invalid history: %s idx=%d lat=%.6f lon=%.6f\n",	Data->HexAddr, idx, Data->PrevLatitude[idx], Data->PrevLongitude[idx]);
+						//printf("[NG] Invalid history: %s idx=%d lat=%.6f lon=%.6f\n",	Data->HexAddr, idx, Data->PrevLatitude[idx], Data->PrevLongitude[idx]);
 						continue;
 					}
 
 					// Error Handling - 0.000000
 					if (fabs(Data->PrevLatitude[idx]) < 0.01 || fabs(Data->PrevLongitude[idx]) < 0.01)
 					{
-						// printf("[NG] Invalid history: 0.000000 %s idx=%d %f %f\n", Data->HexAddr, idx, Data->PrevLatitude[idx], Data->PrevLongitude[idx]);
+						//printf("[NG] Invalid history: 0.000000 %s idx=%d %f %f\n", Data->HexAddr, idx, Data->PrevLatitude[idx], Data->PrevLongitude[idx]);
 						continue;
 					}
 
@@ -930,7 +931,7 @@ void __fastcall TForm1::DrawObjects(void)
 					LatLon2XY(Data->PrevLatitude[idx], Data->PrevLongitude[idx], historyScrX, historyScrY);
 					glVertex2f(historyScrX, historyScrY);
 
-					// printf("[OK] Valid Aircraft History %s idx=%d %f %f\n", Data->HexAddr, idx, Data->PrevLatitude[idx], Data->PrevLongitude[idx]);
+					//printf("[OK] Valid Aircraft History %s idx=%d %f %f\n", Data->HexAddr, idx, Data->PrevLatitude[idx], Data->PrevLongitude[idx]);
 				}
 				glEnd();
 			}
@@ -1174,6 +1175,7 @@ void __fastcall TForm1::ObjectDisplayMouseDown(TObject *Sender, TMouseButton But
 //---------------------------------------------------------------------------
 void __fastcall TForm1::UpdateAircraftHistory(TADS_B_Aircraft *aircraft)
 {
+	//printf("UpdateAircraftHistory Called\n");
 	if (!aircraft->HaveLatLon)
 		return;
 
@@ -2354,7 +2356,7 @@ void __fastcall TForm1::SBSPlaybackButtonClick(TObject *Sender)
 					TCPClientSBSHandleThread->Resume();
 					SBSPlaybackButton->Caption = "Stop SBS Playback";
 					SBSConnectButton->Enabled = false;
-					PlaybackSpeedTrackBar->Visible = true;
+					PlaybackSpeedPanel->Visible = true;
 				}
 			}
 		}
@@ -2366,7 +2368,7 @@ void __fastcall TForm1::SBSPlaybackButtonClick(TObject *Sender)
 		PlayBackSBSStream = NULL;
 		SBSPlaybackButton->Caption = "SBS Playback";
 		SBSConnectButton->Enabled = true;
-		PlaybackSpeedTrackBar->Visible = false;
+		PlaybackSpeedPanel->Visible = false;
 	}
 }
 //---------------------------------------------------------------------------

@@ -3709,7 +3709,7 @@ void __fastcall TForm1::AddAreaToFilter(TArea* area)
     selectedFilterAreas->Add(area);
     areaFilterEnabled = true;
 
-    printf("Area added to filter: %s (Total: %d areas)\n",
+    printf("Area added to filter: %s (Total: %lld areas)\n",
            area->Name.c_str(), selectedFilterAreas->Count);
 
     ObjectDisplay->Repaint();
@@ -3725,7 +3725,7 @@ void __fastcall TForm1::RemoveAreaFromFilter(TArea* area)
     int index = selectedFilterAreas->IndexOf(area);
     if (index >= 0) {
         selectedFilterAreas->Delete(index);
-        printf("Area removed from filter: %s (Remaining: %d areas)\n",
+        printf("Area removed from filter: %s (Remaining: %lld areas)\n",
                area->Name.c_str(), selectedFilterAreas->Count);
 
         // 필터에 Area가 없으면 필터 비활성화
@@ -3778,7 +3778,7 @@ void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shif
         case VK_F1:  // F1 키로 필터 토글 (현재 선택된 Area들)
             if (selectedFilterAreas->Count > 0) {
                 areaFilterEnabled = !areaFilterEnabled;
-                printf("Area filter %s (%d areas)\n",
+                printf("Area filter %s (%lld areas)\n",
                        areaFilterEnabled ? "enabled" : "disabled",
                        selectedFilterAreas->Count);
                 ObjectDisplay->Repaint();
@@ -3829,8 +3829,8 @@ void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shif
         case VK_F2:  // F2 키로 필터 상태 정보 출력
             printf("=== Area Filter Status ===\n");
             printf("Filter enabled: %s\n", areaFilterEnabled ? "Yes" : "No");
-            printf("Selected areas: %d\n", selectedFilterAreas->Count);
-            printf("Total areas: %d\n", Areas->Count);
+            printf("Selected areas: %lld\n", selectedFilterAreas->Count);
+            printf("Total areas: %lld\n", Areas->Count);
             for (int i = 0; i < selectedFilterAreas->Count; i++) {
                 TArea* area = (TArea*)selectedFilterAreas->Items[i];
                 if (area) {

@@ -1867,9 +1867,9 @@ object Form1: TForm1
         'Unknown')
     end
     object TimeToGoLegendPanel: TPanel
-      Left = 609
+      Left = 600
       Top = 3
-      Width = 500
+      Width = 615
       Height = 38
       BevelEdges = []
       BevelOuter = bvNone
@@ -1877,116 +1877,166 @@ object Form1: TForm1
       ParentBackground = False
       TabOrder = 1
       object TimeToGoLegendTitle: TLabel
-        Left = 5
-        Top = 5
-        Width = 113
-        Height = 14
-        Caption = 'Time-to-Go Line Colors'
+        Left = 0
+        Top = 1
+        Width = 201
+        Height = 15
+        Caption = 'Time-to-Go Line (by Altitude) Unit: ft'
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
-        Font.Height = -12
+        Font.Height = -13
         Font.Name = 'Calibri'
         Font.Style = [fsBold]
         ParentFont = False
       end
-      object HighSpeedShape: TShape
-        Left = 10
-        Top = 25
+      object HighAltitudeShape: TShape
+        Left = 208
+        Top = 8
         Width = 20
-        Height = 3
-        Brush.Color = clRed
-        Pen.Color = clRed
+        Height = 5
+        Brush.Color = clHotpink
+        Pen.Color = clFuchsia
         Pen.Width = 2
       end
-      object HighSpeedLabel: TLabel
-        Left = 35
-        Top = 20
-        Width = 48
-        Height = 13
-        Caption = '600+ kts'
+      object HighAltitudeLabel: TLabel
+        Left = 233
+        Top = 3
+        Width = 44
+        Height = 15
+        Caption = '35,000+'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Consolas'
+        Font.Height = -13
+        Font.Name = 'Calibri'
         Font.Style = [fsBold]
         ParentFont = False
       end
-      object MedHighSpeedShape: TShape
-        Left = 89
-        Top = 25
+      object MedHighAltitudeShape: TShape
+        Left = 289
+        Top = 8
         Width = 20
-        Height = 3
-        Brush.Color = clOrange
-        Pen.Color = clOrange
+        Height = 5
+        Brush.Color = clMediumblue
+        Pen.Color = clMediumblue
         Pen.Width = 2
       end
-      object MedHighSpeedLabel: TLabel
-        Left = 115
-        Top = 20
-        Width = 66
-        Height = 13
-        Caption = '400-600 kts'
+      object MedHighAltitudeLabel: TLabel
+        Left = 315
+        Top = 2
+        Width = 80
+        Height = 15
+        Caption = '25,000-35,000'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Consolas'
+        Font.Height = -13
+        Font.Name = 'Calibri'
         Font.Style = [fsBold]
         ParentFont = False
       end
-      object MedSpeedShape: TShape
-        Left = 185
-        Top = 25
+      object MedAltitudeShape: TShape
+        Left = 401
+        Top = 8
         Width = 20
-        Height = 3
-        Brush.Color = clYellow
-        Pen.Color = clYellow
+        Height = 5
+        Brush.Color = clAqua
+        Pen.Color = clAqua
         Pen.Width = 2
       end
-      object MedSpeedLabel: TLabel
-        Left = 211
-        Top = 20
-        Width = 66
-        Height = 13
-        Caption = '250-400 kts'
+      object MedAltitudeLabel: TLabel
+        Left = 431
+        Top = 3
+        Width = 80
+        Height = 15
+        Caption = '15,000-25,000'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Consolas'
+        Font.Height = -13
+        Font.Name = 'Calibri'
         Font.Style = [fsBold]
         ParentFont = False
       end
-      object LowMedSpeedShape: TShape
-        Left = 280
-        Top = 25
+      object LowMedAltitudeShape: TShape
+        Left = 137
+        Top = 27
         Width = 20
-        Height = 3
+        Height = 5
         Brush.Color = clLime
         Pen.Color = clLime
         Pen.Width = 2
       end
-      object VeryLowSpeedLabel: TLabel
-        Left = 310
-        Top = 122
-        Width = 42
-        Height = 13
-        Caption = '30-80 kts'
+      object LowMedAltitudeLabel: TLabel
+        Left = 163
+        Top = 22
+        Width = 73
+        Height = 15
+        Caption = '8,000-15,000'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -13
         Font.Name = 'Calibri'
         Font.Style = [fsBold]
         ParentFont = False
       end
-      object LowMedSpeedLabel: TLabel
-        Left = 306
-        Top = 20
-        Width = 54
-        Height = 13
-        Caption = '0~250 kts'
+      object LowAltitudeLabel: TLabel
+        Left = 273
+        Top = 22
+        Width = 66
+        Height = 15
+        Caption = '3,000-8,000'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Consolas'
+        Font.Height = -13
+        Font.Name = 'Calibri'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object LowAltitudeShape: TShape
+        Left = 247
+        Top = 27
+        Width = 20
+        Height = 5
+        Brush.Color = clYellow
+        Pen.Color = clYellow
+      end
+      object VeryLowAltitudeLabel: TLabel
+        Left = 382
+        Top = 22
+        Width = 66
+        Height = 15
+        Caption = '1,000-3,000'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Calibri'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object VeryLowAltitudeShape: TShape
+        Left = 356
+        Top = 27
+        Width = 20
+        Height = 5
+        Brush.Color = clOrange
+        Pen.Color = clOrange
+      end
+      object LowestAltitudeShape: TShape
+        Left = 456
+        Top = 27
+        Width = 20
+        Height = 5
+        Brush.Color = clRed
+        Pen.Color = clRed
+      end
+      object LowestAltitudeLabel: TLabel
+        Left = 485
+        Top = 22
+        Width = 35
+        Height = 15
+        Caption = '1,000-'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Calibri'
         Font.Style = [fsBold]
         ParentFont = False
       end

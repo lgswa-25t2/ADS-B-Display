@@ -324,15 +324,14 @@ __published:	// IDE-managed Components
     TComboBox *AircraftTypeFilterComboBox;
 	TPanel *TimeToGoLegendPanel;
 	TLabel *TimeToGoLegendTitle;
-	TShape *HighSpeedShape;
-	TLabel *HighSpeedLabel;
-	TShape *MedHighSpeedShape;
-	TLabel *MedHighSpeedLabel;
-	TShape *MedSpeedShape;
-	TLabel *MedSpeedLabel;
-	TShape *LowMedSpeedShape;
-	TLabel *VeryLowSpeedLabel;
-	TLabel *LowMedSpeedLabel;
+	TShape *HighAltitudeShape;
+	TLabel *HighAltitudeLabel;
+	TShape *MedHighAltitudeShape;
+	TLabel *MedHighAltitudeLabel;
+	TShape *MedAltitudeShape;
+	TLabel *MedAltitudeLabel;
+	TShape *LowMedAltitudeShape;
+	TLabel *LowMedAltitudeLabel;
 	TCheckBox *LiveMapCheckbox;
 	TOpenGLPanel *ObjectDisplay;
 	TLabel *x1;
@@ -340,6 +339,12 @@ __published:	// IDE-managed Components
 	TLabel *x10;
 	TPanel *PlaybackSpeedPanel;
 	TPanel *PlaybackControlTitle;
+	TLabel *LowAltitudeLabel;
+	TShape *LowAltitudeShape;
+	TLabel *VeryLowAltitudeLabel;
+	TShape *VeryLowAltitudeShape;
+	TShape *LowestAltitudeShape;
+	TLabel *LowestAltitudeLabel;
 	void __fastcall ObjectDisplayInit(TObject *Sender);
 	void __fastcall ObjectDisplayResize(TObject *Sender);
 	void __fastcall ObjectDisplayPaint(TObject *Sender);
@@ -561,6 +566,7 @@ public:		// User declarations
 	void AddToIpHistory(AnsiString ip, bool isSBS);
  	// Draw all airport in the map by checkbox
   	void __fastcall DrawAllAirports();
+    void __fastcall GetAltitudeLineColor(double altitude, float &r, float &g, float &b, float &alpha);
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TForm1 *Form1;

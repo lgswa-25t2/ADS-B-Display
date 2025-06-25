@@ -57,7 +57,22 @@ void TextureTile::Load(RawBuffer *data, int keep) {
 	Texture *tex = new Texture;
 
 	try {
+		// 데이터의 첫 8바이트를 확인하여 이미지 형식 결정
+		unsigned char *buffer = (unsigned char*)data->Data();
+		
+		// PNG 시그니처 확인: 89 50 4E 47 0D 0A 1A 0A
+		if (data->Size() >= 8 && 
+			buffer[0] == 0x89 && buffer[1] == 0x50 && 
+			buffer[2] == 0x4E && buffer[3] == 0x47 &&
+			buffer[4] == 0x0D && buffer[5] == 0x0A && 
+			buffer[6] == 0x1A && buffer[7] == 0x0A) {
+
+			// PNG 파일이므로 LoadPNG 사용
+			tex->LoadPNG(TEXTURE_SOURCE_MEM, data->Data(), data->Size());
+		} else {
+			
 		tex->LoadJPEG(TEXTURE_SOURCE_MEM, data->Data(), data->Size());
+		}
 	} catch (...) {
 		delete tex;
 		delete data;

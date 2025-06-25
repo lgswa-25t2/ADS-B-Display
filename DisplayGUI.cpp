@@ -257,7 +257,7 @@ __fastcall TForm1::TForm1(TComponent *Owner)
 	MapCenterLat = MAP_CENTER_LAT;
 	MapCenterLon = MAP_CENTER_LON;
 
-	LoadMapFromInternet = false;
+	LoadMapFromInternet = LiveMapCheckbox->Checked;
 	MapComboBox->ItemIndex = GoogleMaps;
 	SelectedMapIndex = GoogleMaps;
 
@@ -418,6 +418,14 @@ void __fastcall TForm1::ObjectDisplayInit(TObject *Sender)
 	glPushAttrib(GL_LINE_BIT);
 	glPopAttrib();
 	printf("OpenGL Version %s\n", glGetString(GL_VERSION));
+    if (LiveMapCheckbox && MapComboBox) {
+        bool supportsOnline = (MapComboBox->ItemIndex == 0 || MapComboBox->ItemIndex == 4);
+        LiveMapCheckbox->Enabled = supportsOnline;
+        if (!supportsOnline) {
+            LiveMapCheckbox->Checked = false;
+        }
+        LoadMapFromInternet = LiveMapCheckbox->Checked;
+    }
 }
 //---------------------------------------------------------------------------
 
@@ -803,6 +811,7 @@ void __fastcall TForm1::DrawObjects(void)
 					case 1:
 					case 2:
 					case 3:
+					case 4:	// OpenStreetMaps
 						glColor4f(0.0, 0.0, 0.0, 1.0);
 						break;
 					default:
@@ -2435,6 +2444,10 @@ void __fastcall TForm1::TimeToGoTrackBarChange(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::LoadMap(int Type)
 {
+	if (!LiveMapCheckbox->Checked) {
+        LoadMapFromInternet = false;
+    }
+	printf("LoadMapFromInternet = %s\n", LoadMapFromInternet ? "TRUE" : "FALSE");
 	info("%s: Loading map type %d\n", __func__, Type);
 	AnsiString HomeDir = ExtractFilePath(ExtractFileDir(Application->ExeName));
 	if (Type == GoogleMaps)
@@ -2460,6 +2473,7 @@ void __fastcall TForm1::LoadMap(int Type)
 	}
 	else if (Type == SkyVector_VFR)
 	{
+		LoadMapFromInternet = false;
 		HomeDir += "..\\VFR_Map";
 		if (LoadMapFromInternet)
 			HomeDir += "_Live\\";
@@ -2481,6 +2495,7 @@ void __fastcall TForm1::LoadMap(int Type)
 	}
 	else if (Type == SkyVector_IFR_Low)
 	{
+		LoadMapFromInternet = false;
 		HomeDir += "..\\IFR_Low_Map";
 		if (LoadMapFromInternet)
 			HomeDir += "_Live\\";
@@ -2502,6 +2517,7 @@ void __fastcall TForm1::LoadMap(int Type)
 	}
 	else if (Type == SkyVector_IFR_High)
 	{
+		LoadMapFromInternet = false;
 		HomeDir += "..\\IFR_High_Map";
 		if (LoadMapFromInternet)
 			HomeDir += "_Live\\";
@@ -2593,46 +2609,75 @@ void __fastcall TForm1::MapComboBoxChange(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::MapComboBoxCloseUp(TObject *Sender)
 {
-	// Only process actual map changes when the ComboBox closes
-	if (SelectedMapIndex != MapComboBox->ItemIndex)
-	{
-		double m_Eyeh = g_EarthView->m_Eye.h;
-		double m_Eyex = g_EarthView->m_Eye.x;
-		double m_Eyey = g_EarthView->m_Eye.y;
+    // Only process actual map changes when the ComboBox closes
+    if (SelectedMapIndex != MapComboBox->ItemIndex)
+    {
+        // 새로운 맵 타입의 온라인 지원 여부 확인
+        int newMapIndex = MapComboBox->ItemIndex;
+        bool newSupportsOnline = (newMapIndex == 0 || newMapIndex == 4);
+        
+        // 지원하지 않는 맵으로 변경하는 경우 LiveMapCheckbox 체크 해제
+        if (!newSupportsOnline) {
+            LiveMapCheckbox->Checked = false;
+            LoadMapFromInternet = false;
+        } else {
+            LoadMapFromInternet = LiveMapCheckbox->Checked;
+        }
 
-		Timer1->Enabled = false;
-		Timer2->Enabled = false;
-		delete g_EarthView;
-		if (g_GETileManager)
-			delete g_GETileManager;
-		delete g_MasterLayer;
-		delete g_Storage;
-		if (LoadMapFromInternet)
-		{
-			if (g_Keyhole)
-				delete g_Keyhole;
-		}
+        double m_Eyeh = g_EarthView->m_Eye.h;
+        double m_Eyex = g_EarthView->m_Eye.x;
+        double m_Eyey = g_EarthView->m_Eye.y;
+
+        Timer1->Enabled = false;
+        Timer2->Enabled = false;
+        
+        // 안전한 삭제 순서 - 의존성 역순으로
+        if (g_EarthView) {
+            delete g_EarthView;
+            g_EarthView = NULL;
+        }
+        if (g_MasterLayer) {
+            delete g_MasterLayer;
+            g_MasterLayer = NULL;
+        }
+        if (g_GETileManager) {
+            delete g_GETileManager;
+            g_GETileManager = NULL;
+        }
+        if (g_Storage) {
+            delete g_Storage;
+            g_Storage = NULL;
+        }
+        if (g_Keyhole) {  // 조건 제거 - 항상 체크
+            delete g_Keyhole;
+            g_Keyhole = NULL;
+        }
 
 		// update map index that is really selected
 		SelectedMapIndex = MapComboBox->ItemIndex;
 
-		if (MapComboBox->ItemIndex == GoogleMaps)
-			LoadMap(GoogleMaps);
-		else if (MapComboBox->ItemIndex == SkyVector_VFR)
-			LoadMap(SkyVector_VFR);
-		else if (MapComboBox->ItemIndex == SkyVector_IFR_Low)
-			LoadMap(SkyVector_IFR_Low);
-		else if (MapComboBox->ItemIndex == SkyVector_IFR_High)
-			LoadMap(SkyVector_IFR_High);
-		else if (MapComboBox->ItemIndex == OpenStreetMaps)
-			LoadMap(OpenStreetMaps);
+        // 새로운 맵 로드
+        if (MapComboBox->ItemIndex == GoogleMaps)
+            LoadMap(GoogleMaps);
+        else if (MapComboBox->ItemIndex == SkyVector_VFR)
+            LoadMap(SkyVector_VFR);
+        else if (MapComboBox->ItemIndex == SkyVector_IFR_Low)
+            LoadMap(SkyVector_IFR_Low);
+        else if (MapComboBox->ItemIndex == SkyVector_IFR_High)
+            LoadMap(SkyVector_IFR_High);
+        else if (MapComboBox->ItemIndex == OpenStreetMaps)
+            LoadMap(OpenStreetMaps);
 
-		g_EarthView->m_Eye.h = m_Eyeh;
-		g_EarthView->m_Eye.x = m_Eyex;
-		g_EarthView->m_Eye.y = m_Eyey;
-		Timer1->Enabled = true;
-		Timer2->Enabled = true;
-	}
+        // 뷰 상태 복원
+        if (g_EarthView) {  // LoadMap에서 새로 생성되었는지 확인
+            g_EarthView->m_Eye.h = m_Eyeh;
+            g_EarthView->m_Eye.x = m_Eyex;
+            g_EarthView->m_Eye.y = m_Eyey;
+        }
+        
+        Timer1->Enabled = true;
+        Timer2->Enabled = true;
+    }
 }
 //---------------------------------------------------------------------------
 
@@ -4386,5 +4431,34 @@ void __fastcall TForm1::MapHScrollBarScroll(TObject *Sender, TScrollCode ScrollC
         // 지도 중심점 설정
         SetMapCenter(g_EarthView->m_Eye.x, g_EarthView->m_Eye.y);
         ObjectDisplay->Repaint();
+    }
+}
+
+void __fastcall TForm1::LiveMapCheckboxClick(TObject *Sender)
+{
+        // 현재 맵 타입이 온라인을 지원하는지 확인
+    int currentMapIndex = MapComboBox->ItemIndex;
+    bool supportsOnline = (currentMapIndex == 0 || currentMapIndex == 4);
+    
+    if (!supportsOnline && LiveMapCheckbox->Checked) {
+        // 지원하지 않는 맵에서 체크하려고 하면 막기
+        LiveMapCheckbox->Checked = false;
+        ShowMessage("This map type does not support online mode");
+        return;
+    }
+    
+    // 상태가 바뀌었으면 현재 맵 다시 로드
+    if (LoadMapFromInternet != LiveMapCheckbox->Checked) {
+        // 기존 방식과 동일하게 처리
+        if (SelectedMapIndex != MapComboBox->ItemIndex) {
+            // 이미 변경 중이면 처리하지 않음
+            return;
+        }
+        
+        // 수동으로 SelectedMapIndex를 다른 값으로 만들어서 CloseUp 로직 실행
+        int currentIndex = SelectedMapIndex;
+        SelectedMapIndex = -1;  // 강제로 다르게 만들기
+        MapComboBoxCloseUp(Sender);  // 기존 로직 재사용
+        SelectedMapIndex = currentIndex;  // 복원
     }
 }

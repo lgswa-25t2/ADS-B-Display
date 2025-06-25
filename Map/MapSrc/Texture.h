@@ -39,6 +39,12 @@ struct my_png_error_ptr {
 	std::exception	err;
 };
 
+struct png_mem_source {
+    unsigned char *data;
+    size_t size;
+    size_t pos;
+};
+
 /**
  * Texture Container. Handles loading textures from files (or memory buffer) and OpenGL stuff
  */
@@ -90,7 +96,7 @@ private:
 
 	static void my_png_read_fn(png_structp png_ptr, png_bytep data, png_size_t length);
 	static void my_png_error_fn(png_structp png_ptr, png_const_charp error_msg);
-
+	static void my_png_read_fn_mem(png_structp png_ptr, png_bytep data, png_size_t length);
 protected:
 	GLint	m_glInternalFormat;	///< Internal OpenGL format of texture. Determined on loading, used in glTexture2d
 	GLint	m_glFormat;	///< Format of texture. Determined on loading, used in glTexture2d

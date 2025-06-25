@@ -66,3 +66,28 @@ gefetch_error gefetch_fetch_image_skyvector(gefetch *handle,const char *key,cons
 	/* fetch */
 	return gefetch_fetch(handle, urlbuf);
 }
+
+/**
+ * Fetch single image from OpenStreetMap server
+ *
+ * @param x x coordinate of image [0..(2^level-1)]
+ * @param y y coordinate of image [0..(2^level-1)]
+ * @param level level of image [0..]
+ */
+gefetch_error gefetch_fetch_image_openstreetmap(gefetch *handle, int x, int y, int level) {
+	/* form full url */
+	char urlbuf[1024];
+	
+	// OpenStreetMap URL format: https://tile.openstreetmap.org/{z}/{x}/{y}.png
+	if (_snprintf(urlbuf, sizeof(urlbuf), "%s/%d/%d/%d.png", handle->url, level, x, y) >= sizeof(urlbuf))
+		return GEFETCH_SMALL_BUFFER;
+
+	printf("=== OSM Tile Request ===\n");
+    printf("URL: %s\n", urlbuf);
+    printf("X: %d, Y: %d, Level: %d\n", x, y, level);	
+	/* fetch */
+	gefetch_error result = gefetch_fetch(handle, urlbuf);
+    printf("Fetch result: %d\n", result);
+    printf("=======================\n");
+	return result;
+}

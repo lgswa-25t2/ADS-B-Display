@@ -18,6 +18,7 @@
 
 #define GOOGLE_URL               "http://mt1.google.com"
 #define SKYVECTOR_URL            "http://t.skyvector.com"
+#define OPENSTREETMAP_URL        "http://tile.openstreetmap.org"
 #define SKYVECTOR_CHART_VPS      "301"
 #define SKYVECTOR_CHART_IFR_LOW  "302"
 #define SKYVECTOR_CHART_IFR_HIGH "304"
@@ -57,6 +58,11 @@ KeyholeConnection::KeyholeConnection(int type)
 	  Chart=SKYVECTOR_CHART_IFR_HIGH;
 	  Edition=SKYVECTOR_EDITION;
 	}
+  else if (type == OpenStreetMaps)  
+  {
+    ServerType = OpenStreetMaps;
+    url = OPENSTREETMAP_URL;
+  }
 	if ((m_GEFetch = gefetch_init(url)) == 0)
 		throw Exception("gefetch_init() failed");
 }
@@ -76,6 +82,10 @@ void KeyholeConnection::Process(TilePtr tile) {
 	{
 	  res = gefetch_fetch_image_skyvector(m_GEFetch,Key,Chart,Edition, tile->GetX(), tile->GetY(), tile->GetLevel());
     }
+	else if (ServerType == OpenStreetMaps)
+	{
+		res = gefetch_fetch_image_openstreetmap(m_GEFetch, tile->GetX(), tile->GetY(), tile->GetLevel());
+	}
 
 	if ((res == GEFETCH_NOT_FOUND) ||  (res == GEFETCH_INVALID_ZOOM))
 	{

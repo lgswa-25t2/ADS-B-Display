@@ -579,6 +579,20 @@ object Form1: TForm1
         TabOrder = 1
         OnClick = BigQueryCheckBoxClick
       end
+      object LiveMapCheckbox: TCheckBox
+        Left = 120
+        Top = 6
+        Width = 110
+        Height = 20
+        Caption = 'Live Map'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Calibri'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 2
+      end
     end
     object PanelTitle1: TPanel
       Left = 1

@@ -236,6 +236,14 @@ void Texture::my_png_error_fn(png_structp png_ptr, png_const_charp error_msg) {
 	longjmp(myerr->jmpbuf, 1);
 }
 
+void Texture::my_png_read_fn_mem(png_structp png_ptr, png_bytep data, png_size_t length) {
+    png_mem_source* src = (png_mem_source*)png_get_io_ptr(png_ptr);
+    if (src->pos + length > src->size) {
+        png_error(png_ptr, "Read error");
+    }
+    memcpy(data, src->data + src->pos, length);
+    src->pos += length;
+}
 void Texture::LoadPNG(int source, ...) {
 	if (m_Pixels || m_ID)
 		throw Exception("texture already loaded");
@@ -246,6 +254,7 @@ void Texture::LoadPNG(int source, ...) {
 	png_bytep	*row_pointers = 0;
 
 	FILE		*infile = 0;
+	png_mem_source memsrc = {0, 0, 0};  // 여기서 초기화
 
 	/* variable arguments stuff */
 	va_start(va, source);
@@ -260,18 +269,14 @@ void Texture::LoadPNG(int source, ...) {
 		if (source == TEXTURE_SOURCE_FILE) {
 			if ((infile = fopen(va_arg(va, char*), "rb")) == 0)
 				throw SysException("fopen() failed", errno);
+		} else if (source == TEXTURE_SOURCE_MEM) {
+			memsrc.data = (unsigned char*)va_arg(va, void*);
+			memsrc.size = va_arg(va, size_t);
+			memsrc.pos = 0;
 		} else {
-			throw Exception("bad source in png loaging");
+			throw Exception("bad source in png loading");
 		}
 	
-		/* read signature */
-		png_byte sig[8] = {0};
-
-		fread(sig, 8, 1, infile);
-
-		if (!png_check_sig(sig, 8))
-			throw Exception("bad PNG signature");
-
 		/* create structures */
 		if ((png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, (png_voidp)&perr, my_png_error_fn, 0)) == 0)
 			throw Exception("cannot create PNG read struct");
@@ -280,11 +285,22 @@ void Texture::LoadPNG(int source, ...) {
 			throw Exception("cannot create PNG info struct");
 
 		/* init read function */
-		png_set_read_fn(png_ptr, (void*)infile, my_png_read_fn);
+		if (source == TEXTURE_SOURCE_FILE) {
+			/* read signature */
+			png_byte sig[8] = {0};
+			fread(sig, 8, 1, infile);
+			
+			if (!png_check_sig(sig, 8))
+				throw Exception("bad PNG signature");
+				
+			png_set_read_fn(png_ptr, (void*)infile, my_png_read_fn);
+			png_set_sig_bytes(png_ptr, 8);
+		} else {
+			// 메모리에서 읽기 - 시그니처 체크는 이미 TextureTile에서 했음
+			png_set_read_fn(png_ptr, (void*)&memsrc, my_png_read_fn_mem);
+		}
 
 		/* read header */
-		png_set_sig_bytes(png_ptr, 8);
-
 		png_read_info(png_ptr, info_ptr);
 
 		png_uint_32 width = 0, height = 0;

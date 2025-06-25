@@ -310,6 +310,7 @@ __published:	// IDE-managed Components
 	TShape *LowMedSpeedShape;
 	TLabel *VeryLowSpeedLabel;
 	TLabel *LowMedSpeedLabel;
+	TCheckBox *LiveMapCheckbox;
 	TOpenGLPanel *ObjectDisplay;
 	TLabel *x1;
 	TLabel *x5;
@@ -357,6 +358,7 @@ __published:	// IDE-managed Components
 	void __fastcall TimeToGoTrackBarChange(TObject *Sender);
 	void __fastcall MapComboBoxChange(TObject *Sender);
 	void __fastcall MapComboBoxCloseUp(TObject *Sender);
+	void __fastcall LiveMapCheckboxClick(TObject *Sender); 
 	void __fastcall BigQueryCheckBoxClick(TObject *Sender);
 	void __fastcall UseSBSRemoteClick(TObject *Sender);
 	void __fastcall UseSBSLocalClick(TObject *Sender);

@@ -58,7 +58,7 @@ public:
     bool initialize(const std::string& filePath, LogLevel level = LogLevel::LOG_LEVEL_INFO);
     
     // 로그 기록 메서드들
-    void debug(const std::string& message, const std::string& function = "", const std::string& file = "", int line = 0);
+    void logDebug(const std::string& message, const std::string& function = "", const std::string& file = "", int line = 0);
     void info(const std::string& message, const std::string& function = "", const std::string& file = "", int line = 0);
     void warning(const std::string& message, const std::string& function = "", const std::string& file = "", int line = 0);
     void error(const std::string& message, const std::string& function = "",const std::string& file = "", int line = 0);
@@ -83,14 +83,14 @@ public:
 };
 
 // 매크로를 통한 편의 함수들 (C++Builder 호환 버전)
-//#define LOG_DEBUG(msg) Logger::getInstance()->debug(msg, "", __FILE__, __LINE__)
+//#define LOG_DEBUG(msg) Logger::getInstance()->logDebug(msg, "", __FILE__, __LINE__)
 //#define LOG_INFO(msg) Logger::getInstance()->info(msg, "", __FILE__, __LINE__)
 //#define LOG_WARNING(msg) Logger::getInstance()->warning(msg, "", __FILE__, __LINE__)
 #define LOG_ERROR(msg) Logger::getInstance()->error(msg, "", __FILE__, __LINE__)
 //#define LOG_CRITICAL(msg) Logger::getInstance()->critical(msg, "", __FILE__, __LINE__)
 
 // 함수명을 포함하는 매크로 (선택적)
-//#define LOG_DEBUG_FUNC(msg, func) Logger::getInstance()->debug(msg, func, __FILE__, __LINE__)
+//#define LOG_DEBUG_FUNC(msg, func) Logger::getInstance()->logDebug(msg, func, __FILE__, __LINE__)
 //#define LOG_INFO_FUNC(msg, func) Logger::getInstance()->info(msg, func, __FILE__, __LINE__)
 //#define LOG_WARNING_FUNC(msg, func) Logger::getInstance()->warning(msg, func, __FILE__, __LINE__)
 //#define LOG_ERROR_FUNC(msg, func) Logger::getInstance()->error(msg, func, __FILE__, __LINE__)

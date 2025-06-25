@@ -114,7 +114,7 @@ void Logger::writeToFile(const LogEntry& entry) {
 }
 
 //---------------------------------------------------------------------------
-void Logger::debug(const std::string& message, const std::string& function, 
+void Logger::logDebug(const std::string& message, const std::string& function,
                    const std::string& file, int line) {
     log(LogLevel::LOG_LEVEL_DEBUG, message, function, file, line);
 }

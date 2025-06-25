@@ -454,6 +454,27 @@ private:	// User declarations
 	// 거리 계산 스레드 시작/중지
 	void startDistanceCalculationThread();
 	void stopDistanceCalculationThread();
+	
+	// 연결 재시도 관련 함수들
+	// (기존 통합 함수 선언 제거)
+
+	// Raw 연결 관련 함수들
+	void __fastcall ShowRawConnectionLostDialog();
+	void __fastcall ReconnectToRawDevice();
+
+	// SBS 연결 관련 함수들
+	void __fastcall ShowSBSConnectionLostDialog();
+	void __fastcall ReconnectToSBSDevice();
+
+	// 타임아웃 관련 함수들
+	void __fastcall ShowRawTimeoutDialog();
+	void __fastcall ShowSBSTimeoutDialog();
+
+	// 연결 재시도 관련 변수들
+	bool RawConnectionLostShown;  // Raw 연결 끊김 팝업 표시 여부
+	bool SBSConnectionLostShown;  // SBS 연결 끊김 팝업 표시 여부
+	__int64 LastRawConnectionCheck;  // 마지막 Raw 연결 체크 시간
+	__int64 LastSBSConnectionCheck;  // 마지막 SBS 연결 체크 시간
 
 public:		// User declarations
 	__fastcall TForm1(TComponent* Owner);

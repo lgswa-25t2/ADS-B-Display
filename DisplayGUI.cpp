@@ -351,6 +351,12 @@ __fastcall TForm1::TForm1(TComponent *Owner)
     
     // 거리 계산 스레드 시작
     startDistanceCalculationThread();
+    
+    // 연결 재시도 관련 변수 초기화
+    RawConnectionLostShown = false;
+    SBSConnectionLostShown = false;
+    LastRawConnectionCheck = 0;
+    LastSBSConnectionCheck = 0;
 }
 //---------------------------------------------------------------------------
 __fastcall TForm1::~TForm1()
@@ -566,42 +572,82 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
 		// WiFi 끊김/파이 전원 OFF 감지 (연결이 끊어진 경우)
 		if (!isConnected)
 		{
-			if (!RawTimeoutPopupShown)
+			if (!RawConnectionLostShown)
 			{
-				RawTimeoutPopupShown = true;
-				RawConnectButton->Caption = "Raw Connect";
-				RawPlaybackButton->Enabled = true;
-				ShowMessage("WiFi connection lost or Pi power turned off.\nPlease check network connection and Pi status.");
+				RawConnectionLostShown = true;
+				ShowRawConnectionLostDialog();  // Raw 전용 다이얼로그 표시
 			}
 		}
 		// 데이터 없음 감지 (연결은 살아있지만 데이터가 안 옴)
 		else if (!RawTimeoutPopupShown && (now - LastHeartbeatTime > 30000)) // 30초
 		{
 			RawTimeoutPopupShown = true;
-			TCPClientRawHandleThread->Terminate();
-			IdTCPClientRaw->Disconnect();
-			IdTCPClientRaw->IOHandler->InputBuffer->Clear();
-			RawConnectButton->Caption = "Raw Connect";
-			RawPlaybackButton->Enabled = true;
-			ShowMessage("Data reception timeout: No data received for 30 seconds.\nPlease check if Pi is sending data.");
+			ShowRawTimeoutDialog();  // 타임아웃 다이얼로그 표시 (연결은 유지)
 		}
 	}
 
 	// Check SBSData Timeout
 	if (SBSConnectButton->Caption == "SBS Disconnect")
 	{
-		if (!SBSTimeoutPopupShown && (now - LastSBSDataReceiveTime > 10000)) // 10 Sec
+		// SBS 연결 상태 체크
+		bool isSBSConnected = false;
+		
+		// 2초마다만 연결 상태 체크 (부하 줄임)
+		if (now - LastSBSConnectionCheck > 2000)
+		{
+			try
+			{
+				// 기본 Connected() 체크만 사용
+				isSBSConnected = Form1->IdTCPClientSBS->Connected();
+				
+				// 간단한 소켓 에러 체크만
+				if (isSBSConnected && Form1->IdTCPClientSBS->Socket && Form1->IdTCPClientSBS->Socket->Binding)
+				{
+					SOCKET sockHandle = Form1->IdTCPClientSBS->Socket->Binding->Handle;
+					if (sockHandle != INVALID_SOCKET)
+					{
+						int optval;
+						int optlen = sizeof(optval);
+						if (getsockopt(sockHandle, SOL_SOCKET, SO_ERROR, (char*)&optval, &optlen) != 0 || optval != 0)
+						{
+							isSBSConnected = false;
+							printf("SBS Socket error detected: %d\n", optval);
+						}
+					}
+					else
+					{
+						isSBSConnected = false;
+					}
+				}
+				LastSBSConnectionCheck = now;
+			}
+			catch (...)
+			{
+				isSBSConnected = false;
+				printf("SBS Connection check exception\n");
+				LastSBSConnectionCheck = now;
+			}
+		}
+		else
+		{
+			// 체크 간격이 아닌 경우 이전 결과 사용
+			isSBSConnected = Form1->IdTCPClientSBS->Connected();
+		}
+		
+		// SBS 연결 끊김 감지
+		if (!isSBSConnected)
+		{
+			if (!SBSConnectionLostShown)
+			{
+				SBSConnectionLostShown = true;
+				ShowSBSConnectionLostDialog();  // SBS 전용 다이얼로그 표시
+			}
+		}
+		// SBS 데이터 타임아웃 체크 (기존 로직)
+		else if (!SBSTimeoutPopupShown && (now - LastSBSDataReceiveTime > 10000)) // 10 Sec
 		{
 			SBSTimeoutPopupShown = true;
-			if (Form1->IdTCPClientSBS->Connected())
-			{
-				TCPClientSBSHandleThread->Terminate();
-				IdTCPClientSBS->Disconnect();
-				IdTCPClientSBS->IOHandler->InputBuffer->Clear();
-			}
-			SBSConnectButton->Caption = "SBS Connect";
-			SBSPlaybackButton->Enabled = true;
-			ShowMessage("SBS Hub connection timeout: No data received from SBS Hub for 10 seconds.");
+			ShowSBSTimeoutDialog();  // 타임아웃 다이얼로그 표시 (연결은 유지)
 		}
 	}
 
@@ -2070,6 +2116,7 @@ void __fastcall TForm1::IdTCPClientRawConnected(TObject *Sender)
 	RawConnectButton->Caption = "Raw Disconnect";
 	RawPlaybackButton->Enabled = false;
 	RawTimeoutPopupShown = false;
+	RawConnectionLostShown = false;  // 연결 재시도 플래그 리셋
 	LastHeartbeatTime = GetCurrentTimeInMsec();
 }
 //---------------------------------------------------------------------------
@@ -2557,6 +2604,7 @@ void __fastcall TForm1::IdTCPClientSBSConnected(TObject *Sender)
 	SBSConnectButton->Caption = "SBS Disconnect";
 	SBSPlaybackButton->Enabled = false;
 	SBSTimeoutPopupShown = false;
+	SBSConnectionLostShown = false;  // 연결 재시도 플래그 리셋
 	LastSBSDataReceiveTime = GetCurrentTimeInMsec();
 }
 //---------------------------------------------------------------------------
@@ -4739,4 +4787,166 @@ void TForm1::stopDistanceCalculationThread() {
         delete aircraftAirportDistanceResult;
         aircraftAirportDistanceResult = nullptr;
     }
+}
+
+//---------------------------------------------------------------------------
+// Raw 연결 끊김 다이얼로그 표시
+void __fastcall TForm1::ShowRawConnectionLostDialog()
+{
+	AnsiString ipAddress = RawIpAddress->Text;
+	
+	int result = MessageDlg(
+		"Connection to Pi device (" + ipAddress + ") has been lost.\n\n"
+		"Would you like to reconnect automatically?",
+		mtConfirmation,
+		TMsgDlgButtons() << mbYes << mbNo,
+		0
+	);
+	
+	switch (result)
+	{
+		case mrYes:
+			ReconnectToRawDevice();
+			break;
+		case mrNo:
+		default:
+			// 사용자가 취소한 경우, 연결은 그대로 두고 팝업만 닫음
+			// 다시 보지 않도록 플래그는 그대로 유지
+			printf("User chose to keep Raw connection state\n");
+			break;
+	}
+}
+
+//---------------------------------------------------------------------------
+// SBS 연결 끊김 다이얼로그 표시
+void __fastcall TForm1::ShowSBSConnectionLostDialog()
+{
+	AnsiString ipAddress = SBSIpAddress->Text;
+	
+	int result = MessageDlg(
+		"Connection to SBS Hub (" + ipAddress + ") has been lost.\n\n"
+		"Would you like to reconnect automatically?",
+		mtConfirmation,
+		TMsgDlgButtons() << mbYes << mbNo,
+		0
+	);
+	
+	switch (result)
+	{
+		case mrYes:
+			ReconnectToSBSDevice();
+			break;
+		case mrNo:
+		default:
+			// 사용자가 취소한 경우, 연결은 그대로 두고 팝업만 닫음
+			// 다시 보지 않도록 플래그는 그대로 유지
+			printf("User chose to keep SBS connection state\n");
+			break;
+	}
+}
+
+//---------------------------------------------------------------------------
+// Raw 디바이스에 재연결
+void __fastcall TForm1::ReconnectToRawDevice()
+{
+	// Raw 연결 끊기
+	if (TCPClientRawHandleThread)
+	{
+		TCPClientRawHandleThread->Terminate();
+	}
+	if (IdTCPClientRaw->Connected())
+	{
+		IdTCPClientRaw->Disconnect();
+	}
+	IdTCPClientRaw->IOHandler->InputBuffer->Clear();
+
+	// 재연결 시도
+	RawConnectButton->Caption = "Connecting...";
+	RawPlaybackButton->Enabled = false;
+	RawConnectionLostShown = false;
+
+	printf("Attempting to reconnect to Pi device (%s)...\n", RawIpAddress->Text.c_str());
+	TConnectionThread *connectionThread = new TConnectionThread(RawIpAddress->Text, 30002, false);
+	connectionThread->Resume();
+}
+
+//---------------------------------------------------------------------------
+// SBS 디바이스에 재연결
+void __fastcall TForm1::ReconnectToSBSDevice()
+{
+	// SBS 연결 끊기
+	if (TCPClientSBSHandleThread)
+	{
+		TCPClientSBSHandleThread->Terminate();
+	}
+	if (IdTCPClientSBS->Connected())
+	{
+		IdTCPClientSBS->Disconnect();
+	}
+	IdTCPClientSBS->IOHandler->InputBuffer->Clear();
+	
+	// 재연결 시도
+	SBSConnectButton->Caption = "Connecting...";
+	SBSPlaybackButton->Enabled = false;
+	SBSConnectionLostShown = false;
+
+	printf("Attempting to reconnect to SBS Hub (%s)...\n", SBSIpAddress->Text.c_str());
+	TConnectionThread *connectionThread = new TConnectionThread(SBSIpAddress->Text, 5002, true);
+	connectionThread->Resume();
+}
+
+//---------------------------------------------------------------------------
+// Raw 데이터 타임아웃 다이얼로그 표시
+void __fastcall TForm1::ShowRawTimeoutDialog()
+{
+	AnsiString ipAddress = RawIpAddress->Text;
+	
+	int result = MessageDlg(
+		"Data reception timeout from Pi device (" + ipAddress + ").\n"
+		"No data received for 30 seconds.\n\n"
+		"Would you like to reconnect automatically?",
+		mtConfirmation,
+		TMsgDlgButtons() << mbYes << mbNo,
+		0
+	);
+	
+	switch (result)
+	{
+		case mrYes:
+			ReconnectToRawDevice();
+			break;
+		case mrNo:
+		default:
+			// 사용자가 취소한 경우, 연결은 그대로 두고 팝업만 닫음
+			printf("User chose to keep Raw timeout state\n");
+			break;
+	}
+}
+
+//---------------------------------------------------------------------------
+// SBS 데이터 타임아웃 다이얼로그 표시
+void __fastcall TForm1::ShowSBSTimeoutDialog()
+{
+	AnsiString ipAddress = SBSIpAddress->Text;
+	
+	int result = MessageDlg(
+		"Data reception timeout from SBS Hub (" + ipAddress + ").\n"
+		"No data received for 10 seconds.\n\n"
+		"Would you like to reconnect automatically?",
+		mtConfirmation,
+		TMsgDlgButtons() << mbYes << mbNo,
+		0
+	);
+	
+	switch (result)
+	{
+		case mrYes:
+			ReconnectToSBSDevice();
+			break;
+		case mrNo:
+		default:
+			// 사용자가 취소한 경우, 연결은 그대로 두고 팝업만 닫음
+			printf("User chose to keep SBS timeout state\n");
+			break;
+	}
 }

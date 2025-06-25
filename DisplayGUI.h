@@ -29,6 +29,8 @@
 #include <map>
 #include <unordered_map>
 #include <chrono>
+#include <unordered_set>
+#include <atomic>
 // Forward declarations
 class AirportDataManager;
 
@@ -79,6 +81,27 @@ enum TAircraftTypeFilter {
 const int CACHE_EXPIRY_MS = 3000; // 3 Sec
 const int CACHE_CLEANUP_INTERVAL_MS = 5000; // 5초마다 캐시 정리
 const int CACHE_MAX_AGE_MS = 30000; // 30초 이상 된 캐시 제거
+
+// 항공기-공항 거리 계산 결과를 저장할 구조체
+struct AircraftAirportDistanceResult {
+    std::unordered_set<uint32_t> nearAirportAircraft;  // 공항 근처 항공기 ICAO 주소들
+    std::chrono::system_clock::time_point lastUpdate;
+    std::atomic<bool> isUpdating;
+};
+
+// 항공기-공항 거리 계산 스레드 클래스
+class TAircraftAirportDistanceThread : public TThread {
+private:
+    AircraftAirportDistanceResult* distanceResult;
+    int updateIntervalMs;  // 업데이트 간격 (밀리초)
+    
+public:
+    __fastcall TAircraftAirportDistanceThread(AircraftAirportDistanceResult* result, int interval = 1000);
+    __fastcall ~TAircraftAirportDistanceThread();
+    
+protected:
+    virtual void __fastcall Execute();
+};
 
 //---------------------------------------------------------------------------
 class  TTCPClientRawHandleThread : public TThread
@@ -369,7 +392,7 @@ __published:	// IDE-managed Components
 	void __fastcall AboutADSBDisplay1Click(TObject *Sender);
 	void __fastcall UserManual1Click(TObject *Sender);
 	void __fastcall PanelTitle1Click(TObject *Sender);
-  void __fastcall AircraftTypeFilterComboBoxCloseUp(TObject *Sender);
+  	void __fastcall AircraftTypeFilterComboBoxCloseUp(TObject *Sender);
 	void __fastcall MapScrollBoxScroll(TObject *Sender, TScrollBarKind ScrollBarKind, int ScrollCode, int &ScrollPos);
 	void __fastcall MapScrollBoxVScroll(TObject *Sender, TScrollCode ScrollCode, int &ScrollPos);
 	void __fastcall MapScrollBoxHScroll(TObject *Sender, TScrollCode ScrollCode, int &ScrollPos);
@@ -393,7 +416,7 @@ private:	// User declarations
 	// 캐시 정리 함수
 	void cleanupOldCache();
 
-	 void __fastcall GetTimeToGoLineColor(double speed, float &r, float &g, float &b, float &alpha);
+	void __fastcall GetTimeToGoLineColor(double speed, float &r, float &g, float &b, float &alpha);
 	
 	// 마지막 캐시 정리 시간
 	std::chrono::system_clock::time_point lastCleanupTime;
@@ -413,7 +436,20 @@ private:	// User declarations
 	
 	// Area Filter
 	TList *selectedFilterAreas;  // selected filtering Area  s
-  bool areaFilterEnabled;     // enable Area filter
+  	bool areaFilterEnabled;     // enable Area filter
+
+	// 항공기-공항 거리 계산 결과
+	AircraftAirportDistanceResult* aircraftAirportDistanceResult;
+	
+	// 항공기-공항 거리 계산 스레드
+	TAircraftAirportDistanceThread* distanceCalculationThread;
+	
+	// 항공기가 공항 근처에 있는지 확인하는 함수
+	bool isAircraftNearAirport(uint32_t aircraftICAO);
+	
+	// 거리 계산 스레드 시작/중지
+	void startDistanceCalculationThread();
+	void stopDistanceCalculationThread();
 
 public:		// User declarations
 	__fastcall TForm1(TComponent* Owner);
@@ -426,23 +462,23 @@ public:		// User declarations
 	void __fastcall Purge(void);
 	void __fastcall SendCotMessage(AnsiString IP_address, unsigned short Port,char *Buffer,DWORD Length);
 	void __fastcall RegisterWithCoTRouter(void);
-  void __fastcall SetMapCenter(double &x, double &y);
-  void __fastcall LoadMap(int Type);
-  void __fastcall CreateBigQueryCSV(void);
-  void __fastcall CloseBigQueryCSV(void);
-  bool __fastcall LoadARTCCBoundaries(AnsiString FileName);
+	void __fastcall SetMapCenter(double &x, double &y);
+	void __fastcall LoadMap(int Type);
+	void __fastcall CreateBigQueryCSV(void);
+	void __fastcall CloseBigQueryCSV(void);
+	bool __fastcall LoadARTCCBoundaries(AnsiString FileName);
 	void __fastcall UpdateAircraftHistory(TADS_B_Aircraft* aircraft);
 	void __fastcall PurgeOldHistory(TADS_B_Aircraft* aircraft, __int64 currentTime);
-  void __fastcall TogglePanels();  // Panel Menu Visible
+  	void __fastcall TogglePanels();  // Panel Menu Visible
 	//Area Filter functions
-  bool __fastcall IsAircraftInSelectedAreas(TADS_B_Aircraft* aircraft);
-  void __fastcall AddAreaToFilter(TArea* area);
-  void __fastcall RemoveAreaFromFilter(TArea* area);
-  void __fastcall ClearAreaFilter();
-  void __fastcall ToggleAreaInFilter(TArea* area);
-  bool __fastcall IsAreaInFilter(TArea* area);
-  int __fastcall GetFilteredAreaCount();
-  void __fastcall FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shift);
+	bool __fastcall IsAircraftInSelectedAreas(TADS_B_Aircraft* aircraft);
+	void __fastcall AddAreaToFilter(TArea* area);
+	void __fastcall RemoveAreaFromFilter(TArea* area);
+	void __fastcall ClearAreaFilter();
+	void __fastcall ToggleAreaInFilter(TArea* area);
+	bool __fastcall IsAreaInFilter(TArea* area);
+	int __fastcall GetFilteredAreaCount();
+	void __fastcall FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shift);
 
 	int                        MouseDownX,MouseDownY;
 	bool                       MouseDown;
@@ -481,23 +517,23 @@ public:		// User declarations
 	AnsiString                 AircraftDBPathFileName;
 	AnsiString                 ARTCCBoundaryDataPathFileName;
 	int                        SelectedMapIndex;
-  int 											 SelectedAircraftTypeFilter;
+  	int						   SelectedAircraftTypeFilter;
 
-  void DrawAirportIcon(double lat, double lon, bool isDeparture);
+  	void DrawAirportIcon(double lat, double lon, bool isDeparture);
 	void DrawAirportInfo(double lat, double lon, const char* name, bool isDeparture);
 	int __fastcall getAirplaneType(uint32_t addr);
-  void UpdateAircraftInfo(TADS_B_Aircraft* Data);
-  void UpdateRouteInfo(TADS_B_Aircraft* Data);
-  void ClearAircraftInfo();
-  void ClearRouteInfo();
+  	void UpdateAircraftInfo(TADS_B_Aircraft* Data);
+  	void UpdateRouteInfo(TADS_B_Aircraft* Data);
+  	void ClearAircraftInfo();
+  	void ClearRouteInfo();
 
 	// Airport management
 	AirportDataManager        *airportManager;
 
 	// IP 히스토리에 추가 (public으로 이동)
 	void AddToIpHistory(AnsiString ip, bool isSBS);
-  // Draw all airport in the map by checkbox
-  void __fastcall DrawAllAirports();
+ 	// Draw all airport in the map by checkbox
+  	void __fastcall DrawAllAirports();
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TForm1 *Form1;

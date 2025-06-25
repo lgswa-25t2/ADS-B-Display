@@ -344,6 +344,13 @@ __fastcall TForm1::TForm1(TComponent *Owner)
 	PlaybackSpeedPanel->Visible = false;
 	AircraftTypeFilterComboBox->ItemIndex = 0; // "All" 선택
   SelectedAircraftTypeFilter = 0;
+
+    // 거리 계산 스레드 초기화
+    aircraftAirportDistanceResult = nullptr;
+    distanceCalculationThread = nullptr;
+    
+    // 거리 계산 스레드 시작
+    startDistanceCalculationThread();
 }
 //---------------------------------------------------------------------------
 __fastcall TForm1::~TForm1()
@@ -389,6 +396,9 @@ __fastcall TForm1::~TForm1()
         selectedFilterAreas->Clear();
         delete selectedFilterAreas;
 	}
+
+    // 거리 계산 스레드 중지
+    stopDistanceCalculationThread();
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::SetMapCenter(double &x, double &y)
@@ -703,50 +713,9 @@ void __fastcall TForm1::DrawObjects(void)
 		
 			ViewableAircraft++;
 			double aircraftX, aircraftY;
-			// calculate distance between aircraft and airport
-			bool isNearAirport = false;
-			if (airportManager)
-			{
-				double minDistance = 999999.0;
-
-				// calculate current screen
-				int screenWidth = ObjectDisplay->Width;
-				int screenHeight = ObjectDisplay->Height;
-
-				// Convert screen corner coordinates to latitude and longitude
-				LatLon2XY(Data->Latitude, Data->Longitude, aircraftX, aircraftY);
-
-				// outside display Airplane not Calculate
-				if (!(0 <= aircraftX && aircraftX < screenWidth && 0 <= aircraftY && aircraftY < screenHeight))
-				{
-					continue;
-				}
-
-				auto visibleAirports = airportManager->getVisibleAirports(
-					0, 0, 0, 0, 0);
-
-				double airportX, airportY;
-				for (const auto &airport : visibleAirports)
-				{
-					LatLon2XY(airport.latitude, airport.longitude, airportX, airportY);
-					// outside display Airport not Calculate
-					if (!(0 <= airportX && airportX < screenWidth && 0 <= airportY && airportY < screenHeight))
-					{
-						continue;
-					}
-
-					// Use Cached distance
-					double distance = getCachedDistance(Data->ICAO, airport.icao,
-														Data->Latitude, Data->Longitude,
-														airport.latitude, airport.longitude);
-
-					if (distance < minDistance)
-					{
-						minDistance = distance;
-					}
-				}
-				isNearAirport = (minDistance <= 5.0); // 5 nautical miles
-			}
+			
+			// 별도 스레드에서 계산된 결과 사용
+			bool isNearAirport = isAircraftNearAirport(Data->ICAO);
 
 			UpdateAircraftHistory(Data);
 
@@ -767,8 +736,6 @@ void __fastcall TForm1::DrawObjects(void)
 			{
 				continue;
 			}
-
-			// DrawPoint(ScrX,ScrY);
 
 			//색깔 설정 (이미 판별된 값 사용)
             if (isHelicopter) {
@@ -3143,7 +3110,9 @@ void __fastcall TForm1::PlaybackSpeedTrackBarChanged(TObject *Sender)
 void __fastcall TForm1::AboutADSBDisplay1Click(TObject *Sender)
 {
 	printf("About Clicked\n");
-	ShowMessage("Team : SW Architect #2 Challenger\n");
+	ShowMessage("ADS-B-Display Version 25.07.03\n"
+				"Copyright 2025 Solvit. All Rights Reserved.\n"
+				"Product by SW Architect #2 Challengers\n");
 }
 //---------------------------------------------------------------------------
 
@@ -3908,6 +3877,34 @@ void __fastcall TForm1::GetTimeToGoLineColor(double speed, float &r, float &g, f
     }
 }
 
+void __fastcall TForm1::LiveMapCheckboxClick(TObject *Sender)
+{
+        // 현재 맵 타입이 온라인을 지원하는지 확인
+    int currentMapIndex = MapComboBox->ItemIndex;
+    bool supportsOnline = (currentMapIndex == 0 || currentMapIndex == 4);
+    
+    if (!supportsOnline && LiveMapCheckbox->Checked) {
+        // 지원하지 않는 맵에서 체크하려고 하면 막기
+        LiveMapCheckbox->Checked = false;
+        ShowMessage("This map type does not support online mode");
+        return;
+    }
+    
+    // 상태가 바뀌었으면 현재 맵 다시 로드
+    if (LoadMapFromInternet != LiveMapCheckbox->Checked) {
+        // 기존 방식과 동일하게 처리
+        if (SelectedMapIndex != MapComboBox->ItemIndex) {
+            // 이미 변경 중이면 처리하지 않음
+            return;
+        }
+        
+        // 수동으로 SelectedMapIndex를 다른 값으로 만들어서 CloseUp 로직 실행
+        int currentIndex = SelectedMapIndex;
+        SelectedMapIndex = -1;  // 강제로 다르게 만들기
+        MapComboBoxCloseUp(Sender);  // 기존 로직 재사용
+        SelectedMapIndex = currentIndex;  // 복원
+    }
+}
 //---------------------------------------------------------------------------
 
 void __fastcall TForm1::MapScrollBoxScroll(TObject *Sender, TScrollBarKind ScrollBarKind, int ScrollCode, int &ScrollPos)
@@ -4434,31 +4431,124 @@ void __fastcall TForm1::MapHScrollBarScroll(TObject *Sender, TScrollCode ScrollC
     }
 }
 
-void __fastcall TForm1::LiveMapCheckboxClick(TObject *Sender)
-{
-        // 현재 맵 타입이 온라인을 지원하는지 확인
-    int currentMapIndex = MapComboBox->ItemIndex;
-    bool supportsOnline = (currentMapIndex == 0 || currentMapIndex == 4);
-    
-    if (!supportsOnline && LiveMapCheckbox->Checked) {
-        // 지원하지 않는 맵에서 체크하려고 하면 막기
-        LiveMapCheckbox->Checked = false;
-        ShowMessage("This map type does not support online mode");
-        return;
-    }
-    
-    // 상태가 바뀌었으면 현재 맵 다시 로드
-    if (LoadMapFromInternet != LiveMapCheckbox->Checked) {
-        // 기존 방식과 동일하게 처리
-        if (SelectedMapIndex != MapComboBox->ItemIndex) {
-            // 이미 변경 중이면 처리하지 않음
-            return;
+// 항공기-공항 거리 계산 스레드 구현
+__fastcall TAircraftAirportDistanceThread::TAircraftAirportDistanceThread(AircraftAirportDistanceResult* result, int interval) 
+    : TThread(true), distanceResult(result), updateIntervalMs(interval) {
+    FreeOnTerminate = false;
+}
+
+__fastcall TAircraftAirportDistanceThread::~TAircraftAirportDistanceThread() {
+}
+
+void __fastcall TAircraftAirportDistanceThread::Execute() {
+    while (!Terminated) {
+        if (distanceResult && Form1->airportManager) {
+            distanceResult->isUpdating = true;
+            
+            // 기존 결과 클리어
+            distanceResult->nearAirportAircraft.clear();
+            
+            // 현재 화면 범위 계산
+            double minLat, maxLat, minLon, maxLon;
+            int screenWidth = Form1->ObjectDisplay->Width;
+            int screenHeight = Form1->ObjectDisplay->Height;
+            
+            Form1->XY2LatLon2(0, 0, minLat, maxLon);
+            Form1->XY2LatLon2(screenWidth, screenHeight, maxLat, minLon);
+            
+            // 공항 목록 가져오기
+            auto visibleAirports = Form1->airportManager->getVisibleAirports(
+                minLat, maxLat, minLon, maxLon, 0);
+            
+            // 모든 항공기에 대해 거리 계산
+            uint32_t *Key;
+            ght_iterator_t iterator;
+            TADS_B_Aircraft* Data;
+            
+            for(Data = (TADS_B_Aircraft *)ght_first(Form1->HashTable, &iterator, (const void **)&Key);
+                Data; Data = (TADS_B_Aircraft *)ght_next(Form1->HashTable, &iterator, (const void **)&Key)) {
+                
+                if (Data->HaveLatLon) {
+                    double aircraftX, aircraftY;
+                    Form1->LatLon2XY(Data->Latitude, Data->Longitude, aircraftX, aircraftY);
+                    
+                    // 화면 밖 항공기는 제외
+                    if (!(0 <= aircraftX && aircraftX < screenWidth && 0 <= aircraftY && aircraftY < screenHeight)) {
+                        continue;
+                    }
+                    
+                    double minDistance = 999999.0;
+                    
+                    // 모든 공항과의 거리 계산
+                    for (const auto& airport : visibleAirports) {
+                        double airportX, airportY;
+                        Form1->LatLon2XY(airport.latitude, airport.longitude, airportX, airportY);
+                        
+                        // 화면 밖 공항은 제외
+                        if (!(0 <= airportX && airportX < screenWidth && 0 <= airportY && airportY < screenHeight)) {
+                            continue;
+                        }
+                        
+                        // 간단한 근사 거리 계산
+                        double dlat = Data->Latitude - airport.latitude;
+                        double dlon = Data->Longitude - airport.longitude;
+                        double latDist = dlat * 60.0;
+                        double lonDist = dlon * 60.0 * cos(Data->Latitude * M_PI/180.0);
+                        double distance = sqrt(latDist * latDist + lonDist * lonDist);
+                        
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                        }
+                    }
+                    
+                    // 5해리 이내인 경우 결과에 추가
+                    if (minDistance <= 5.0) {
+                        distanceResult->nearAirportAircraft.insert(Data->ICAO);
+                    }
+                }
+            }
+            
+            distanceResult->lastUpdate = std::chrono::system_clock::now();
+            distanceResult->isUpdating = false;
         }
         
-        // 수동으로 SelectedMapIndex를 다른 값으로 만들어서 CloseUp 로직 실행
-        int currentIndex = SelectedMapIndex;
-        SelectedMapIndex = -1;  // 강제로 다르게 만들기
-        MapComboBoxCloseUp(Sender);  // 기존 로직 재사용
-        SelectedMapIndex = currentIndex;  // 복원
+        // 지정된 간격만큼 대기
+        Sleep(updateIntervalMs);
+    }
+}
+
+// 항공기가 공항 근처에 있는지 확인하는 함수
+bool TForm1::isAircraftNearAirport(uint32_t aircraftICAO) {
+    if (!aircraftAirportDistanceResult) {
+        return false;
+    }
+    
+    return aircraftAirportDistanceResult->nearAirportAircraft.find(aircraftICAO) != 
+           aircraftAirportDistanceResult->nearAirportAircraft.end();
+}
+
+// 거리 계산 스레드 시작
+void TForm1::startDistanceCalculationThread() {
+    if (!distanceCalculationThread) {
+        aircraftAirportDistanceResult = new AircraftAirportDistanceResult();
+        aircraftAirportDistanceResult->isUpdating = false;
+        
+        distanceCalculationThread = new TAircraftAirportDistanceThread(aircraftAirportDistanceResult, 2000); // 2초마다 업데이트
+        distanceCalculationThread->Start();
+    }
+}
+
+// 거리 계산 스레드 중지
+void TForm1::stopDistanceCalculationThread() {
+    if (distanceCalculationThread) {
+        distanceCalculationThread->Terminate();
+        distanceCalculationThread->WaitFor();
+        delete distanceCalculationThread;
+        distanceCalculationThread = nullptr;
+    }
+    
+    if (aircraftAirportDistanceResult) {
+        delete aircraftAirportDistanceResult;
+        aircraftAirportDistanceResult = nullptr;
     }
 }

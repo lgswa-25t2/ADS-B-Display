@@ -804,15 +804,15 @@ void __fastcall TForm1::DrawObjects(void)
 			}
 
 			//색깔 설정 (이미 판별된 값 사용)
-      if (isHelicopter) {
-          glColor4f(1.0f, 0.65f, 0.0f, 1.0f); // Orange
-      } else if (isMilitary) {
-          glColor4f(0.0f, 1.0f, 0.0f, 1.0f); // Green
-      } else if (isKnownCivilian) {
-          glColor4f(1.0, 0.0, 1.0, 1.0); // Magenta
-      } else { // isUnknown
-          glColor4f(0.0f, 0.75f, 1.0f, 1.0f); // Light blue
-      }
+            if (isHelicopter) {
+                glColor4f(1.0f, 0.65f, 0.0f, 1.0f); // Orange
+            } else if (isMilitary) {
+                glColor4f(0.0f, 1.0f, 0.0f, 1.0f); // Green
+            } else if (isKnownCivilian) {
+                glColor4f(1.0, 0.0, 1.0, 1.0); // Magenta
+            } else { // isUnknown
+                glColor4f(0.0f, 0.75f, 1.0f, 1.0f); // Light blue
+            }
 			
 			if (airportManager && isNearAirport)
 			{
@@ -4462,12 +4462,12 @@ void __fastcall TForm1::UpdateScrollBarRanges()
 	
 	// 디버그 정보 출력 (선택사항)
 	if (showScrollbars) {
-		printf("Scrollbars: zoom=%.3f, H_Page=%d/36000 (%.1f%%), V_Page=%d/17000 (%.1f%%)\n", 
-			   zoomLevel, horzPageSize, (float)horzPageSize/TOTAL_LON_RANGE*100,
-			   vertPageSize, (float)vertPageSize/TOTAL_LAT_RANGE*100);
-		printf("H_Small=%d, H_Large=%d, V_Small=%d, V_Large=%d\n",
-			   MapHScrollBar->SmallChange, MapHScrollBar->LargeChange,
-			   MapVScrollBar->SmallChange, MapVScrollBar->LargeChange);
+		//printf("Scrollbars: zoom=%.3f, H_Page=%d/36000 (%.1f%%), V_Page=%d/17000 (%.1f%%)\n", 
+		//	   zoomLevel, horzPageSize, (float)horzPageSize/TOTAL_LON_RANGE*100,
+		//	   vertPageSize, (float)vertPageSize/TOTAL_LAT_RANGE*100);
+		//printf("H_Small=%d, H_Large=%d, V_Small=%d, V_Large=%d\n",
+		//	   MapHScrollBar->SmallChange, MapHScrollBar->LargeChange,
+		//	   MapVScrollBar->SmallChange, MapVScrollBar->LargeChange);
 		
 		if (mapOutOfBounds) {
 			printf("Map out of bounds: Lat=%.2f, Lon=%.2f\n", MapCenterLat, MapCenterLon);
@@ -4535,8 +4535,8 @@ void __fastcall TForm1::UpdateScrollBarPositions()
 	MapVScrollBar->Position = vertPos;
 	
 	// 디버그 출력
-	printf("Scroll Debug: Lon=%.2f, Lat=%.2f, H_Pos=%d/%d, V_Pos=%d/%d\n", 
-		   MapCenterLon, MapCenterLat, horzPos, MapHScrollBar->Max, vertPos, MapVScrollBar->Max);
+	//printf("Scroll Debug: Lon=%.2f, Lat=%.2f, H_Pos=%d/%d, V_Pos=%d/%d\n", 
+	//	   MapCenterLon, MapCenterLat, horzPos, MapHScrollBar->Max, vertPos, MapVScrollBar->Max);
 }
 
 //---------------------------------------------------------------------------

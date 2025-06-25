@@ -355,6 +355,10 @@ __fastcall TForm1::TForm1(TComponent *Owner)
 //---------------------------------------------------------------------------
 __fastcall TForm1::~TForm1()
 {
+	if (Font2DSmall) {
+        delete Font2DSmall;
+        Font2DSmall = NULL;
+    }
 	// Save IP history before closing
 	SaveIpHistory();
 
@@ -436,6 +440,13 @@ void __fastcall TForm1::ObjectDisplayInit(TObject *Sender)
         }
         LoadMapFromInternet = LiveMapCheckbox->Checked;
     }
+    // 작은 폰트 생성
+  TFont *smallFont = new TFont();
+  smallFont->Name = "Arial";
+        smallFont->Style = TFontStyles() << fsBold;
+  smallFont->Size = 12;  // 작은 크기
+  Font2DSmall = ObjectDisplay->Create2DFont(smallFont, 32, 224);
+  delete smallFont;
 }
 //---------------------------------------------------------------------------
 
@@ -647,6 +658,7 @@ void __fastcall TForm1::DrawObjects(void)
 	int cellMin = cellSize / 5;
 	int cellMax = cellSize;
 	double cellDrawZoomRate = 0.00005;
+  double textDrawZoomRate = 0.00003;    //threshold for displaying text
 
 	if (AreaTemp)
 	{
@@ -721,6 +733,14 @@ void __fastcall TForm1::DrawObjects(void)
 		}
 	}
 
+ /*
+  TFont *smallFont = new TFont();
+  smallFont->Name = "Arial";
+        smallFont->Style = TFontStyles() << fsBold;
+  smallFont->Size = 14;  // 작은 크기
+  Font2DSmall = ObjectDisplay->Create2DFont(smallFont, 32, 224);
+  delete smallFont;       */
+
   TAircraftTypeFilter selectedAircraftTypeFilter = (TAircraftTypeFilter)SelectedAircraftTypeFilter;
 	AircraftCountLabel->Caption = IntToStr((int)ght_size(HashTable));
 	for (Data = (TADS_B_Aircraft *)ght_first(HashTable, &iterator, (const void **)&Key);
@@ -792,15 +812,15 @@ void __fastcall TForm1::DrawObjects(void)
 			}
 
 			//색깔 설정 (이미 판별된 값 사용)
-            if (isHelicopter) {
-                glColor4f(1.0f, 0.65f, 0.0f, 1.0f); // Orange
-            } else if (isMilitary) {
-                glColor4f(0.0f, 1.0f, 0.0f, 1.0f); // Green
-            } else if (isKnownCivilian) {
-                glColor4f(1.0, 0.0, 1.0, 1.0); // Magenta
-            } else { // isUnknown
-                glColor4f(0.0f, 0.75f, 1.0f, 1.0f); // Light blue
-            }
+      if (isHelicopter) {
+          glColor4f(1.0f, 0.65f, 0.0f, 1.0f); // Orange
+      } else if (isMilitary) {
+          glColor4f(0.0f, 1.0f, 0.0f, 1.0f); // Green
+      } else if (isKnownCivilian) {
+          glColor4f(1.0, 0.0, 1.0, 1.0); // Magenta
+      } else { // isUnknown
+          glColor4f(0.0f, 0.75f, 1.0f, 1.0f); // Light blue
+      }
 			
 			if (airportManager && isNearAirport)
 			{
@@ -821,29 +841,47 @@ void __fastcall TForm1::DrawObjects(void)
 			{
 				DrawAirplaneImage(ScrX, ScrY, 0.8, Data->Heading, Data->SpriteImage);
 
-				// text color
-				if (DrawMap->Checked)
-				{
-					switch (SelectedMapIndex)
+				// 줌 레벨에 따라 텍스트 표시 여부 결정
+				bool showText = true;
+				bool useSmallText = false;
+				
+				if (xf > textDrawZoomRate * 0.2) {  // 중간 줌 레벨
+					useSmallText = true;  // 작은 텍스트 사용
+				}
+				if (xf > textDrawZoomRate) {  // 너무 멀면 텍스트 안 보이기
+					showText = false;
+				}
+				
+				if (showText) {
+					// text color
+					if (DrawMap->Checked)
 					{
-					case 0: // GoogleMaps
-						glColor4f(0.92, 0.92, 0.96, 1.0);
-						break;
-					case 1:
-					case 2:
-					case 3:
-					case 4:	// OpenStreetMaps
+						switch (SelectedMapIndex)
+						{
+						case 0: // GoogleMaps
+							glColor4f(0.92, 0.92, 0.96, 1.0);
+							break;
+						case 1:
+						case 2:
+						case 3:
+						case 4:	// OpenStreetMaps
+							glColor4f(0.0, 0.0, 0.0, 1.0);
+							break;
+						default:
+							glColor4f(0.92, 0.92, 0.96, 1.0);
+						}
+					}
+					else
 						glColor4f(0.0, 0.0, 0.0, 1.0);
-						break;
-					default:
-						glColor4f(0.92, 0.92, 0.96, 1.0);
+					
+					glRasterPos2i(ScrX + 15, ScrY - 10);
+          
+					if (useSmallText && Font2DSmall) {
+						ObjectDisplay->Draw2DText(Font2DSmall, Data->HexAddr);
+					} else {
+						ObjectDisplay->Draw2DText(Data->HexAddr);
 					}
 				}
-				else
-					glColor4f(0.0, 0.0, 0.0, 1.0);
-
-				glRasterPos2i(ScrX + 15, ScrY - 10);
-				ObjectDisplay->Draw2DText(Data->HexAddr);
 			}
 
 			if ((Data->HaveSpeedAndHeading) && (TimeToGoCheckBox->State == cbChecked) && xf < cellDrawZoomRate)
@@ -3956,7 +3994,18 @@ void __fastcall TForm1::DrawAllAirports()
         // Get icon size based on zoom level
         float size = airportManager->getAirportIconSize(airport, zoomLevel);
 
+		// 1. 내부 채우기
+		glColor4f(1.0, 0.0, 0.0, 1.0);
+		//glColor4f(1.0, 1.0, 0.6, 1.0);
+		glBegin(GL_QUADS);
+		glVertex2f(airportX - size, airportY - size * 0.6f);  // bottom left
+		glVertex2f(airportX + size, airportY - size * 0.6f);  // bottom right
+		glVertex2f(airportX + size, airportY + size * 0.2f);  // top right
+		glVertex2f(airportX - size, airportY + size * 0.2f);  // top left
+		glEnd();
+
         // Draw base building (rectangle)
+		glColor4f(1.0, 1.0, 0.6, 1.0);
         glBegin(GL_LINE_LOOP);
         glVertex2f(airportX - size, airportY - size * 0.6f);  // bottom left
         glVertex2f(airportX + size, airportY - size * 0.6f);  // bottom right
@@ -3964,7 +4013,19 @@ void __fastcall TForm1::DrawAllAirports()
         glVertex2f(airportX - size, airportY + size * 0.2f);  // top left
         glEnd();
 
+		// === Control Tower ===
+		// 1. 내부 채우기 
+		glColor4f(1.0, 0.0, 0.0, 1.0);
+		//glColor4f(1.0, 1.0, 0.6, 1.0);
+		glBegin(GL_QUADS);
+		glVertex2f(airportX - size * 0.5f, airportY + size * 0.2f);  // bottom left
+		glVertex2f(airportX + size * 0.5f, airportY + size * 0.2f);  // bottom right
+		glVertex2f(airportX + size * 0.5f, airportY + size);         // top right
+		glVertex2f(airportX - size * 0.5f, airportY + size);         // top left
+		glEnd();
+
         // Draw control tower (smaller rectangle on top)
+		glColor4f(1.0, 1.0, 0.6, 1.0);
         glBegin(GL_LINE_LOOP);
         glVertex2f(airportX - size * 0.5f, airportY + size * 0.2f);  // bottom left
         glVertex2f(airportX + size * 0.5f, airportY + size * 0.2f);  // bottom right

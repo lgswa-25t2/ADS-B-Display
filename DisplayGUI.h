@@ -406,6 +406,8 @@ private:	// User declarations
 	// Map scrollbars
 	TScrollBar *MapVScrollBar;
 	TScrollBar *MapHScrollBar;
+
+  	OpenGLFont2D *Font2DSmall;
 	
 	// 항공기-공항 거리 캐시
 	std::map<std::pair<uint32_t, std::string>, DistanceCache> distanceCache;

@@ -506,19 +506,73 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
 	__int64 now = GetCurrentTimeInMsec();
 	if (RawConnectButton->Caption == "Raw Disconnect")
 	{
-		if (!RawTimeoutPopupShown && (now - LastHeartbeatTime > 10000)) // 10 Sec
+		// 연결 상태 체크 (간단한 방법으로 부하 줄임)
+		bool isConnected = false;
+		static __int64 lastConnectionCheck = 0;
+		
+		// 2초마다만 연결 상태 체크 (부하 줄임)
+		if (now - lastConnectionCheck > 2000)
+		{
+			try
+			{
+				// 기본 Connected() 체크만 사용
+				isConnected = Form1->IdTCPClientRaw->Connected();
+				
+				// 간단한 소켓 에러 체크만
+				if (isConnected && Form1->IdTCPClientRaw->Socket && Form1->IdTCPClientRaw->Socket->Binding)
+				{
+					SOCKET sockHandle = Form1->IdTCPClientRaw->Socket->Binding->Handle;
+					if (sockHandle != INVALID_SOCKET)
+					{
+						int optval;
+						int optlen = sizeof(optval);
+						if (getsockopt(sockHandle, SOL_SOCKET, SO_ERROR, (char*)&optval, &optlen) != 0 || optval != 0)
+						{
+							isConnected = false;
+							printf("Socket error detected: %d\n", optval);
+						}
+					}
+					else
+					{
+						isConnected = false;
+					}
+				}
+				lastConnectionCheck = now;
+			}
+			catch (...)
+			{
+				isConnected = false;
+				printf("Connection check exception\n");
+				lastConnectionCheck = now;
+			}
+		}
+		else
+		{
+			// 체크 간격이 아닌 경우 이전 결과 사용
+			isConnected = Form1->IdTCPClientRaw->Connected();
+		}
+		
+		// WiFi 끊김/파이 전원 OFF 감지 (연결이 끊어진 경우)
+		if (!isConnected)
+		{
+			if (!RawTimeoutPopupShown)
+			{
+				RawTimeoutPopupShown = true;
+				RawConnectButton->Caption = "Raw Connect";
+				RawPlaybackButton->Enabled = true;
+				ShowMessage("WiFi connection lost or Pi power turned off.\nPlease check network connection and Pi status.");
+			}
+		}
+		// 데이터 없음 감지 (연결은 살아있지만 데이터가 안 옴)
+		else if (!RawTimeoutPopupShown && (now - LastHeartbeatTime > 30000)) // 30초
 		{
 			RawTimeoutPopupShown = true;
-			if (Form1->IdTCPClientRaw->Connected())
-			{
-				TCPClientRawHandleThread->Terminate();
-				IdTCPClientRaw->Disconnect();
-				IdTCPClientRaw->IOHandler->InputBuffer->Clear();
-			}
+			TCPClientRawHandleThread->Terminate();
+			IdTCPClientRaw->Disconnect();
+			IdTCPClientRaw->IOHandler->InputBuffer->Clear();
 			RawConnectButton->Caption = "Raw Connect";
 			RawPlaybackButton->Enabled = true;
-			// ShowMessage("Raw data heartbeat timeout: No heartbeat received from PI for 10 seconds.");
-			ShowMessage("SBS Hub connection timeout: No data received from PI for 10 seconds.");
+			ShowMessage("Data reception timeout: No data received for 30 seconds.\nPlease check if Pi is sending data.");
 		}
 	}
 
@@ -1901,7 +1955,10 @@ void __fastcall TForm1::RawConnectButtonClick(TObject *Sender)
 void __fastcall TForm1::IdTCPClientRawConnected(TObject *Sender)
 {
 	// SetKeepAliveValues(const AEnabled: Boolean; const ATimeMS, AInterval: Integer);
-	IdTCPClientRaw->Socket->Binding->SetKeepAliveValues(true, 60 * 1000, 15 * 1000);
+	// WiFi 끊김 빠른 감지를 위한 더 짧은 KeepAlive 설정 (1초 간격, 1초 재시도)
+	IdTCPClientRaw->Socket->Binding->SetKeepAliveValues(true, 1 * 1000, 1 * 1000);
+	// ReadTimeout 설정 (3초) - WiFi 끊김 빠른 감지용
+	IdTCPClientRaw->ReadTimeout = 3000;
 	RawConnectButton->Caption = "Raw Disconnect";
 	RawPlaybackButton->Enabled = false;
 	RawTimeoutPopupShown = false;

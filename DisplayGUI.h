@@ -401,6 +401,8 @@ __published:	// IDE-managed Components
 	void __fastcall UpdateScrollBarRanges();
 	void __fastcall UpdateScrollBarPositions();
 private:	// User declarations
+	bool __fastcall CheckCellClickAndZoom(int X, int Y);
+
 	// Map scrollbars
 	TScrollBar *MapVScrollBar;
 	TScrollBar *MapHScrollBar;
@@ -517,7 +519,9 @@ public:		// User declarations
 	AnsiString                 AircraftDBPathFileName;
 	AnsiString                 ARTCCBoundaryDataPathFileName;
 	int                        SelectedMapIndex;
-  	int						   SelectedAircraftTypeFilter;
+	int						   SelectedAircraftTypeFilter;
+
+    int 					   gCell[10][10] = {0,};
 
   	void DrawAirportIcon(double lat, double lon, bool isDeparture);
 	void DrawAirportInfo(double lat, double lon, const char* name, bool isDeparture);

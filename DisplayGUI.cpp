@@ -1104,6 +1104,7 @@ void __fastcall TForm1::DrawObjects(void)
 		{
 			for (i = 0; i < 10; i++)
 			{
+                gCell[j][i] = cell[j][i];
 
 				if (cell[j][i] > 0)
 				{
@@ -1192,6 +1193,13 @@ void __fastcall TForm1::ObjectDisplayMouseDown(TObject *Sender, TMouseButton But
 {
 	if (Button == mbLeft)
 	{
+		// Cell 클릭 감지 및 zoom-in 기능 추가
+		if (CheckCellClickAndZoom(X, Y))
+		{
+			// Cell 클릭으로 zoom-in이 처리되었으면 다른 처리를 하지 않음
+			return;
+		}
+
 		if (Shift.Contains(ssCtrl))
 		{
 		}
@@ -1233,6 +1241,74 @@ void __fastcall TForm1::ObjectDisplayMouseDown(TObject *Sender, TMouseButton But
 		ResetXYOffset();
 	}
 }
+
+// Cell 클릭 감지 및 zoom-in 처리
+bool __fastcall TForm1::CheckCellClickAndZoom(int X, int Y)
+{
+	// 현재 줌 레벨 확인
+	double cellDrawZoomRate = 0.00005;
+
+	// Cell이 표시되는 줌 레벨이 아니면 false 반환
+	if (xf < cellDrawZoomRate)
+	{
+		return false;
+	}
+
+	// Cell 크기 계산 (DrawObjects 함수와 동일한 로직)
+	int cellWidth = ObjectDisplay->Width / 10 - 1;
+	int cellHeight = ObjectDisplay->Height / 10 - 1;
+
+	// 클릭한 위치의 cell 좌표 계산
+	int cellX = X / cellWidth;
+	int cellY = 9 - (int)(Y / cellHeight);
+
+	// 유효한 cell 범위인지 확인
+	if (cellX < 0 || cellX >= 10 || cellY < 0 || cellY >= 10)
+	{
+		return false;
+	}
+
+	// Cell 중심점 계산
+	int cellCenterX = cellWidth * (cellX+1) - cellWidth / 2;
+	int cellCenterY = cellHeight * (9-cellY+1) - cellHeight / 2;
+
+	// Cell 반지름 계산 (DrawObjects 함수와 동일한 로직)
+	int cellSize = std::min(cellWidth, cellHeight) / 2;
+	int cellMin = cellSize / 5;
+	int cellMax = cellSize;
+
+	// 클릭 위치와 cell 중심점의 거리 계산
+	int distance = sqrt((X - cellCenterX) * (X - cellCenterX) +
+						 (Y - cellCenterY) * (Y - cellCenterY));
+
+    int s = gCell[cellY][cellX];
+    if (gCell[cellY][cellX] < cellMin)
+    {
+        s = cellMin;
+    }
+    else if (gCell[cellY][cellX] > cellMax)
+    {
+        s = cellMax;
+    }
+
+	// Cell 내부를 클릭했는지 확인
+	if (distance <= s)
+	{
+        g_EarthView->ZoomAtPoint(cellCenterX, cellCenterY, NAV_ZOOM_IN);
+
+        // 스크롤바 업데이트
+        UpdateScrollBarRanges();
+        UpdateScrollBarPositions();
+
+        // 화면 갱신
+        ObjectDisplay->Repaint();
+
+        return true;
+	}
+
+	return false; // Cell 클릭이 아님
+}
+
 //---------------------------------------------------------------------------
 void __fastcall TForm1::UpdateAircraftHistory(TADS_B_Aircraft *aircraft)
 {

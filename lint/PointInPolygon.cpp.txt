@@ -1,0 +1,11 @@
+PointInPolygon.cpp:0:  No copyright message found.  You should have a line: "Copyright [year] <Copyright Owner>"  [legal/copyright] [5]
+PointInPolygon.cpp:12:  Missing space after ,  [whitespace/comma] [3]
+PointInPolygon.cpp:13:  { should almost always be at the end of the previous line  [whitespace/braces] [4]
+PointInPolygon.cpp:16:  Tab found; better to use spaces  [whitespace/tab] [1]
+PointInPolygon.cpp:16:  If/else bodies with multiple statements require braces  [readability/braces] [4]
+PointInPolygon.cpp:16:  Missing spaces around >  [whitespace/operators] [3]
+PointInPolygon.cpp:17:  Tab found; better to use spaces  [whitespace/tab] [1]
+PointInPolygon.cpp:18:  Tab found; better to use spaces  [whitespace/tab] [1]
+PointInPolygon.cpp:19:  Tab found; better to use spaces  [whitespace/tab] [1]
+Done processing PointInPolygon.cpp
+Total errors found: 9

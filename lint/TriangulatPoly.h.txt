@@ -1,0 +1,15 @@
+TriangulatPoly.h:0:  No copyright message found.  You should have a line: "Copyright [year] <Copyright Owner>"  [legal/copyright] [5]
+TriangulatPoly.h:3:  #ifndef header guard has wrong style, please use: TRIANGULATPOLY_H_  [build/header_guard] [5]
+TriangulatPoly.h:22:  #endif line should be "#endif  // TRIANGULATPOLY_H_"  [build/header_guard] [5]
+TriangulatPoly.h:8:  Tab found; better to use spaces  [whitespace/tab] [1]
+TriangulatPoly.h:8:  Use int16_t/int64_t/etc, rather than the C type long  [runtime/int] [4]
+TriangulatPoly.h:9:  Tab found; better to use spaces  [whitespace/tab] [1]
+TriangulatPoly.h:17:  Missing space after ,  [whitespace/comma] [3]
+TriangulatPoly.h:17:  Extra space after ( in function call  [whitespace/parens] [4]
+TriangulatPoly.h:17:  Extra space before )  [whitespace/parens] [2]
+TriangulatPoly.h:18:  Missing space after ,  [whitespace/comma] [3]
+TriangulatPoly.h:18:  Use int16_t/int64_t/etc, rather than the C type long  [runtime/int] [4]
+TriangulatPoly.h:19:  Missing space after ,  [whitespace/comma] [3]
+TriangulatPoly.h:19:  Extra space before )  [whitespace/parens] [2]
+Done processing TriangulatPoly.h
+Total errors found: 13

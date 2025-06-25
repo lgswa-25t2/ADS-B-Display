@@ -1,0 +1,8 @@
+SBS_Message.h:0:  No copyright message found.  You should have a line: "Copyright [year] <Copyright Owner>"  [legal/copyright] [5]
+SBS_Message.h:3:  #ifndef header guard has wrong style, please use: SBS_MESSAGE_H_  [build/header_guard] [5]
+SBS_Message.h:9:  #endif line should be "#endif  // SBS_MESSAGE_H_"  [build/header_guard] [5]
+SBS_Message.h:6:  Lines should be <= 80 characters long  [whitespace/line_length] [2]
+SBS_Message.h:6:  Extra space before ( in function call  [whitespace/parens] [4]
+SBS_Message.h:7:  Extra space after ( in function call  [whitespace/parens] [4]
+Done processing SBS_Message.h
+Total errors found: 6

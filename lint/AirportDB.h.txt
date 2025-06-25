@@ -1,0 +1,10 @@
+AirportDB.h:0:  No copyright message found.  You should have a line: "Copyright [year] <Copyright Owner>"  [legal/copyright] [5]
+AirportDB.h:0:  No #ifndef header guard found, suggested CPP variable is: AIRPORTDB_H_  [build/header_guard] [5]
+AirportDB.h:5:  Include the directory when naming header files  [build/include_subdir] [4]
+AirportDB.h:6:  Found C++ system header after other header. Should be: AirportDB.h, c system, c++ system, other.  [build/include_order] [4]
+AirportDB.h:7:  Found C++ system header after other header. Should be: AirportDB.h, c system, c++ system, other.  [build/include_order] [4]
+AirportDB.h:11:  Tab found; better to use spaces  [whitespace/tab] [1]
+AirportDB.h:13:  Tab found; better to use spaces  [whitespace/tab] [1]
+AirportDB.h:33:  Could not find a newline character at the end of the file.  [whitespace/ending_newline] [5]
+Done processing AirportDB.h
+Total errors found: 8

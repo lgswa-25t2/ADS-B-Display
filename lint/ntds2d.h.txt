@@ -1,0 +1,17 @@
+ntds2d.h:0:  No copyright message found.  You should have a line: "Copyright [year] <Copyright Owner>"  [legal/copyright] [5]
+ntds2d.h:3:  #ifndef header guard has wrong style, please use: NTDS2D_H_  [build/header_guard] [5]
+ntds2d.h:26:  #endif line should be "#endif  // NTDS2D_H_"  [build/header_guard] [5]
+ntds2d.h:11:  Missing space after ,  [whitespace/comma] [3]
+ntds2d.h:12:  Missing space after ,  [whitespace/comma] [3]
+ntds2d.h:13:  Missing space after ,  [whitespace/comma] [3]
+ntds2d.h:14:  Missing space after ,  [whitespace/comma] [3]
+ntds2d.h:15:  Missing space after ,  [whitespace/comma] [3]
+ntds2d.h:20:  Tab found; better to use spaces  [whitespace/tab] [1]
+ntds2d.h:21:  Tab found; better to use spaces  [whitespace/tab] [1]
+ntds2d.h:22:  Tab found; better to use spaces  [whitespace/tab] [1]
+ntds2d.h:23:  Tab found; better to use spaces  [whitespace/tab] [1]
+ntds2d.h:23:  Weird number of spaces at line-start.  Are you using a 2-space indent?  [whitespace/indent] [3]
+ntds2d.h:23:  Line ends in whitespace.  Consider deleting these extra spaces.  [whitespace/end_of_line] [4]
+ntds2d.h:23:  Missing space after ,  [whitespace/comma] [3]
+Done processing ntds2d.h
+Total errors found: 15

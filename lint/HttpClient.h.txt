@@ -1,0 +1,17 @@
+HttpClient.h:0:  No copyright message found.  You should have a line: "Copyright [year] <Copyright Owner>"  [legal/copyright] [5]
+HttpClient.h:6:  Found C system header after C++ system header. Should be: HttpClient.h, c system, c++ system, other.  [build/include_order] [4]
+HttpClient.h:7:  Found C system header after C++ system header. Should be: HttpClient.h, c system, c++ system, other.  [build/include_order] [4]
+HttpClient.h:8:  Include the directory when naming header files  [build/include_subdir] [4]
+HttpClient.h:13:  private: should be indented +1 space inside class HttpClient  [whitespace/indent] [3]
+HttpClient.h:16:  Lines should be <= 80 characters long  [whitespace/line_length] [2]
+HttpClient.h:25:  Use int16_t/int64_t/etc, rather than the C type long  [runtime/int] [4]
+HttpClient.h:37:  public: should be indented +1 space inside class HttpClient  [whitespace/indent] [3]
+HttpClient.h:40:  Line ends in whitespace.  Consider deleting these extra spaces.  [whitespace/end_of_line] [4]
+HttpClient.h:44:  Line ends in whitespace.  Consider deleting these extra spaces.  [whitespace/end_of_line] [4]
+HttpClient.h:47:  Line ends in whitespace.  Consider deleting these extra spaces.  [whitespace/end_of_line] [4]
+HttpClient.h:50:  Line ends in whitespace.  Consider deleting these extra spaces.  [whitespace/end_of_line] [4]
+HttpClient.h:51:  private: should be indented +1 space inside class HttpClient  [whitespace/indent] [3]
+HttpClient.h:55:  Line ends in whitespace.  Consider deleting these extra spaces.  [whitespace/end_of_line] [4]
+HttpClient.h:55:  Could not find a newline character at the end of the file.  [whitespace/ending_newline] [5]
+Done processing HttpClient.h
+Total errors found: 15

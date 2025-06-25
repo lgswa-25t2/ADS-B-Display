@@ -1,0 +1,5 @@
+AircraftAPI.h:0:  No copyright message found.  You should have a line: "Copyright [year] <Copyright Owner>"  [legal/copyright] [5]
+AircraftAPI.h:3:  #ifndef header guard has wrong style, please use: AIRCRAFTAPI_H_  [build/header_guard] [5]
+AircraftAPI.h:8:  #endif line should be "#endif  // AIRCRAFTAPI_H_"  [build/header_guard] [5]
+Done processing AircraftAPI.h
+Total errors found: 3

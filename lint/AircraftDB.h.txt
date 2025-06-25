@@ -1,0 +1,9 @@
+AircraftDB.h:0:  No copyright message found.  You should have a line: "Copyright [year] <Copyright Owner>"  [legal/copyright] [5]
+AircraftDB.h:3:  #ifndef header guard has wrong style, please use: AIRCRAFTDB_H_  [build/header_guard] [5]
+AircraftDB.h:65:  #endif line should be "#endif  // AIRCRAFTDB_H_"  [build/header_guard] [5]
+AircraftDB.h:5:  Include the directory when naming header files  [build/include_subdir] [4]
+AircraftDB.h:37:  { should almost always be at the end of the previous line  [whitespace/braces] [4]
+AircraftDB.h:55:  Redundant blank line at the end of a code block should be deleted.  [whitespace/blank_line] [3]
+AircraftDB.h:50:  Add #include <string> for string  [build/include_what_you_use] [4]
+Done processing AircraftDB.h
+Total errors found: 7

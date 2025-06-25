@@ -1,0 +1,4 @@
+ADS-B-DisplayPCH1.h:0:  No copyright message found.  You should have a line: "Copyright [year] <Copyright Owner>"  [legal/copyright] [5]
+ADS-B-DisplayPCH1.h:0:  No #ifndef header guard found, suggested CPP variable is: ADS_B_DISPLAYPCH1_H_  [build/header_guard] [5]
+Done processing ADS-B-DisplayPCH1.h
+Total errors found: 2

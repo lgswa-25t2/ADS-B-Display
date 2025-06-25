@@ -1,0 +1,17 @@
+AirportDataManager.h:0:  No copyright message found.  You should have a line: "Copyright [year] <Copyright Owner>"  [legal/copyright] [5]
+AirportDataManager.h:0:  No #ifndef header guard found, suggested CPP variable is: AIRPORTDATAMANAGER_H_  [build/header_guard] [5]
+AirportDataManager.h:8:  Should have a space between // and comment  [whitespace/comments] [4]
+AirportDataManager.h:10:  Do not use namespace using-directives.  Use using-declarations instead.  [build/namespaces] [5]
+AirportDataManager.h:13:  Should have a space between // and comment  [whitespace/comments] [4]
+AirportDataManager.h:16:  private: should be indented +1 space inside class AirportDataManager  [whitespace/indent] [3]
+AirportDataManager.h:39:  Line ends in whitespace.  Consider deleting these extra spaces.  [whitespace/end_of_line] [4]
+AirportDataManager.h:42:  Line ends in whitespace.  Consider deleting these extra spaces.  [whitespace/end_of_line] [4]
+AirportDataManager.h:46:  public: should be indented +1 space inside class AirportDataManager  [whitespace/indent] [3]
+AirportDataManager.h:49:  Line ends in whitespace.  Consider deleting these extra spaces.  [whitespace/end_of_line] [4]
+AirportDataManager.h:52:  Line ends in whitespace.  Consider deleting these extra spaces.  [whitespace/end_of_line] [4]
+AirportDataManager.h:61:  Closing ) should be moved to the previous line  [whitespace/parens] [2]
+AirportDataManager.h:70:  Line ends in whitespace.  Consider deleting these extra spaces.  [whitespace/end_of_line] [4]
+AirportDataManager.h:70:  At least two spaces is best between code and comments  [whitespace/comments] [2]
+AirportDataManager.h:70:  Could not find a newline character at the end of the file.  [whitespace/ending_newline] [5]
+Done processing AirportDataManager.h
+Total errors found: 15

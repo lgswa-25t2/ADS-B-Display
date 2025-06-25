@@ -1,0 +1,11 @@
+CPA.h:0:  No copyright message found.  You should have a line: "Copyright [year] <Copyright Owner>"  [legal/copyright] [5]
+CPA.h:3:  #ifndef header guard has wrong style, please use: CPA_H_  [build/header_guard] [5]
+CPA.h:9:  #endif line should be "#endif  // CPA_H_"  [build/header_guard] [5]
+CPA.h:6:  Lines should be <= 80 characters long  [whitespace/line_length] [2]
+CPA.h:6:  Missing space after ,  [whitespace/comma] [3]
+CPA.h:7:  Tab found; better to use spaces  [whitespace/tab] [1]
+CPA.h:7:  Missing space after ,  [whitespace/comma] [3]
+CPA.h:8:  Tab found; better to use spaces  [whitespace/tab] [1]
+CPA.h:8:  Missing space after ,  [whitespace/comma] [3]
+Done processing CPA.h
+Total errors found: 9

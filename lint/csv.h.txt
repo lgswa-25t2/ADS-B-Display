@@ -1,0 +1,13 @@
+csv.h:0:  No copyright message found.  You should have a line: "Copyright [year] <Copyright Owner>"  [legal/copyright] [5]
+csv.h:3:  #ifndef header guard has wrong style, please use: CSV_H_  [build/header_guard] [5]
+csv.h:52:  #endif line should be "#endif  // CSV_H_"  [build/header_guard] [5]
+csv.h:33:  Lines should be <= 80 characters long  [whitespace/line_length] [2]
+csv.h:36:  Lines should be <= 80 characters long  [whitespace/line_length] [2]
+csv.h:39:  Lines should be <= 80 characters long  [whitespace/line_length] [2]
+csv.h:41:  Lines should be <= 80 characters long  [whitespace/line_length] [2]
+csv.h:42:  Lines should be <= 80 characters long  [whitespace/line_length] [2]
+csv.h:46:  Extra space before ( in function call  [whitespace/parens] [4]
+csv.h:49:  Extra space before ( in function call  [whitespace/parens] [4]
+csv.h:31:  Add #include <cstdio> for FILE  [build/include_what_you_use] [4]
+Done processing csv.h
+Total errors found: 11

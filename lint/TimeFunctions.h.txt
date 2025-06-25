@@ -1,0 +1,7 @@
+TimeFunctions.h:0:  No copyright message found.  You should have a line: "Copyright [year] <Copyright Owner>"  [legal/copyright] [5]
+TimeFunctions.h:3:  #ifndef header guard has wrong style, please use: TIMEFUNCTIONS_H_  [build/header_guard] [5]
+TimeFunctions.h:9:  #endif line should be "#endif  // TIMEFUNCTIONS_H_"  [build/header_guard] [5]
+TimeFunctions.h:6:  Weird number of spaces at line-start.  Are you using a 2-space indent?  [whitespace/indent] [3]
+TimeFunctions.h:7:  Weird number of spaces at line-start.  Are you using a 2-space indent?  [whitespace/indent] [3]
+Done processing TimeFunctions.h
+Total errors found: 5

@@ -733,14 +733,6 @@ void __fastcall TForm1::DrawObjects(void)
 		}
 	}
 
- /*
-  TFont *smallFont = new TFont();
-  smallFont->Name = "Arial";
-        smallFont->Style = TFontStyles() << fsBold;
-  smallFont->Size = 14;  // 작은 크기
-  Font2DSmall = ObjectDisplay->Create2DFont(smallFont, 32, 224);
-  delete smallFont;       */
-
   TAircraftTypeFilter selectedAircraftTypeFilter = (TAircraftTypeFilter)SelectedAircraftTypeFilter;
 	AircraftCountLabel->Caption = IntToStr((int)ght_size(HashTable));
 	for (Data = (TADS_B_Aircraft *)ght_first(HashTable, &iterator, (const void **)&Key);

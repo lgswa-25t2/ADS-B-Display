@@ -592,6 +592,7 @@ object Form1: TForm1
         Font.Style = [fsBold]
         ParentFont = False
         TabOrder = 2
+        OnClick = LiveMapCheckboxClick
       end
     end
     object PanelTitle1: TPanel

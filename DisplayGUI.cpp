@@ -885,9 +885,15 @@ void __fastcall TForm1::DrawObjects(void)
 					double ScrX2, ScrY2;
 					LatLon2XY(lat, lon, ScrX2, ScrY2);
 
-					 // 속도에 따른 색상 결정
+					// 고도에 따른 색상 결정 (속도 대신 고도 사용)
 					float r, g, b, alpha;
-					GetTimeToGoLineColor(Data->Speed, r, g, b, alpha);
+					 if (Data->HaveAltitude) {
+					 	GetAltitudeLineColor(Data->Altitude, r, g, b, alpha);
+					 } else {
+					 	// 고도 정보가 없으면 회색으로 표시
+					 	r = 0.5f; g = 0.5f; b = 0.5f; alpha = 0.8f;
+					 }
+					
 					if (DrawMap->Checked)
 					{
 						glColor4f(r, g, b, alpha);  // 동적 색상 적용
@@ -897,15 +903,8 @@ void __fastcall TForm1::DrawObjects(void)
 						// 맵이 없을 때는 약간 더 진하게
 						glColor4f(r * 0.8f, g * 0.8f, b * 0.8f, alpha * 0.9f);
 					}
-					
-					// 라인 두께도 속도에 따라 조정 (선택사항)
-					if (Data->Speed >= 400) {
-						glLineWidth(3.0f);  // 고속일 때 두껍게
-					} else if (Data->Speed >= 150) {
-						glLineWidth(2.0f);  // 중속일 때 보통
-					} else {
-						glLineWidth(1.5f);  // 저속일 때 얇게
-					}
+					glLineWidth(2.0f);
+
 					glBegin(GL_LINE_STRIP);
 					glVertex2f(ScrX, ScrY);
 					glVertex2f(ScrX2, ScrY2);
@@ -3506,7 +3505,7 @@ void __fastcall TForm1::TogglePanels()
 		Panel4->Height = 350;
 
 		PanelTitle1->Caption = "Control Menu ▼";
-		PanelTitle1->Color = clSkyBlue;
+		PanelTitle1->Color = clMoneyGreen;
 		PanelTitle1->Hint = "Click to hide Control Menu";
 	}
 	else
@@ -4738,5 +4737,38 @@ void TForm1::stopDistanceCalculationThread() {
     if (aircraftAirportDistanceResult) {
         delete aircraftAirportDistanceResult;
         aircraftAirportDistanceResult = nullptr;
+    }
+}
+
+void __fastcall TForm1::GetAltitudeLineColor(double altitude, float &r, float &g, float &b, float &alpha)
+{
+    // 고도에 따른 색상 매핑
+    if (altitude >= 35000) {
+        // 35,000ft 이상: 핫핑크 (고고도)
+        r = 1.0f; g = 0.0f; b = 0.8f; alpha = 1.0f;
+    }
+    else if (altitude >= 25000) {
+        // 25,000-35,000ft: 파란색 (순항고도)
+        r = 0.2f; g = 0.4f; b = 1.0f; alpha = 1.0f;
+    }
+    else if (altitude >= 15000) {
+        // 15,000-25,000ft: 청록색 (중고도)
+        r = 0.0f; g = 0.8f; b = 0.8f; alpha = 1.0f;
+    }
+    else if (altitude >= 8000) {
+        // 8,000-15,000ft: 초록색 (중저고도)
+        r = 0.2f; g = 1.0f; b = 0.2f; alpha = 1.0f;
+    }
+    else if (altitude >= 3000) {
+        // 3,000-8,000ft: 노란색 (저고도)
+        r = 1.0f; g = 1.0f; b = 0.2f; alpha = 1.0f;
+    }
+    else if (altitude >= 1000) {
+        // 1,000-3,000ft: 주황색 (접근/이륙)
+        r = 1.0f; g = 0.6f; b = 0.2f; alpha = 1.0f;
+    }
+    else {
+        // 1,000ft 미만: 빨간색 (지상/매우 낮음)
+        r = 1.0f; g = 0.2f; b = 0.2f; alpha = 1.0f;
     }
 }

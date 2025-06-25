@@ -1254,13 +1254,15 @@ bool __fastcall TForm1::CheckCellClickAndZoom(int X, int Y)
 		return false;
 	}
 
+	Y = ObjectDisplay->Height - Y;
+
 	// Cell 크기 계산 (DrawObjects 함수와 동일한 로직)
 	int cellWidth = ObjectDisplay->Width / 10 - 1;
 	int cellHeight = ObjectDisplay->Height / 10 - 1;
 
 	// 클릭한 위치의 cell 좌표 계산
 	int cellX = X / cellWidth;
-	int cellY = 9 - (int)(Y / cellHeight);
+	int cellY = Y / cellHeight;
 
 	// 유효한 cell 범위인지 확인
 	if (cellX < 0 || cellX >= 10 || cellY < 0 || cellY >= 10)
@@ -1270,7 +1272,7 @@ bool __fastcall TForm1::CheckCellClickAndZoom(int X, int Y)
 
 	// Cell 중심점 계산
 	int cellCenterX = cellWidth * (cellX+1) - cellWidth / 2;
-	int cellCenterY = cellHeight * (9-cellY+1) - cellHeight / 2;
+	int cellCenterY = cellHeight * (cellY+1) - cellHeight / 2;
 
 	// Cell 반지름 계산 (DrawObjects 함수와 동일한 로직)
 	int cellSize = std::min(cellWidth, cellHeight) / 2;
@@ -1294,7 +1296,7 @@ bool __fastcall TForm1::CheckCellClickAndZoom(int X, int Y)
 	// Cell 내부를 클릭했는지 확인
 	if (distance <= s)
 	{
-        g_EarthView->ZoomAtPoint(cellCenterX, cellCenterY, NAV_ZOOM_IN);
+        g_EarthView->ZoomAtPoint(cellCenterX, ObjectDisplay->Height-cellCenterY, NAV_ZOOM_IN);
 
         // 스크롤바 업데이트
         UpdateScrollBarRanges();

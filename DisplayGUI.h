@@ -29,6 +29,8 @@
 #include <map>
 #include <unordered_map>
 #include <chrono>
+#include <unordered_set>
+#include <atomic>
 // Forward declarations
 class AirportDataManager;
 
@@ -79,6 +81,27 @@ enum TAircraftTypeFilter {
 const int CACHE_EXPIRY_MS = 3000; // 3 Sec
 const int CACHE_CLEANUP_INTERVAL_MS = 5000; // 5초마다 캐시 정리
 const int CACHE_MAX_AGE_MS = 30000; // 30초 이상 된 캐시 제거
+
+// 항공기-공항 거리 계산 결과를 저장할 구조체
+struct AircraftAirportDistanceResult {
+    std::unordered_set<uint32_t> nearAirportAircraft;  // 공항 근처 항공기 ICAO 주소들
+    std::chrono::system_clock::time_point lastUpdate;
+    std::atomic<bool> isUpdating;
+};
+
+// 항공기-공항 거리 계산 스레드 클래스
+class TAircraftAirportDistanceThread : public TThread {
+private:
+    AircraftAirportDistanceResult* distanceResult;
+    int updateIntervalMs;  // 업데이트 간격 (밀리초)
+    
+public:
+    __fastcall TAircraftAirportDistanceThread(AircraftAirportDistanceResult* result, int interval = 1000);
+    __fastcall ~TAircraftAirportDistanceThread();
+    
+protected:
+    virtual void __fastcall Execute();
+};
 
 //---------------------------------------------------------------------------
 class  TTCPClientRawHandleThread : public TThread
@@ -412,6 +435,19 @@ private:	// User declarations
 	// Area Filter
 	TList *selectedFilterAreas;  // selected filtering Area  s
   	bool areaFilterEnabled;     // enable Area filter
+
+	// 항공기-공항 거리 계산 결과
+	AircraftAirportDistanceResult* aircraftAirportDistanceResult;
+	
+	// 항공기-공항 거리 계산 스레드
+	TAircraftAirportDistanceThread* distanceCalculationThread;
+	
+	// 항공기가 공항 근처에 있는지 확인하는 함수
+	bool isAircraftNearAirport(uint32_t aircraftICAO);
+	
+	// 거리 계산 스레드 시작/중지
+	void startDistanceCalculationThread();
+	void stopDistanceCalculationThread();
 
 public:		// User declarations
 	__fastcall TForm1(TComponent* Owner);

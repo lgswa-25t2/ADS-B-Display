@@ -393,6 +393,7 @@ __published:	// IDE-managed Components
 	void __fastcall UserManual1Click(TObject *Sender);
 	void __fastcall PanelTitle1Click(TObject *Sender);
   	void __fastcall AircraftTypeFilterComboBoxCloseUp(TObject *Sender);
+	// Scrollbar
 	void __fastcall MapScrollBoxScroll(TObject *Sender, TScrollBarKind ScrollBarKind, int ScrollCode, int &ScrollPos);
 	void __fastcall MapScrollBoxVScroll(TObject *Sender, TScrollCode ScrollCode, int &ScrollPos);
 	void __fastcall MapScrollBoxHScroll(TObject *Sender, TScrollCode ScrollCode, int &ScrollPos);
@@ -542,8 +543,7 @@ public:		// User declarations
 	AnsiString                 AircraftDBPathFileName;
 	AnsiString                 ARTCCBoundaryDataPathFileName;
 	int                        SelectedMapIndex;
-	int						   SelectedAircraftTypeFilter;
-
+  	int						   SelectedAircraftTypeFilter;
     int 					   gCell[10][10] = {0,};
 
   	void DrawAirportIcon(double lat, double lon, bool isDeparture);

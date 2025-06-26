@@ -346,7 +346,7 @@ __fastcall TForm1::TForm1(TComponent *Owner)
 	// Initial Trackbar Value
 	PlaybackSpeedPanel->Visible = false;
 	AircraftTypeFilterComboBox->ItemIndex = 0; // "All" 선택
-  SelectedAircraftTypeFilter = 0;
+	SelectedAircraftTypeFilter = 0;
 
     // 거리 계산 스레드 초기화
     aircraftAirportDistanceResult = nullptr;
@@ -386,8 +386,9 @@ __fastcall TForm1::~TForm1()
 	Timer1->Enabled = false;
 	Timer2->Enabled = false;
 	delete g_EarthView;
-	if (g_GETileManager)
+	if (g_GETileManager){
 		delete g_GETileManager;
+	}
 	delete g_MasterLayer;
 	delete g_Storage;
 	if (LoadMapFromInternet)
@@ -450,12 +451,12 @@ void __fastcall TForm1::ObjectDisplayInit(TObject *Sender)
         LoadMapFromInternet = LiveMapCheckbox->Checked;
     }
     // 작은 폰트 생성
-  TFont *smallFont = new TFont();
-  smallFont->Name = "Arial";
-        smallFont->Style = TFontStyles() << fsBold;
-  smallFont->Size = 12;  // 작은 크기
-  Font2DSmall = ObjectDisplay->Create2DFont(smallFont, 32, 224);
-  delete smallFont;
+	TFont *smallFont = new TFont();
+	smallFont->Name = "Arial";
+	smallFont->Style = TFontStyles() << fsBold;
+	smallFont->Size = 12;  // 작은 크기
+	Font2DSmall = ObjectDisplay->Create2DFont(smallFont, 32, 224);
+	delete smallFont;
 }
 //---------------------------------------------------------------------------
 
@@ -479,11 +480,12 @@ void __fastcall TForm1::ObjectDisplayResize(TObject *Sender)
 void __fastcall TForm1::ObjectDisplayPaint(TObject *Sender)
 {
 
-	if (DrawMap->Checked)
+	if (DrawMap->Checked){
 		glClearColor(0.0, 0.0, 0.0, 0.0);
-	else
+	}
+	else{
 		glClearColor(0.94, 0.94, 0.96, 1.0); // background color
-
+	}
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	g_EarthView->Animate();
@@ -675,12 +677,14 @@ void __fastcall TForm1::DrawObjects(void)
 	glPointSize(4.0);
 
 	LatLon2XY(MapCenterLat, MapCenterLon, ScrX, ScrY);
-  //draw all airports in the map by checkbox
-  DrawAllAirports();
-	if (DrawMap->Checked)
+	//draw all airports in the map by checkbox
+	DrawAllAirports();
+	if (DrawMap->Checked){
 		glColor4f(1, 1, 1, 1.0); // white
-	else
+	}
+	else{
 		glColor4f(0.3, 0.3, 0.3, 0.8); // dark gray
+	}
 
 	glBegin(GL_LINE_STRIP);
 	glVertex2f(ScrX - 20.0, ScrY);
@@ -707,7 +711,7 @@ void __fastcall TForm1::DrawObjects(void)
 	int cellMin = cellSize / 5;
 	int cellMax = cellSize;
 	double cellDrawZoomRate = 0.00005;
-  double textDrawZoomRate = 0.00003;    //threshold for displaying text
+	double textDrawZoomRate = 0.00003;    //threshold for displaying text
 
 	if (AreaTemp)
 	{
@@ -782,7 +786,7 @@ void __fastcall TForm1::DrawObjects(void)
 		}
 	}
 
-  TAircraftTypeFilter selectedAircraftTypeFilter = (TAircraftTypeFilter)SelectedAircraftTypeFilter;
+	TAircraftTypeFilter selectedAircraftTypeFilter = (TAircraftTypeFilter)SelectedAircraftTypeFilter;
 	AircraftCountLabel->Caption = IntToStr((int)ght_size(HashTable));
 	for (Data = (TADS_B_Aircraft *)ght_first(HashTable, &iterator, (const void **)&Key);
 		 Data; Data = (TADS_B_Aircraft *)ght_next(HashTable, &iterator, (const void **)&Key))
@@ -839,7 +843,6 @@ void __fastcall TForm1::DrawObjects(void)
 			if (ScrX >= 0 && ScrX <= ObjectDisplay->Width &&
 				ScrY >= 0 && ScrY <= ObjectDisplay->Height)
 			{
-
 				int y = ScrY / cellHeight;
 				int x = ScrX / cellWidth;
 				if (x >= 0 && x < 10 && y >= 0 && y < 10)
@@ -1095,7 +1098,6 @@ void __fastcall TForm1::DrawObjects(void)
 		DataCPA = (TADS_B_Aircraft *)ght_get(HashTable, sizeof(TrackHook.ICAO_CPA), (void *)&TrackHook.ICAO_CPA);
 		if ((DataCPA) && (TrackHook.Valid_CC))
 		{
-
 			double tcpa, cpa_distance_nm, vertical_cpa;
 			double lat1, lon1, lat2, lon2, junk;
 			if (computeCPA(Data->Latitude, Data->Longitude, Data->Altitude,

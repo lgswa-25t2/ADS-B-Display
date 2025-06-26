@@ -184,6 +184,8 @@ __published:	// IDE-managed Components
 	TButton *Complete;
 	TButton *Cancel;
 	TButton *RawConnectButton;
+	TLabel *RawStatusLabel;  // Raw 연결 상태 표시 라벨
+	TLabel *SBSStatusLabel;  // SBS 연결 상태 표시 라벨
 	//TLabel *Label16;
 	//TLabel *Label17;
 	TComboBox *RawIpAddress;
@@ -495,9 +497,11 @@ private:	// User declarations
 	void __fastcall ShowRawTimeoutDialog();
 	void __fastcall ShowSBSTimeoutDialog();
 
+	// 연결 상태 표시 함수들
+	void __fastcall UpdateRawConnectionStatus(const AnsiString& status);
+	void __fastcall UpdateSBSConnectionStatus(const AnsiString& status);
+
 	// 연결 재시도 관련 변수들
-	bool RawConnectionLostShown;  // Raw 연결 끊김 팝업 표시 여부
-	bool SBSConnectionLostShown;  // SBS 연결 끊김 팝업 표시 여부
 	__int64 LastRawConnectionCheck;  // 마지막 Raw 연결 체크 시간
 	__int64 LastSBSConnectionCheck;  // 마지막 SBS 연결 체크 시간
 

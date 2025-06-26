@@ -246,6 +246,32 @@ object Form1: TForm1
         Font.Style = [fsBold]
         ParentFont = False
       end
+      object RawStatusLabel: TLabel
+        Left = 235
+        Top = 103
+        Width = 8
+        Height = 18
+        Caption = '●'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clRed
+        Font.Height = -20
+        Font.Name = 'Calibri'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object SBSStatusLabel: TLabel
+        Left = 235
+        Top = 126
+        Width = 8
+        Height = 20
+        Caption = '●'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clRed
+        Font.Height = -20
+        Font.Name = 'Calibri'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
       object DrawMap: TCheckBox
         Left = 5
         Top = 8

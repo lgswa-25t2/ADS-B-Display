@@ -97,6 +97,8 @@ __int64 LastHeartbeatTime = 0;
 bool RawTimeoutPopupShown = true;
 __int64 LastSBSDataReceiveTime = 0;
 bool SBSTimeoutPopupShown = true;
+bool RawConnectionLostShown;  // Raw 연결 끊김 팝업 표시 여부
+bool SBSConnectionLostShown;  // SBS 연결 끊김 팝업 표시 여부
 
 //---------------------------------------------------------------------------
 typedef struct
@@ -359,7 +361,11 @@ __fastcall TForm1::TForm1(TComponent *Owner)
     RawConnectionLostShown = false;
     SBSConnectionLostShown = false;
     LastRawConnectionCheck = 0;
-    LastSBSConnectionCheck = 0;
+	LastSBSConnectionCheck = 0;
+
+	// 초기 연결 상태 표시
+	UpdateRawConnectionStatus("Disconnected");
+	UpdateSBSConnectionStatus("Disconnected");
 }
 //---------------------------------------------------------------------------
 __fastcall TForm1::~TForm1()
@@ -657,6 +663,8 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
 	}
 
 	ObjectDisplay->Repaint();
+	UpdateRawConnectionStatus(RawConnectButton->Caption);
+	UpdateSBSConnectionStatus(SBSConnectButton->Caption);
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::DrawObjects(void)
@@ -2079,11 +2087,13 @@ void __fastcall TTCPClientRawHandleThread::HandleInput(void)
 		RawToAircraft(&mm, ADS_B_Aircraft);
 		LastHeartbeatTime = GetCurrentTimeInMsec();
 		RawTimeoutPopupShown = false;
+		RawConnectionLostShown = false;
 	}
 	else if (Status == MsgHeartBeat)
 	{
 		LastHeartbeatTime = GetCurrentTimeInMsec();
 		RawTimeoutPopupShown = false;
+		RawConnectionLostShown = false;
 	}
 	else
 	{
@@ -2134,6 +2144,7 @@ void __fastcall TForm1::IdTCPClientRawDisconnected(TObject *Sender)
 {
 	TCPClientRawHandleThread->Terminate();
 	RawTimeoutPopupShown = true;
+	RawConnectionLostShown = true;
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::RawRecordButtonClick(TObject *Sender)
@@ -2390,6 +2401,7 @@ void __fastcall TTCPClientSBSHandleThread::HandleInput(void)
 	{
 		LastSBSDataReceiveTime = GetCurrentTimeInMsec();
 		SBSTimeoutPopupShown = false;
+		SBSConnectionLostShown = false;
 	}
 
 	// Process SBS message - this should be fast and not block
@@ -5308,4 +5320,63 @@ AnsiString __fastcall TForm1::FormatPlaybackTime(__int64 timeMs)
     result.sprintf("%02d:%02d:%02d", hours, minutes, seconds);
     
     return result;
+}
+void __fastcall TForm1::UpdateRawConnectionStatus(const AnsiString& status)
+{
+	TColor color;
+	if (RawStatusLabel)
+	{
+		AnsiString icon;
+		if (status == "Connecting...")
+		{
+			color = clYellow;
+		}
+		else if (status == "Raw Disconnect")
+		{
+			if (RawConnectionLostShown || RawTimeoutPopupShown) {
+				color = clRed;
+			}
+			else
+			{
+				color = clGreen;
+			}
+		}
+		else
+		{
+			color = clBlack;
+		}
+
+		RawStatusLabel->Caption = "●";
+		RawStatusLabel->Font->Color = color;
+	}
+}
+void __fastcall TForm1::UpdateSBSConnectionStatus(const AnsiString& status)
+{
+	TColor color;
+	if (SBSStatusLabel)
+	{
+		AnsiString icon;
+		if (status == "Connecting...")
+		{
+			color = clYellow;
+		}
+		else if (status == "SBS Disconnect")
+		{
+			if (SBSConnectionLostShown || SBSTimeoutPopupShown) {
+				color = clRed;
+			}
+			else
+			{
+				color = clGreen;
+			}
+		}
+		else
+		{
+			color = clBlack;
+		}
+
+		SBSStatusLabel->Caption = "●";
+		SBSStatusLabel->Font->Color = color;
+	}
+
 }

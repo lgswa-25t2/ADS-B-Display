@@ -47,6 +47,9 @@
 #define RIGHT_MOUSE_DOWN 2
 #define MIDDLE_MOUSE_DOWN 4
 
+#define PROGRESSBAR_RELEASE_MODE false
+//#define PROGRESSBAR_DEBUGGING
+
 #define BG_INTENSITY 0.37
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
@@ -1221,7 +1224,9 @@ void __fastcall TForm1::DrawObjects(void)
 	// SBS 재생 중일 때 Progress 업데이트
     if (SBSPlaybackButton->Caption == "Stop SBS Playback" && PlayBackSBSStream)
     {
-        //UpdatePlaybackProgress();   // Progressbar TBD
+#if PROGRESSBAR_RELEASE_MODE == true
+        UpdatePlaybackProgress();   // Progressbar TBD
+#endif
     }
 }
 
@@ -2650,9 +2655,10 @@ void __fastcall TForm1::SBSPlaybackButtonClick(TObject *Sender)
 				else
 				{
 					// 파일 인덱스 구축
-					//BuildFileIndex();   // Progress TBD
-					//PlaybackProgressPanel->Visible = true;  // Panel 전체를 보이도록  Progress TBD
-
+#if PROGRESSBAR_RELEASE_MODE == true
+					BuildFileIndex();   // Progress TBD
+					PlaybackProgressPanel->Visible = true;  // Panel 전체를 보이도록  Progress TBD
+#endif
 					TCPClientSBSHandleThread = new TTCPClientSBSHandleThread(true);
 					TCPClientSBSHandleThread->UseFileInsteadOfNetwork = true;
 					TCPClientSBSHandleThread->First = true;
@@ -5126,10 +5132,14 @@ void __fastcall TForm1::PlayPauseButtonClick(TObject *Sender)
 // Progress 업데이트 메서드
 void __fastcall TForm1::UpdatePlaybackProgress()
 {
-	//printf("UpdatePlaybackProgress\n");
+#ifdef PROGRESSBAR_DEBUGGING  
+	printf("UpdatePlaybackProgress\n");
+#endif
     if (PlaybackSeeking) return;
-    
+
+#ifdef PROGRESSBAR_DEBUGGING 
 	printf("PlaybackCurrentTime: %lld, PlaybackEndTime: %lld, PlaybackStartTime: %lld\n", PlaybackCurrentTime, PlaybackEndTime, PlaybackStartTime);
+#endif
     if (PlaybackEndTime > PlaybackStartTime) {
         float progress = (float)(PlaybackCurrentTime - PlaybackStartTime) / 
                         (float)(PlaybackEndTime - PlaybackStartTime);
@@ -5143,14 +5153,14 @@ void __fastcall TForm1::UpdatePlaybackProgress()
         AnsiString currentTimeStr = FormatPlaybackTime(PlaybackCurrentTime - PlaybackStartTime);
         AnsiString totalTimeStr = FormatPlaybackTime(PlaybackEndTime - PlaybackStartTime);
         float progressPercent = progress * 100.0f;
-        
+#ifdef PROGRESSBAR_DEBUGGING        
         printf("[SBS Playback] Progress: %.1f%% (%s / %s) Speed: x%d %s\n", 
                progressPercent, 
                currentTimeStr.c_str(), 
                totalTimeStr.c_str(),
                globalTrackbarValue,
                PlaybackPaused ? "[PAUSED]" : "[PLAYING]");
-        
+#endif
         PlayTimeLabel->Caption = currentTimeStr;
     }
 }
@@ -5193,9 +5203,9 @@ void __fastcall TForm1::SeekToPosition(__int64 targetTime)
         for (__int64 i = 0; i < bestLineNumber && !PlayBackSBSStream->EndOfStream; i++) {
             PlayBackSBSStream->ReadLine();
         }
-
+#ifdef PROGRESSBAR_DEBUGGING
         printf("SeekToPosition: Moved to line %lld\n", bestLineNumber);
-        //PlaybackCurrentTime = targetTime;
+#endif
 
         // 정확한 타임스탬프 위치 찾기 - 순차적으로 targetTime에 가까운 위치 찾기
         while (!PlayBackSBSStream->EndOfStream) {
@@ -5203,14 +5213,17 @@ void __fastcall TForm1::SeekToPosition(__int64 targetTime)
             AnsiString timeStr = PlayBackSBSStream->ReadLine();
             try {
                 __int64 currentTime = StrToInt64(timeStr);
+#ifdef PROGRESSBAR_DEBUGGING
 				printf("SeekToPosition: Found timestamp %lld (target: %lld)\n", currentTime, targetTime);
-
+#endif
                 if (currentTime >= targetTime) {
                     // 타임스탬프 라인 시작으로 되돌리기
                     PlayBackSBSStream->BaseStream->Position = currentPos;
                     PlayBackSBSStream->DiscardBufferedData();
                     PlaybackCurrentTime = currentTime;
+#ifdef PROGRESSBAR_DEBUGGING
                     printf("SeekToPosition: Positioned at timestamp %lld\n", currentTime);
+#endif
                     return;
                 }
                 // SBS 메시지 라인 건너뛰기
@@ -5271,15 +5284,15 @@ void __fastcall TForm1::BuildFileIndex()
 					if (lineNumber % 100 == 0) {
 						AnsiString indexEntry = IntToStr(lineNumber) + "=" + IntToStr(timestamp);
 						PlaybackFileIndex->Add(indexEntry);
+#ifdef PROGRESSBAR_DEBUGGING
 						printf("Index: Line %lld = Timestamp %lld\n", lineNumber, timestamp);
+#endif
 					}
-					
 				} catch (...) {
 					printf("BuildFileIndex: Failed to parse timestamp at line %lld: %s\n", lineNumber, timeStr.c_str());
 				}
 			}
 			// 홀수 라인(1, 3, 5, ...)은 SBS 메시지 - 그냥 건너뛰기
-            
             lineNumber++;
 		}
         
@@ -5287,11 +5300,9 @@ void __fastcall TForm1::BuildFileIndex()
         if (TotalTimeLabel) {
             TotalTimeLabel->Caption = FormatPlaybackTime(PlaybackEndTime - PlaybackStartTime);
         }
-        
-        printf("File index built: %d entries, Duration: %s\n", 
-               PlaybackFileIndex->Count, 
-               FormatPlaybackTime(PlaybackEndTime - PlaybackStartTime).c_str());
-        
+#ifdef PROGRESSBAR_DEBUGGING 
+        printf("File index built: %d entries, Duration: %s\n", PlaybackFileIndex->Count, FormatPlaybackTime(PlaybackEndTime - PlaybackStartTime).c_str());
+#endif
     } catch (...) {
         ShowMessage("Failed to build file index");
     }

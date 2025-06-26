@@ -2069,7 +2069,6 @@ object Form1: TForm1
     OnInit = ObjectDisplayInit
     OnResize = ObjectDisplayResize
     OnPaint = ObjectDisplayPaint
-    ExplicitLeft = 68
   end
   object PlaybackSpeedPanel: TPanel
     Left = 556
@@ -2191,8 +2190,6 @@ object Form1: TForm1
       ParentFont = False
       TabOrder = 2
       OnClick = PanelTitle1Click
-      ExplicitLeft = 36
-      ExplicitTop = 33
     end
   end
   object MainMenu1: TMainMenu

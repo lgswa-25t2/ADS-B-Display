@@ -2554,7 +2554,7 @@ void __fastcall TTCPClientSBSHandleThread::Execute(void)
 			}
 			catch (Exception &e)
 			{
-				printf("SBS Playback Exception :=> %s\n", e.Message.c_str());
+				printf("SBS Playback Exception\n");
 				TThread::Synchronize(StopPlayback);
 				break;
 			}
@@ -2570,7 +2570,7 @@ void __fastcall TTCPClientSBSHandleThread::Execute(void)
 			}
 			catch (...)
 			{
-				ShowMessage("TTCPClientSBSHandleThread::Execute Exception 3");
+				ShowMessage("TTCPClientSBSHandleThread::Execute Exception");
 			}
 		}
 	}
@@ -4966,7 +4966,7 @@ void __fastcall TForm1::ReconnectToRawDevice()
 	RawPlaybackButton->Enabled = false;
 	RawConnectionLostShown = false;
 
-	printf("Attempting to reconnect to Pi device (%s)...\n", RawIpAddress->Text.c_str());
+	printf("Attempting to reconnect to Pi device (%s)...\n", AnsiString(RawIpAddress->Text).c_str());  // "AnsiString" is for Removing Warning
 	TConnectionThread *connectionThread = new TConnectionThread(RawIpAddress->Text, 30002, false);
 	connectionThread->Resume();
 }
@@ -4991,7 +4991,7 @@ void __fastcall TForm1::ReconnectToSBSDevice()
 	SBSPlaybackButton->Enabled = false;
 	SBSConnectionLostShown = false;
 
-	printf("Attempting to reconnect to SBS Hub (%s)...\n", SBSIpAddress->Text.c_str());
+	printf("Attempting to reconnect to SBS Hub (%s)...\n", AnsiString(SBSIpAddress->Text).c_str());  // "AnsiString" is for Removing Warning
 	TConnectionThread *connectionThread = new TConnectionThread(SBSIpAddress->Text, 5002, true);
 	connectionThread->Resume();
 }
@@ -5115,7 +5115,7 @@ void __fastcall TForm1::UpdatePlaybackProgress()
 	//printf("UpdatePlaybackProgress\n");
     if (PlaybackSeeking) return;
     
-	printf("PlaybackCurrentTime: %ld, PlaybackEndTime: %ld, PlaybackStartTime: %ld\n", PlaybackCurrentTime, PlaybackEndTime, PlaybackStartTime);
+	printf("PlaybackCurrentTime: %lld, PlaybackEndTime: %lld, PlaybackStartTime: %lld\n", PlaybackCurrentTime, PlaybackEndTime, PlaybackStartTime);
     if (PlaybackEndTime > PlaybackStartTime) {
         float progress = (float)(PlaybackCurrentTime - PlaybackStartTime) / 
                         (float)(PlaybackEndTime - PlaybackStartTime);
@@ -5210,9 +5210,9 @@ void __fastcall TForm1::SeekToPosition(__int64 targetTime)
             }
         }
 
-    } catch (const Exception& e) {
+    } catch (...) {
         // 오류 발생시 처음으로 이동
-		printf("SeekToPosition Exception: %s\n", e.Message.c_str());
+		printf("SeekToPosition Exception\n");
         PlayBackSBSStream->BaseStream->Position = 0;
         PlayBackSBSStream->DiscardBufferedData();
         PlaybackCurrentTime = PlaybackStartTime;

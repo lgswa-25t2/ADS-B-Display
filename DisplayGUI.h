@@ -135,8 +135,12 @@ public:
 	bool UseFileInsteadOfNetwork;
 	bool First;
 	__int64 LastTime;
+	bool SeekRequested;        // Seek 요청 플래그 추가
+    __int64 SeekTargetTime;    // Seek 대상 시간 추가
+	
 	__fastcall TTCPClientSBSHandleThread(bool value);
 	~TTCPClientSBSHandleThread();
+	void RequestSeek(__int64 targetTime);  // Seek 요청 메서드 추가
 };
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
@@ -345,6 +349,12 @@ __published:	// IDE-managed Components
 	TShape *VeryLowAltitudeShape;
 	TShape *LowestAltitudeShape;
 	TLabel *LowestAltitudeLabel;
+	TPanel *PlaybackProgressPanel;
+	TTrackBar *PlaybackProgressTrackBar;
+	TButton *PlaybackPlayPauseButton;
+	TLabel *TotalTimeLabel;
+	TLabel *PlayTimeLabel;
+	TPanel *PlaybackProgressbarTitle;
 	void __fastcall ObjectDisplayInit(TObject *Sender);
 	void __fastcall ObjectDisplayResize(TObject *Sender);
 	void __fastcall ObjectDisplayPaint(TObject *Sender);
@@ -406,6 +416,15 @@ __published:	// IDE-managed Components
 	void __fastcall MapHScrollBarScroll(TObject *Sender, TScrollCode ScrollCode, int &ScrollPos);
 	void __fastcall UpdateScrollBarRanges();
 	void __fastcall UpdateScrollBarPositions();
+	// Playback Progress Bar
+	void __fastcall PlaybackProgressBarChange(TObject *Sender);
+	void __fastcall PlayPauseButtonClick(TObject *Sender);
+	void __fastcall UpdatePlaybackProgress();
+    void __fastcall InitializePlaybackProgress();
+    void __fastcall SeekToPosition(__int64 targetTime);
+    void __fastcall BuildFileIndex();
+    AnsiString __fastcall FormatPlaybackTime(__int64 timeMs);
+
 private:	// User declarations
 	bool __fastcall CheckCellClickAndZoom(int X, int Y);
 
@@ -460,7 +479,7 @@ private:	// User declarations
 	// 거리 계산 스레드 시작/중지
 	void startDistanceCalculationThread();
 	void stopDistanceCalculationThread();
-	
+
 	// 연결 재시도 관련 함수들
 	// (기존 통합 함수 선언 제거)
 
@@ -481,6 +500,13 @@ private:	// User declarations
 	bool SBSConnectionLostShown;  // SBS 연결 끊김 팝업 표시 여부
 	__int64 LastRawConnectionCheck;  // 마지막 Raw 연결 체크 시간
 	__int64 LastSBSConnectionCheck;  // 마지막 SBS 연결 체크 시간
+
+	bool PlaybackSeeking;
+    __int64 PlaybackStartTime;
+    __int64 PlaybackEndTime;
+    
+    bool PlaybackPaused;
+    TStringList* PlaybackFileIndex;
 
 public:		// User declarations
 	__fastcall TForm1(TComponent* Owner);
@@ -549,7 +575,9 @@ public:		// User declarations
 	AnsiString                 ARTCCBoundaryDataPathFileName;
 	int                        SelectedMapIndex;
   	int						   SelectedAircraftTypeFilter;
-    int 					   gCell[10][10] = {0,};
+	int 					   gCell[10][10] = {0,};
+	__int64 				   PlaybackCurrentTime;
+	bool                       ProgrammaticProgressUpdate;
 
   	void DrawAirportIcon(double lat, double lon, bool isDeparture);
 	void DrawAirportInfo(double lat, double lon, const char* name, bool isDeparture);

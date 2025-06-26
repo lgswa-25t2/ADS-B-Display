@@ -284,6 +284,9 @@ __fastcall TForm1::TForm1(TComponent *Owner)
 	// 스크롤바 초기화
 	UpdateScrollBarRanges();
 	UpdateScrollBarPositions();
+
+	// 초기화
+	InitializePlaybackProgress();
 	
 	TimeToGoTrackBar->Position = 120;
 	BigQueryCSV = NULL;
@@ -1204,6 +1207,12 @@ void __fastcall TForm1::DrawObjects(void)
 			}
 		}
 	}
+
+	// SBS 재생 중일 때 Progress 업데이트
+    if (SBSPlaybackButton->Caption == "Stop SBS Playback" && PlayBackSBSStream)
+    {
+        //UpdatePlaybackProgress();   // Progressbar TBD
+    }
 }
 
 int __fastcall TForm1::getAirplaneType(uint32_t addr)
@@ -2397,6 +2406,8 @@ void __fastcall TTCPClientSBSHandleThread::HandleInput(void)
 __fastcall TTCPClientSBSHandleThread::TTCPClientSBSHandleThread(bool value) : TThread(value)
 {
 	FreeOnTerminate = true; // Automatically free the thread object after execution
+	SeekRequested = false;
+    SeekTargetTime = 0;
 }
 //---------------------------------------------------------------------------
 // Destructor for the thread class
@@ -2405,12 +2416,37 @@ __fastcall TTCPClientSBSHandleThread::~TTCPClientSBSHandleThread()
 	// Clean up resources if needed
 }
 //---------------------------------------------------------------------------
+// TTCPClientSBSHandleThread 클래스에 추가
+void TTCPClientSBSHandleThread::RequestSeek(__int64 targetTime)
+{
+    SeekTargetTime = targetTime;
+    SeekRequested = true;
+}
+//---------------------------------------------------------------------------
 // Execute method where the thread's logic resides
 void __fastcall TTCPClientSBSHandleThread::Execute(void)
 {
 	__int64 Time, SleepTime;
 	while (!Terminated)
 	{
+		// Seek 요청 처리
+        if (SeekRequested && UseFileInsteadOfNetwork)
+        {
+            SeekRequested = false;
+            printf("Processing seek request to time: %lld\n", SeekTargetTime);
+            
+            // Form1의 SeekToPosition 호출
+            TThread::Synchronize(this, [this]() {
+                Form1->SeekToPosition(SeekTargetTime);
+            });
+            
+            // 스레드 변수 초기화
+            First = true;
+            LastTime = SeekTargetTime;
+            printf("Seek completed, resetting thread variables\n");
+            continue;
+        }
+
 		if (!UseFileInsteadOfNetwork)
 		{
 			try
@@ -2460,12 +2496,35 @@ void __fastcall TTCPClientSBSHandleThread::Execute(void)
 			{
 				if (Form1->PlayBackSBSStream->EndOfStream)
 				{
-					printf("End SBS Playback 1\n");
+					printf("End SBS Playback\n");
 					TThread::Synchronize(StopPlayback);
 					break;
 				}
-				StringMsgBuffer = Form1->PlayBackSBSStream->ReadLine();
-				Time = StrToInt64(StringMsgBuffer);
+
+				// 타임스탬프 라인을 찾을 때까지 읽기
+				bool foundTimestamp = false;
+				int attempts = 0;
+				const int maxAttempts = 10; // 무한 루프 방지
+				
+				while (!foundTimestamp && attempts < maxAttempts && !Form1->PlayBackSBSStream->EndOfStream)
+				{
+					StringMsgBuffer = Form1->PlayBackSBSStream->ReadLine();
+					
+					try {
+						Time = StrToInt64(StringMsgBuffer);
+						foundTimestamp = true;
+					} catch (...) {
+						attempts++;
+						continue;
+					}
+				}
+				
+				if (!foundTimestamp) {
+					printf("Could not find valid timestamp after %d attempts\n", maxAttempts);
+					TThread::Synchronize(StopPlayback);
+					break;
+				}
+
 				if (First)
 				{
 					First = false;
@@ -2477,6 +2536,7 @@ void __fastcall TTCPClientSBSHandleThread::Execute(void)
 					SpeedFactor = 1;
 				SleepTime = (Time - LastTime) / SpeedFactor;
 				LastTime = Time;
+
 				if (SleepTime > 0)
 				{
 					Sleep(SleepTime);
@@ -2487,11 +2547,14 @@ void __fastcall TTCPClientSBSHandleThread::Execute(void)
 					TThread::Synchronize(StopPlayback);
 					break;
 				}
+
+                // 여기가 핵심! PlaybackCurrentTime 업데이트 및 Progress 업데이트
+                Form1->PlaybackCurrentTime = LastTime;
 				StringMsgBuffer = Form1->PlayBackSBSStream->ReadLine();
 			}
-			catch (...)
+			catch (Exception &e)
 			{
-				printf("SBS Playback Exception\n");
+				printf("SBS Playback Exception :=> %s\n", e.Message.c_str());
 				TThread::Synchronize(StopPlayback);
 				break;
 			}
@@ -2592,6 +2655,8 @@ void __fastcall TForm1::SBSPlaybackButtonClick(TObject *Sender)
 		SBSPlaybackButton->Caption = "SBS Playback";
 		SBSConnectButton->Enabled = true;
 		PlaybackSpeedPanel->Visible = false;
+		PlaybackProgressPanel->Visible = false; // Panel 전체를 숨기도록
+		PlaybackPaused = false;
 	}
 }
 //---------------------------------------------------------------------------
@@ -4981,4 +5046,260 @@ void __fastcall TForm1::ShowSBSTimeoutDialog()
 			printf("User chose to keep SBS timeout state\n");
 			break;
 	}
+}
+
+//---------------------------------------------------------------------------
+// Progress Bar 초기화 메서드 구현
+void __fastcall TForm1::InitializePlaybackProgress()
+{
+
+    PlaybackProgressTrackBar->Min = 0;
+    PlaybackProgressTrackBar->Max = 1000;
+    PlaybackProgressTrackBar->Position = 0;
+	PlaybackProgressPanel->Visible = false;
+    // 변수 초기화
+    PlaybackStartTime = 0;
+    PlaybackEndTime = 0;
+    PlaybackCurrentTime = 0;
+    PlaybackPaused = false;
+    PlaybackSeeking = false;
+	ProgrammaticProgressUpdate = false;  // 플래그 초기화
+    
+    if (!PlaybackFileIndex) {
+        PlaybackFileIndex = new TStringList();
+    }
+}
+
+// Progress Bar 변경 이벤트 핸들러
+void __fastcall TForm1::PlaybackProgressBarChange(TObject *Sender)
+{
+	// 프로그램적 업데이트인 경우 무시
+    if (ProgrammaticProgressUpdate) {
+        return;
+    }
+
+	printf("PlaybackProgressBarChange\n");
+    if (PlaybackSeeking || !PlayBackSBSStream || !TCPClientSBSHandleThread) return;
+    
+    PlaybackSeeking = true;
+    
+    // Progress Bar 위치를 시간으로 변환
+    float progress = (float)PlaybackProgressTrackBar->Position / 1000.0f;
+    __int64 targetTime = PlaybackStartTime + 
+        (__int64)((PlaybackEndTime - PlaybackStartTime) * progress);
+    
+	printf("PlaybackProgressBarChange 1\n");
+    SeekToPosition(targetTime);
+	printf("PlaybackProgressBarChange 2\n");
+
+	// 스레드에 Seek 요청
+    TCPClientSBSHandleThread->RequestSeek(targetTime);
+    
+    PlaybackSeeking = false;
+}
+
+// Play/Pause 버튼 이벤트 핸들러
+void __fastcall TForm1::PlayPauseButtonClick(TObject *Sender)
+{
+    PlaybackPaused = !PlaybackPaused;
+    PlaybackPlayPauseButton->Caption = PlaybackPaused ? "Play" : "Pause";
+}
+
+// Progress 업데이트 메서드
+void __fastcall TForm1::UpdatePlaybackProgress()
+{
+	//printf("UpdatePlaybackProgress\n");
+    if (PlaybackSeeking) return;
+    
+	printf("PlaybackCurrentTime: %ld, PlaybackEndTime: %ld, PlaybackStartTime: %ld\n", PlaybackCurrentTime, PlaybackEndTime, PlaybackStartTime);
+    if (PlaybackEndTime > PlaybackStartTime) {
+        float progress = (float)(PlaybackCurrentTime - PlaybackStartTime) / 
+                        (float)(PlaybackEndTime - PlaybackStartTime);
+
+		// 프로그램적 업데이트 플래그 설정
+        ProgrammaticProgressUpdate = true;
+        PlaybackProgressTrackBar->Position = (int)(progress * 1000);
+		ProgrammaticProgressUpdate = false;
+        
+		// 진행 상황을 printf로 출력
+        AnsiString currentTimeStr = FormatPlaybackTime(PlaybackCurrentTime - PlaybackStartTime);
+        AnsiString totalTimeStr = FormatPlaybackTime(PlaybackEndTime - PlaybackStartTime);
+        float progressPercent = progress * 100.0f;
+        
+        printf("[SBS Playback] Progress: %.1f%% (%s / %s) Speed: x%d %s\n", 
+               progressPercent, 
+               currentTimeStr.c_str(), 
+               totalTimeStr.c_str(),
+               globalTrackbarValue,
+               PlaybackPaused ? "[PAUSED]" : "[PLAYING]");
+        
+        PlayTimeLabel->Caption = currentTimeStr;
+    }
+}
+void __fastcall TForm1::SeekToPosition(__int64 targetTime)
+{
+	// 타겟 시간이 범위를 벗어나면 처음으로 이동
+    if (!PlayBackSBSStream || !PlaybackFileIndex || PlaybackFileIndex->Count == 0) 
+        return;
+    
+    // 가장 가까운 인덱스 포인트 찾기
+    __int64 bestLineNumber = 0;
+    __int64 minTimeDiff = MAXINT64;
+    
+    for (int i = 0; i < PlaybackFileIndex->Count; i++) {
+        AnsiString entry = PlaybackFileIndex->Strings[i];
+        int pos = entry.Pos("=");
+        if (pos > 0) {
+            __int64 lineNum = StrToInt64(entry.SubString(1, pos-1));
+            __int64 timestamp = StrToInt64(entry.SubString(pos+1, entry.Length()));
+            
+            __int64 timeDiff = abs(timestamp - targetTime);
+            if (timeDiff < minTimeDiff) {
+                minTimeDiff = timeDiff;
+                bestLineNumber = lineNum;
+            }
+        }
+    }
+
+	// bestLineNumber가 짝수이면 홀수로 조정 (타임스탬프 라인은 홀수 라인)
+    if (bestLineNumber % 2 == 1) {
+        bestLineNumber--; // 이전 타임스탬프 라인으로 이동
+    }
+    
+    // 해당 위치로 이동 (근사치)
+    try {
+        PlayBackSBSStream->BaseStream->Position = 0;
+        PlayBackSBSStream->DiscardBufferedData();
+        
+        // bestLineNumber까지 라인 건너뛰기
+        for (__int64 i = 0; i < bestLineNumber && !PlayBackSBSStream->EndOfStream; i++) {
+            PlayBackSBSStream->ReadLine();
+        }
+
+        printf("SeekToPosition: Moved to line %lld\n", bestLineNumber);
+        //PlaybackCurrentTime = targetTime;
+
+        // 정확한 타임스탬프 위치 찾기 - 순차적으로 targetTime에 가까운 위치 찾기
+        while (!PlayBackSBSStream->EndOfStream) {
+			__int64 currentPos = PlayBackSBSStream->BaseStream->Position;
+            AnsiString timeStr = PlayBackSBSStream->ReadLine();
+            try {
+                __int64 currentTime = StrToInt64(timeStr);
+				printf("SeekToPosition: Found timestamp %lld (target: %lld)\n", currentTime, targetTime);
+
+                if (currentTime >= targetTime) {
+                    // 타임스탬프 라인 시작으로 되돌리기
+                    PlayBackSBSStream->BaseStream->Position = currentPos;
+                    PlayBackSBSStream->DiscardBufferedData();
+                    PlaybackCurrentTime = currentTime;
+                    printf("SeekToPosition: Positioned at timestamp %lld\n", currentTime);
+                    return;
+                }
+                // SBS 메시지 라인 건너뛰기
+                if (!PlayBackSBSStream->EndOfStream) {
+                    PlayBackSBSStream->ReadLine();
+                }
+            } catch (...) {
+                printf("SeekToPosition: Failed to parse timestamp: %s\n", timeStr.c_str());
+                // 타임스탬프가 아닌 라인을 만났으면, 다음 타임스탬프 라인을 찾기 위해 계속
+                continue;
+            }
+        }
+
+    } catch (const Exception& e) {
+        // 오류 발생시 처음으로 이동
+		printf("SeekToPosition Exception: %s\n", e.Message.c_str());
+        PlayBackSBSStream->BaseStream->Position = 0;
+        PlayBackSBSStream->DiscardBufferedData();
+        PlaybackCurrentTime = PlaybackStartTime;
+    }
+}
+
+// BuildFileIndex 함수 구현
+void __fastcall TForm1::BuildFileIndex()
+{
+    if (!PlayBackSBSStream) return;
+    
+    // PlaybackFileIndex 초기화
+    if (!PlaybackFileIndex) {
+        PlaybackFileIndex = new TStringList();
+    }
+    PlaybackFileIndex->Clear();
+    
+    // 현재 위치 저장
+    __int64 currentPos = PlayBackSBSStream->BaseStream->Position;
+    
+    // 파일 처음부터 스캔
+    PlayBackSBSStream->BaseStream->Position = 0;
+    PlayBackSBSStream->DiscardBufferedData();
+    
+    __int64 lineNumber = 0;
+    
+    try {
+        while (!PlayBackSBSStream->EndOfStream) {
+            AnsiString timeStr = PlayBackSBSStream->ReadLine();
+            
+            // 짝수 라인(0, 2, 4, ...)은 타임스탬프
+            if (lineNumber % 2 == 0) {
+				try {
+					__int64 timestamp = StrToInt64(timeStr);
+					
+					if (lineNumber == 0) {
+						PlaybackStartTime = timestamp;
+					}
+					PlaybackEndTime = timestamp;
+					
+					// 매 100번째 라인마다 인덱스 저장 (성능 최적화)
+					if (lineNumber % 100 == 0) {
+						AnsiString indexEntry = IntToStr(lineNumber) + "=" + IntToStr(timestamp);
+						PlaybackFileIndex->Add(indexEntry);
+						printf("Index: Line %lld = Timestamp %lld\n", lineNumber, timestamp);
+					}
+					
+				} catch (...) {
+					printf("BuildFileIndex: Failed to parse timestamp at line %lld: %s\n", lineNumber, timeStr.c_str());
+				}
+			}
+			// 홀수 라인(1, 3, 5, ...)은 SBS 메시지 - 그냥 건너뛰기
+            
+            lineNumber++;
+		}
+        
+        // UI 업데이트
+        if (TotalTimeLabel) {
+            TotalTimeLabel->Caption = FormatPlaybackTime(PlaybackEndTime - PlaybackStartTime);
+        }
+        
+        printf("File index built: %d entries, Duration: %s\n", 
+               PlaybackFileIndex->Count, 
+               FormatPlaybackTime(PlaybackEndTime - PlaybackStartTime).c_str());
+        
+    } catch (...) {
+        ShowMessage("Failed to build file index");
+    }
+    
+    // 원래 위치로 복원
+    PlayBackSBSStream->BaseStream->Position = currentPos;
+    PlayBackSBSStream->DiscardBufferedData();
+}
+
+// FormatPlaybackTime 함수 구현
+AnsiString __fastcall TForm1::FormatPlaybackTime(__int64 timeMs)
+{
+    // 음수 처리
+    if (timeMs < 0) {
+        return "00:00:00";
+    }
+    
+    // 밀리초를 시, 분, 초로 변환
+    int totalSeconds = timeMs / 1000;
+    int hours = totalSeconds / 3600;
+    int minutes = (totalSeconds % 3600) / 60;
+    int seconds = totalSeconds % 60;
+    
+    // HH:MM:SS 형식으로 포맷팅
+    AnsiString result;
+    result.sprintf("%02d:%02d:%02d", hours, minutes, seconds);
+    
+    return result;
 }

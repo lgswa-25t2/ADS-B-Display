@@ -2069,9 +2069,10 @@ object Form1: TForm1
     OnInit = ObjectDisplayInit
     OnResize = ObjectDisplayResize
     OnPaint = ObjectDisplayPaint
+    ExplicitLeft = 68
   end
   object PlaybackSpeedPanel: TPanel
-    Left = 577
+    Left = 556
     Top = 0
     Width = 401
     Height = 85
@@ -2132,6 +2133,66 @@ object Form1: TForm1
       ParentFont = False
       TabOrder = 1
       OnClick = PanelTitle1Click
+    end
+  end
+  object PlaybackProgressPanel: TPanel
+    Left = 31
+    Top = -4
+    Width = 496
+    Height = 93
+    TabOrder = 4
+    Visible = False
+    object TotalTimeLabel: TLabel
+      Left = 432
+      Top = 32
+      Width = 48
+      Height = 12
+      Caption = '00:00:00'
+    end
+    object PlayTimeLabel: TLabel
+      Left = 15
+      Top = 32
+      Width = 48
+      Height = 12
+      Caption = '00:00:00'
+    end
+    object PlaybackProgressTrackBar: TTrackBar
+      Left = 23
+      Top = 50
+      Width = 458
+      Height = 45
+      TabOrder = 0
+      OnChange = PlaybackProgressBarChange
+    end
+    object PlaybackPlayPauseButton: TButton
+      Left = 200
+      Top = 19
+      Width = 75
+      Height = 25
+      Caption = 'Play/Pause'
+      TabOrder = 1
+      Visible = False
+      OnClick = PlayPauseButtonClick
+    end
+    object PlaybackProgressbarTitle: TPanel
+      Left = 1
+      Top = 1
+      Width = 494
+      Height = 25
+      Align = alTop
+      Caption = 'Playback Progressbar'
+      Color = clMoneyGreen
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Calibri'
+      Font.Style = [fsBold]
+      ParentBackground = False
+      ParentFont = False
+      TabOrder = 2
+      OnClick = PanelTitle1Click
+      ExplicitLeft = 36
+      ExplicitTop = 33
     end
   end
   object MainMenu1: TMainMenu

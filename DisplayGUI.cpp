@@ -2635,6 +2635,10 @@ void __fastcall TForm1::SBSPlaybackButtonClick(TObject *Sender)
 				}
 				else
 				{
+					// 파일 인덱스 구축
+					//BuildFileIndex();   // Progress TBD
+					//PlaybackProgressPanel->Visible = true;  // Panel 전체를 보이도록  Progress TBD
+
 					TCPClientSBSHandleThread = new TTCPClientSBSHandleThread(true);
 					TCPClientSBSHandleThread->UseFileInsteadOfNetwork = true;
 					TCPClientSBSHandleThread->First = true;

@@ -2106,7 +2106,7 @@ void __fastcall TTCPClientRawHandleThread::HandleInput(void)
 		// ShowMessage("Error while connecting: E%.2d"+Status);
 	}
 
-	printf("[%lld]PI Raw Decode code:%d\n", CurrentTime, Status);
+	//printf("[%lld]PI Raw Decode code:%d\n", CurrentTime, Status);
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::RawConnectButtonClick(TObject *Sender)

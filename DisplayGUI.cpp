@@ -1736,7 +1736,6 @@ void __fastcall TForm1::PurgeButtonClick(TObject *Sender)
 	for (Data = (TADS_B_Aircraft *)ght_first(HashTable, &iterator, (const void **)&Key);
 		 Data; Data = (TADS_B_Aircraft *)ght_next(HashTable, &iterator, (const void **)&Key))
 	{
-
 		p = ght_remove(HashTable, sizeof(*Key), Key);
 		if (!p)
 			ShowMessage("Removing the current iterated entry failed! This is a BUG\n");
@@ -2208,6 +2207,7 @@ void __fastcall TForm1::RawPlaybackButtonClick(TObject *Sender)
 					TCPClientRawHandleThread->Resume();
 					RawPlaybackButton->Caption = "Stop Raw Playback";
 					RawConnectButton->Enabled = false;
+					PlaybackSpeedPanel->Visible = true;
 				}
 			}
 		}
@@ -2219,6 +2219,8 @@ void __fastcall TForm1::RawPlaybackButtonClick(TObject *Sender)
 		PlayBackRawStream = NULL;
 		RawPlaybackButton->Caption = "Raw Playback";
 		RawConnectButton->Enabled = true;
+		PlaybackSpeedPanel->Visible = false;
+		PlaybackSpeedTrackBar->Position = 0;
 	}
 }
 //---------------------------------------------------------------------------
@@ -2300,10 +2302,19 @@ void __fastcall TTCPClientRawHandleThread::Execute(void)
 					First = false;
 					LastTime = Time;
 				}
-				SleepTime = Time - LastTime;
+
+				int SpeedFactor = globalTrackbarValue;
+				// printf("SpeedFactor: %d\n", SpeedFactor);
+				if (SpeedFactor < 1)
+					SpeedFactor = 1;
+				SleepTime = (Time - LastTime) / SpeedFactor;
 				LastTime = Time;
+
 				if (SleepTime > 0)
+				{
 					Sleep(SleepTime);
+				}
+
 				if (Form1->PlayBackRawStream->EndOfStream)
 				{
 					printf("End Raw Playback 2\n");
@@ -2681,6 +2692,7 @@ void __fastcall TForm1::SBSPlaybackButtonClick(TObject *Sender)
 		PlaybackSpeedPanel->Visible = false;
 		PlaybackProgressPanel->Visible = false; // Panel 전체를 숨기도록
 		PlaybackPaused = false;
+		PlaybackSpeedTrackBar->Position = 0;
 	}
 }
 //---------------------------------------------------------------------------

@@ -31,6 +31,7 @@
 #include <chrono>
 #include <unordered_set>
 #include <atomic>
+#include <vector>
 // Forward declarations
 class AirportDataManager;
 
@@ -89,6 +90,13 @@ struct AircraftAirportDistanceResult {
     std::atomic<bool> isUpdating;
 };
 
+// 항공기 간 거리 계산 결과를 저장할 구조체
+struct AircraftAircraftDistanceResult {
+    std::vector<std::pair<uint32_t, uint32_t>> closeAircraftPairs;  // 1해리 이내 항공기 쌍들
+    std::chrono::system_clock::time_point lastUpdate;
+    std::atomic<bool> isUpdating;
+};
+
 // 항공기-공항 거리 계산 스레드 클래스
 class TAircraftAirportDistanceThread : public TThread {
 private:
@@ -99,6 +107,20 @@ public:
     __fastcall TAircraftAirportDistanceThread(AircraftAirportDistanceResult* result, int interval = 1000);
     __fastcall ~TAircraftAirportDistanceThread();
     
+protected:
+    virtual void __fastcall Execute();
+};
+
+// 항공기 간 거리 계산 스레드 클래스
+class TAircraftAircraftDistanceThread : public TThread {
+private:
+    AircraftAircraftDistanceResult* distanceResult;
+    int updateIntervalMs;  // 업데이트 간격 (밀리초)
+
+public:
+    __fastcall TAircraftAircraftDistanceThread(AircraftAircraftDistanceResult* result, int interval = 1000);
+    __fastcall ~TAircraftAircraftDistanceThread();
+
 protected:
     virtual void __fastcall Execute();
 };
@@ -483,8 +505,15 @@ private:	// User declarations
 	void startDistanceCalculationThread();
 	void stopDistanceCalculationThread();
 
-	// 연결 재시도 관련 함수들
-	// (기존 통합 함수 선언 제거)
+	// 항공기 간 거리 계산 결과
+	AircraftAircraftDistanceResult* aircraftAircraftDistanceResult;
+
+	// 항공기 간 거리 계산 스레드
+	TAircraftAircraftDistanceThread* aircraftDistanceCalculationThread;
+
+	// 항공기 간 거리 계산 스레드 시작/중지
+	void startAircraftDistanceCalculationThread();
+	void stopAircraftDistanceCalculationThread();
 
 	// Raw 연결 관련 함수들
 	void __fastcall ShowRawConnectionLostDialog();

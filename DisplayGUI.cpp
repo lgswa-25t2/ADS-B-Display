@@ -369,6 +369,13 @@ __fastcall TForm1::TForm1(TComponent *Owner)
 	// 초기 연결 상태 표시
 	UpdateRawConnectionStatus("Disconnected");
 	UpdateSBSConnectionStatus("Disconnected");
+
+    // 항공기 간 거리 계산 스레드 초기화
+    aircraftAircraftDistanceResult = nullptr;
+    aircraftDistanceCalculationThread = nullptr;
+
+    // 항공기 간 거리 계산 스레드 시작
+    startAircraftDistanceCalculationThread();
 }
 //---------------------------------------------------------------------------
 __fastcall TForm1::~TForm1()
@@ -422,6 +429,9 @@ __fastcall TForm1::~TForm1()
 
     // 거리 계산 스레드 중지
     stopDistanceCalculationThread();
+
+    // 항공기 간 거리 계산 스레드 중지
+    stopAircraftDistanceCalculationThread();
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::SetMapCenter(double &x, double &y)
@@ -5484,4 +5494,110 @@ void __fastcall TForm1::UpdateSBSConnectionStatus(const AnsiString& status)
 		SBSStatusLabel->Font->Color = color;
 	}
 
+}
+
+// 항공기 간 거리 계산 스레드 구현
+__fastcall TAircraftAircraftDistanceThread::TAircraftAircraftDistanceThread(AircraftAircraftDistanceResult* result, int interval)
+    : TThread(true), distanceResult(result), updateIntervalMs(interval) {
+    FreeOnTerminate = false;
+}
+
+__fastcall TAircraftAircraftDistanceThread::~TAircraftAircraftDistanceThread() {
+}
+
+void __fastcall TAircraftAircraftDistanceThread::Execute() {
+    while (!Terminated) {
+        if (distanceResult) {
+            distanceResult->isUpdating = true;
+
+            // 기존 결과 클리어
+            distanceResult->closeAircraftPairs.clear();
+
+            // 모든 항공기에 대해 거리 계산
+            uint32_t *Key1, *Key2;
+            ght_iterator_t iterator1, iterator2;
+            TADS_B_Aircraft* Data1, *Data2;
+
+            for(Data1 = (TADS_B_Aircraft *)ght_first(Form1->HashTable, &iterator1, (const void **)&Key1);
+                Data1; Data1 = (TADS_B_Aircraft *)ght_next(Form1->HashTable, &iterator1, (const void **)&Key1)) {
+
+                if (!Data1->HaveLatLon) continue;
+
+                // 두 번째 항공기와의 거리 계산
+                for(Data2 = (TADS_B_Aircraft *)ght_first(Form1->HashTable, &iterator2, (const void **)&Key2);
+                    Data2; Data2 = (TADS_B_Aircraft *)ght_next(Form1->HashTable, &iterator2, (const void **)&Key2)) {
+
+                    if (!Data2->HaveLatLon) continue;
+
+                    // 같은 항공기는 제외
+                    if (Data1->ICAO == Data2->ICAO) continue;
+
+                    // 간단한 근사 거리 계산
+                    double dlat = Data1->Latitude - Data2->Latitude;
+                    double dlon = Data1->Longitude - Data2->Longitude;
+                    double latDist = dlat * 60.0;
+                    double lonDist = dlon * 60.0 * cos(Data1->Latitude * 0.0174532925199433);
+                    double distance = sqrt(latDist * latDist + lonDist * lonDist);
+
+                    // 1해리 이내인 경우 결과에 추가
+                    if (distance <= 1.0) {
+                        // 중복 방지를 위해 작은 ICAO가 앞에 오도록 정렬
+                        uint32_t icao1 = (Data1->ICAO < Data2->ICAO) ? Data1->ICAO : Data2->ICAO;
+                        uint32_t icao2 = (Data1->ICAO < Data2->ICAO) ? Data2->ICAO : Data1->ICAO;
+
+                        std::pair<uint32_t, uint32_t> pair = std::make_pair(icao1, icao2);
+
+                        // 중복 체크
+                        bool alreadyExists = false;
+                        for (const auto& existingPair : distanceResult->closeAircraftPairs) {
+                            if (existingPair == pair) {
+                                alreadyExists = true;
+                                break;
+                            }
+                        }
+
+                        if (!alreadyExists) {
+                            distanceResult->closeAircraftPairs.push_back(pair);
+
+                            // 콘솔에 로그 출력
+                            printf("CLOSE AIRCRAFT PAIR: ICAO1=%06X, ICAO2=%06X, Distance=%.2f NM\n", 
+                                   icao1, icao2, distance);
+                        }
+                    }
+                }
+            }
+
+            distanceResult->lastUpdate = std::chrono::system_clock::now();
+            distanceResult->isUpdating = false;
+        }
+
+        // 지정된 간격만큼 대기
+        Sleep(updateIntervalMs);
+    }
+}
+
+// 항공기 간 거리 계산 스레드 시작
+void TForm1::startAircraftDistanceCalculationThread() {
+    if (!aircraftDistanceCalculationThread) {
+        aircraftAircraftDistanceResult = new AircraftAircraftDistanceResult();
+        aircraftAircraftDistanceResult->isUpdating = false;
+
+        aircraftDistanceCalculationThread = new TAircraftAircraftDistanceThread(aircraftAircraftDistanceResult, 5000); // 5초마다 업데이트
+        aircraftDistanceCalculationThread->Start();
+    }
+}
+
+// 항공기 간 거리 계산 스레드 중지
+void TForm1::stopAircraftDistanceCalculationThread() {
+    if (aircraftDistanceCalculationThread) {
+        aircraftDistanceCalculationThread->Terminate();
+        aircraftDistanceCalculationThread->WaitFor();
+        delete aircraftDistanceCalculationThread;
+        aircraftDistanceCalculationThread = nullptr;
+    }
+
+    if (aircraftAircraftDistanceResult) {
+        delete aircraftAircraftDistanceResult;
+        aircraftAircraftDistanceResult = nullptr;
+    }
 }

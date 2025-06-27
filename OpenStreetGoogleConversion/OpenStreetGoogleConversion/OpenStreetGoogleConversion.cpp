@@ -50,7 +50,7 @@ static void OSM_TileNumbers2LatLon(int XTile, int YTile, int Zoom, double& LatDe
 	double n, m;
 	n = pow(2.0, Zoom);
 	m = M_PI - 2.0 * M_PI * YTile / n;
-	LatDeg = 180.0 / M_PI * atan(0.5 * (exp(m) - exp(-m)));
+	LatDeg = 57.2957795131 * atan(0.5 * (exp(m) - exp(-m)));
 	LonDeg = XTile / n * 360.0 - 180.0;
 }
 

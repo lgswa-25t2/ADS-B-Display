@@ -1585,7 +1585,7 @@ void __fastcall TForm1::ObjectDisplayMouseMove(TObject *Sender, TShiftState Shif
 
 	{
 		pfVec3 Point;
-		VLat = atan(sinh(M_PI * (2 * (Map_w[1].y - (yf * (Map_v[3].y - Y1)))))) * (180.0 / M_PI);
+		VLat = atan(sinh(M_PI * (2 * (Map_w[1].y - (yf * (Map_v[3].y - Y1)))))) * 57.2957795131; // 180.0 / M_PI = 57.2957795131
 		VLon = (Map_w[1].x - (xf * (Map_v[1].x - X1))) * 360.0;
 		Lat->Caption = DMS::DegreesMinutesSecondsLat(VLat).c_str();
 		Lon->Caption = DMS::DegreesMinutesSecondsLon(VLon).c_str();
@@ -1656,7 +1656,7 @@ void __fastcall TForm1::HookTrack(int X, int Y, bool CPA_Hook)
 		(Y1 < Map_v[0].y) || (Y1 > Map_v[3].y))
 		return;
 
-	VLat = atan(sinh(M_PI * (2 * (Map_w[1].y - (yf * (Map_v[3].y - Y1)))))) * (180.0 / M_PI);
+	VLat = atan(sinh(M_PI * (2 * (Map_w[1].y - (yf * (Map_v[3].y - Y1)))))) * 57.2957795131;
 	VLon = (Map_w[1].x - (xf * (Map_v[1].x - X1))) * 360.0;
 
 	MinRange = 16.0;
@@ -1755,7 +1755,7 @@ int __fastcall TForm1::XY2LatLon2(int x, int y, double &lat, double &lon)
 		(Y1 < Map_v[0].y) || (Y1 > Map_v[3].y))
 		return -1;
 
-	lat = atan(sinh(M_PI * (2 * (Map_w[1].y - (yf * (Map_v[3].y - Y1)))))) * (180.0 / M_PI);
+	lat = atan(sinh(M_PI * (2 * (Map_w[1].y - (yf * (Map_v[3].y - Y1)))))) * 57.2957795131;
 	lon = (Map_w[1].x - (xf * (Map_v[1].x - X1))) * 360.0;
 
 	return 0;

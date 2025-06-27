@@ -428,7 +428,7 @@ void __fastcall TForm1::SetMapCenter(double &x, double &y)
 {
 	double siny;
 	x = (MapCenterLon + 0.0) / 360.0;
-	siny = sin((MapCenterLat * M_PI) / 180.0);
+	siny = sin(MapCenterLat * 0.0174532925199433);
 	siny = fmin(fmax(siny, -0.9999), 0.9999);
 	y = (log((1 + siny) / (1 - siny)) / (4 * M_PI));
 }
@@ -1305,7 +1305,7 @@ void __fastcall TForm1::DrawCircleWithNumber(float x, float y, float radius, int
 	glVertex2f(x, y);
 	for (int i = 0; i <= 360; i += 10)
 	{
-		float angle = i * M_PI / 180.0f;
+		float angle = i * 0.0174532925199433;
 		glVertex2f(x + radius * cos(angle), y + radius * sin(angle));
 	}
 	glEnd();
@@ -1740,7 +1740,7 @@ void __fastcall TForm1::HookTrack(int X, int Y, bool CPA_Hook)
 void __fastcall TForm1::LatLon2XY(double lat, double lon, double &x, double &y)
 {
 	x = (Map_v[1].x - ((Map_w[1].x - (lon / 360.0)) / xf));
-	y = Map_v[3].y - (Map_w[1].y / yf) + (asinh(tan(lat * M_PI / 180.0)) / (2 * M_PI * yf));
+	y = Map_v[3].y - (Map_w[1].y / yf) + (asinh(tan(lat * 0.0174532925199433)) / (2 * M_PI * yf));
 }
 //---------------------------------------------------------------------------
 int __fastcall TForm1::XY2LatLon2(int x, int y, double &lat, double &lon)
@@ -3406,7 +3406,7 @@ void __fastcall TForm1::DrawAirportIcon(double lat, double lon, bool isDeparture
 	glBegin(GL_LINE_LOOP);
 	for (int i = 0; i < 360; i += 10)
 	{
-		double angle = i * M_PI / 180.0;
+		double angle = i * 0.0174532925199433;
 		glVertex2f(ScrX + 15 * cos(angle), ScrY + 15 * sin(angle));
 	}
 	glEnd();
@@ -3449,7 +3449,7 @@ double TForm1::getCachedDistance(uint32_t aircraftICAO, const std::string &airpo
 	double dlat = aircraftLat - airportLat;
 	double dlon = aircraftLon - airportLon;
 	double latDist = dlat * 60.0;
-	double lonDist = dlon * 60.0 * cos(aircraftLat * M_PI / 180.0);
+	double lonDist = dlon * 60.0 * cos(aircraftLat * 0.0174532925199433);
 	double distance = sqrt(latDist * latDist + lonDist * lonDist);
 
     // 결과를 캐시에 저장
@@ -4895,7 +4895,7 @@ void __fastcall TAircraftAirportDistanceThread::Execute() {
                         continue;
                     }
                     
-                    double minDistance = 999999.0;
+                    double minDistanceSquare = 999999.0;
                     
                     // 모든 공항과의 거리 계산
                     for (const auto& airport : visibleAirports) {
@@ -4911,16 +4911,16 @@ void __fastcall TAircraftAirportDistanceThread::Execute() {
                         double dlat = Data->Latitude - airport.latitude;
                         double dlon = Data->Longitude - airport.longitude;
                         double latDist = dlat * 60.0;
-                        double lonDist = dlon * 60.0 * cos(Data->Latitude * M_PI/180.0);
-                        double distance = sqrt(latDist * latDist + lonDist * lonDist);
+                        double lonDist = dlon * 60.0 * cos(Data->Latitude * 0.0174532925199433); // M_PI/180.0 = 0.0174532925199433
+                        double distanceSquare = latDist * latDist + lonDist * lonDist;
                         
-                        if (distance < minDistance) {
-                            minDistance = distance;
+                        if (distanceSquare < minDistanceSquare) {
+                            minDistanceSquare = distanceSquare;
                         }
                     }
                     
                     // 5해리 이내인 경우 결과에 추가
-                    if (minDistance <= 5.0) {
+                    if (minDistanceSquare <= 25.0) {
                         distanceResult->nearAirportAircraft.insert(Data->ICAO);
                     }
                 }

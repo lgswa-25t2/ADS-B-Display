@@ -230,7 +230,7 @@ void CalculateDeadReckoningPosition(TADS_B_Aircraft *aircraft, __int64 currentTi
     aircraft->LastKnownVerticalRate = aircraft->VerticalRate;
     
     // Convert heading to radians
-    double headingRad = aircraft->Heading * M_PI / 180.0;
+    double headingRad = aircraft->Heading * 0.0174532925199433;
     
     // Calculate distance traveled (nautical miles)
     // Speed is in knots, so distance = speed * time (in hours)
@@ -239,7 +239,7 @@ void CalculateDeadReckoningPosition(TADS_B_Aircraft *aircraft, __int64 currentTi
     // Convert nautical miles to degrees (approximate)
     // 1 nautical mile ≈ 1/60 degree of latitude
     double latChange = distanceNM * cos(headingRad) / 60.0;
-    double lonChange = distanceNM * sin(headingRad) / (60.0 * cos(aircraft->Latitude * M_PI / 180.0));
+    double lonChange = distanceNM * sin(headingRad) / (60.0 * cos(aircraft->Latitude * 0.0174532925199433));
     
     // Calculate predicted position
     aircraft->PredictedLatitude = aircraft->Latitude + latChange;

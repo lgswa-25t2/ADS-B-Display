@@ -42,7 +42,7 @@ static void OSM_LatLon2TileNumbers(double LatDeg, double LonDeg, int Zoom, int& 
 	double n;
 	n = pow(2.0, Zoom);
 	XTile = (int)(floor((LonDeg + 180.0) / 360.0 * n));
-	YTile = (int)(floor((1.0 - log(tan(LatDeg * M_PI / 180.0) + 1.0 / cos(LatDeg * M_PI / 180.0)) / M_PI) / 2.0 * n));
+	YTile = (int)(floor((1.0 - log(tan(LatDeg * 0.0174532925199433) + 1.0 / cos(LatDeg * 0.0174532925199433)) / M_PI) / 2.0 * n));
 }
 
 static void OSM_TileNumbers2LatLon(int XTile, int YTile, int Zoom, double& LatDeg, double& LonDeg)
@@ -59,7 +59,7 @@ static void Google_LatLon2TileNumbers(double LatDeg, double LonDeg, int Zoom, in
 
 	if (LatDeg > 85.0511287798066) LatDeg = 85.0511287798066;
 
-	double sin_phi = sin(LatDeg * M_PI / 180.0);
+	double sin_phi = sin(LatDeg * 0.0174532925199433);
 	double norm_x = LonDeg / 180;
 	double norm_y = (0.5 * log((1 + sin_phi) / (1 - sin_phi))) / M_PI;
 	YTile = (int)(pow(2.0, Zoom) * ((1.0 - norm_y) / 2.0));

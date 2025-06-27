@@ -634,4 +634,8 @@ public:		// User declarations
 extern PACKAGE TForm1 *Form1;
 //---------------------------------------------------------------------------
 
+// 수학 상수들 (성능 최적화를 위해 미리 계산)
+#define DEG_TO_RAD 0.0174532925199433  // M_PI / 180.0
+#define RAD_TO_DEG 57.2957795131       // 180.0 / M_PI
+
 #endif

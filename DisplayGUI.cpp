@@ -438,7 +438,7 @@ void __fastcall TForm1::SetMapCenter(double &x, double &y)
 {
 	double siny;
 	x = (MapCenterLon + 0.0) / 360.0;
-	siny = sin(MapCenterLat * 0.0174532925199433);
+	siny = sin(MapCenterLat * DEG_TO_RAD);
 	siny = fmin(fmax(siny, -0.9999), 0.9999);
 	y = (log((1 + siny) / (1 - siny)) / (4 * M_PI));
 }
@@ -1315,7 +1315,7 @@ void __fastcall TForm1::DrawCircleWithNumber(float x, float y, float radius, int
 	glVertex2f(x, y);
 	for (int i = 0; i <= 360; i += 10)
 	{
-		float angle = i * 0.0174532925199433;
+		float angle = i * DEG_TO_RAD;
 		glVertex2f(x + radius * cos(angle), y + radius * sin(angle));
 	}
 	glEnd();
@@ -1595,7 +1595,7 @@ void __fastcall TForm1::ObjectDisplayMouseMove(TObject *Sender, TShiftState Shif
 
 	{
 		pfVec3 Point;
-		VLat = atan(sinh(M_PI * (2 * (Map_w[1].y - (yf * (Map_v[3].y - Y1)))))) * 57.2957795131; // 180.0 / M_PI = 57.2957795131
+		VLat = atan(sinh(M_PI * (2 * (Map_w[1].y - (yf * (Map_v[3].y - Y1)))))) * RAD_TO_DEG;
 		VLon = (Map_w[1].x - (xf * (Map_v[1].x - X1))) * 360.0;
 		Lat->Caption = DMS::DegreesMinutesSecondsLat(VLat).c_str();
 		Lon->Caption = DMS::DegreesMinutesSecondsLon(VLon).c_str();
@@ -1666,7 +1666,7 @@ void __fastcall TForm1::HookTrack(int X, int Y, bool CPA_Hook)
 		(Y1 < Map_v[0].y) || (Y1 > Map_v[3].y))
 		return;
 
-	VLat = atan(sinh(M_PI * (2 * (Map_w[1].y - (yf * (Map_v[3].y - Y1)))))) * 57.2957795131;
+	VLat = atan(sinh(M_PI * (2 * (Map_w[1].y - (yf * (Map_v[3].y - Y1)))))) * RAD_TO_DEG;
 	VLon = (Map_w[1].x - (xf * (Map_v[1].x - X1))) * 360.0;
 
 	MinRange = 16.0;
@@ -1750,7 +1750,7 @@ void __fastcall TForm1::HookTrack(int X, int Y, bool CPA_Hook)
 void __fastcall TForm1::LatLon2XY(double lat, double lon, double &x, double &y)
 {
 	x = (Map_v[1].x - ((Map_w[1].x - (lon / 360.0)) / xf));
-	y = Map_v[3].y - (Map_w[1].y / yf) + (asinh(tan(lat * 0.0174532925199433)) / (2 * M_PI * yf));
+	y = Map_v[3].y - (Map_w[1].y / yf) + (asinh(tan(lat * DEG_TO_RAD)) / (2 * M_PI * yf));
 }
 //---------------------------------------------------------------------------
 int __fastcall TForm1::XY2LatLon2(int x, int y, double &lat, double &lon)
@@ -1765,7 +1765,7 @@ int __fastcall TForm1::XY2LatLon2(int x, int y, double &lat, double &lon)
 		(Y1 < Map_v[0].y) || (Y1 > Map_v[3].y))
 		return -1;
 
-	lat = atan(sinh(M_PI * (2 * (Map_w[1].y - (yf * (Map_v[3].y - Y1)))))) * 57.2957795131;
+	lat = atan(sinh(M_PI * (2 * (Map_w[1].y - (yf * (Map_v[3].y - Y1)))))) * RAD_TO_DEG;
 	lon = (Map_w[1].x - (xf * (Map_v[1].x - X1))) * 360.0;
 
 	return 0;
@@ -3416,7 +3416,7 @@ void __fastcall TForm1::DrawAirportIcon(double lat, double lon, bool isDeparture
 	glBegin(GL_LINE_LOOP);
 	for (int i = 0; i < 360; i += 10)
 	{
-		double angle = i * 0.0174532925199433;
+		double angle = i * DEG_TO_RAD;
 		glVertex2f(ScrX + 15 * cos(angle), ScrY + 15 * sin(angle));
 	}
 	glEnd();
@@ -3459,7 +3459,7 @@ double TForm1::getCachedDistance(uint32_t aircraftICAO, const std::string &airpo
 	double dlat = aircraftLat - airportLat;
 	double dlon = aircraftLon - airportLon;
 	double latDist = dlat * 60.0;
-	double lonDist = dlon * 60.0 * cos(aircraftLat * 0.0174532925199433);
+	double lonDist = dlon * 60.0 * cos(aircraftLat * DEG_TO_RAD);
 	double distance = sqrt(latDist * latDist + lonDist * lonDist);
 
     // 결과를 캐시에 저장
@@ -4334,7 +4334,6 @@ void __fastcall TForm1::LiveMapCheckboxClick(TObject *Sender)
     }
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::MapScrollBoxScroll(TObject *Sender, TScrollBarKind ScrollBarKind, int ScrollCode, int &ScrollPos)
 {
 	// 스크롤바를 통한 지도 네비게이션 처리
@@ -4921,7 +4920,7 @@ void __fastcall TAircraftAirportDistanceThread::Execute() {
                         double dlat = Data->Latitude - airport.latitude;
                         double dlon = Data->Longitude - airport.longitude;
                         double latDist = dlat * 60.0;
-                        double lonDist = dlon * 60.0 * cos(Data->Latitude * 0.0174532925199433); // M_PI/180.0 = 0.0174532925199433
+                        double lonDist = dlon * 60.0 * cos(Data->Latitude * DEG_TO_RAD);
                         double distanceSquare = latDist * latDist + lonDist * lonDist;
                         
                         if (distanceSquare < minDistanceSquare) {
@@ -5536,7 +5535,7 @@ void __fastcall TAircraftAircraftDistanceThread::Execute() {
                     double dlat = Data1->Latitude - Data2->Latitude;
                     double dlon = Data1->Longitude - Data2->Longitude;
                     double latDist = dlat * 60.0;
-                    double lonDist = dlon * 60.0 * cos(Data1->Latitude * 0.0174532925199433);
+                    double lonDist = dlon * 60.0 * cos(Data1->Latitude * DEG_TO_RAD);
                     double distance = sqrt(latDist * latDist + lonDist * lonDist);
 
                     // 1해리 이내인 경우 결과에 추가
@@ -5601,3 +5600,4 @@ void TForm1::stopAircraftDistanceCalculationThread() {
         aircraftAircraftDistanceResult = nullptr;
     }
 }
+

@@ -15,7 +15,7 @@
 #define KNOTS_TO_KMPH 1.852 // Convert knots to km/h
 #define KM_TO_NM 0.539957    // Convert km to nautical miles
 #define FEET_TO_KM 0.0003048 // Convert feet to km
-#define DEG_TO_RAD (M_PI / 180.0) // Degrees to radians
+#define DEG_TO_RAD 0.0174532925199433  // M_PI / 180.0 Degrees to radians
 
 // Structure to store aircraft information
 typedef struct {

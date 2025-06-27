@@ -4,6 +4,16 @@
 
 #include "Aircraft.h"
 #include "TimeFunctions.h"
+#include "DecodeRawADS_B.h"
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// 수학 상수들 (성능 최적화를 위해 미리 계산)
+#define DEG_TO_RAD 0.0174532925199433  // M_PI / 180.0
+#define NM_TO_DEG 60.0                 // 1해리 = 60분 = 60도
+#define MS_TO_SEC 0.001                // 밀리초를 초로 변환
 
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
@@ -218,7 +228,7 @@ void CalculateDeadReckoningPosition(TADS_B_Aircraft *aircraft, __int64 currentTi
     }
     
     // Calculate time elapsed since last known position (in seconds)
-    double elapsedSeconds = (currentTime - aircraft->LastSeen) / 1000.0;
+    double elapsedSeconds = (currentTime - aircraft->LastSeen) * MS_TO_SEC;
     
     if (elapsedSeconds <= 0) {
         return; // No time has passed
@@ -230,7 +240,7 @@ void CalculateDeadReckoningPosition(TADS_B_Aircraft *aircraft, __int64 currentTi
     aircraft->LastKnownVerticalRate = aircraft->VerticalRate;
     
     // Convert heading to radians
-    double headingRad = aircraft->Heading * 0.0174532925199433;
+    double headingRad = aircraft->Heading * DEG_TO_RAD;
     
     // Calculate distance traveled (nautical miles)
     // Speed is in knots, so distance = speed * time (in hours)
@@ -238,8 +248,8 @@ void CalculateDeadReckoningPosition(TADS_B_Aircraft *aircraft, __int64 currentTi
     
     // Convert nautical miles to degrees (approximate)
     // 1 nautical mile ≈ 1/60 degree of latitude
-    double latChange = distanceNM * cos(headingRad) / 60.0;
-    double lonChange = distanceNM * sin(headingRad) / (60.0 * cos(aircraft->Latitude * 0.0174532925199433));
+    double latChange = distanceNM * cos(headingRad) / NM_TO_DEG;
+    double lonChange = distanceNM * sin(headingRad) / (NM_TO_DEG * cos(aircraft->Latitude * DEG_TO_RAD));
     
     // Calculate predicted position
     aircraft->PredictedLatitude = aircraft->Latitude + latChange;

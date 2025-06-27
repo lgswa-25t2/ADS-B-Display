@@ -707,14 +707,20 @@ void __fastcall TForm1::DrawObjects(void)
 		glColor4f(0.3, 0.3, 0.3, 0.8); // dark gray
 	}
 
+	// 화면 중앙 좌표 계산
+	int screenWidth = ObjectDisplay->Width;
+	int screenHeight = ObjectDisplay->Height;
+	double centerX = screenWidth / 2.0;
+	double centerY = screenHeight / 2.0;
+
 	glBegin(GL_LINE_STRIP);
-	glVertex2f(ScrX - 20.0, ScrY);
-	glVertex2f(ScrX + 20.0, ScrY);
+	glVertex2f(centerX - 20.0, centerY);
+	glVertex2f(centerX + 20.0, centerY);
 	glEnd();
 
 	glBegin(GL_LINE_STRIP);
-	glVertex2f(ScrX, ScrY - 20.0);
-	glVertex2f(ScrX, ScrY + 20.0);
+	glVertex2f(centerX, centerY - 20.0);
+	glVertex2f(centerX, centerY + 20.0);
 	glEnd();
 
 	uint32_t *Key;
@@ -1618,6 +1624,7 @@ void __fastcall TForm1::ObjectDisplayMouseMove(TObject *Sender, TShiftState Shif
 	if (g_MouseDownMask & LEFT_MOUSE_DOWN)
 	{
 		g_EarthView->Drag(g_MouseLeftDownX, g_MouseLeftDownY, X, Y, NAV_DRAG_PAN);
+		//LatLon2XY(g_EarthView->m_Eye.x, g_EarthView->m_Eye.y, MapCenterLat, MapCenterLon);
 		ObjectDisplay->Repaint();
 	}
 }

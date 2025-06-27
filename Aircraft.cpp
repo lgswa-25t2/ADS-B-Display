@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 
 #pragma hdrstop
 
@@ -154,6 +154,9 @@ static void decodeCPR(TADS_B_Aircraft *a)
 	  __int64 CurrentTime=GetCurrentTimeInMsec();
 	 ADS_B_Aircraft->LastSeen =CurrentTime;
 	 ADS_B_Aircraft->NumMessagesRaw++;
+	 
+	 // Reset dead reckoning when new real data arrives
+	 ADS_B_Aircraft->IsDeadReckoning = false;
 
 	if (mm->msg_type == 0 || mm->msg_type == 4 || mm->msg_type == 20)
 	  {
@@ -204,3 +207,78 @@ static void decodeCPR(TADS_B_Aircraft *a)
 
  }
   //---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+// Dead reckoning position calculation
+// Uses the last known position, speed, heading, and vertical rate to predict current position
+void CalculateDeadReckoningPosition(TADS_B_Aircraft *aircraft, __int64 currentTime)
+{
+    if (!aircraft->HaveLatLon || !aircraft->HaveSpeedAndHeading) {
+        return; // Need position and movement data for prediction
+    }
+    
+    // Calculate time elapsed since last known position (in seconds)
+    double elapsedSeconds = (currentTime - aircraft->LastSeen) / 1000.0;
+    
+    if (elapsedSeconds <= 0) {
+        return; // No time has passed
+    }
+    
+    // Store last known values for prediction
+    aircraft->LastKnownSpeed = aircraft->Speed;
+    aircraft->LastKnownHeading = aircraft->Heading;
+    aircraft->LastKnownVerticalRate = aircraft->VerticalRate;
+    
+    // Convert heading to radians
+    double headingRad = aircraft->Heading * M_PI / 180.0;
+    
+    // Calculate distance traveled (nautical miles)
+    // Speed is in knots, so distance = speed * time (in hours)
+    double distanceNM = aircraft->Speed * elapsedSeconds / 3600.0;
+    
+    // Convert nautical miles to degrees (approximate)
+    // 1 nautical mile ≈ 1/60 degree of latitude
+    double latChange = distanceNM * cos(headingRad) / 60.0;
+    double lonChange = distanceNM * sin(headingRad) / (60.0 * cos(aircraft->Latitude * M_PI / 180.0));
+    
+    // Calculate predicted position
+    aircraft->PredictedLatitude = aircraft->Latitude + latChange;
+    aircraft->PredictedLongitude = aircraft->Longitude + lonChange;
+    
+    // Calculate predicted altitude
+    aircraft->PredictedAltitude = aircraft->Altitude + (aircraft->VerticalRate * elapsedSeconds / 60.0);
+    
+    // Update prediction time
+    aircraft->LastPredictionTime = currentTime;
+    aircraft->IsDeadReckoning = true;
+    
+    // Limit altitude to reasonable bounds
+    if (aircraft->PredictedAltitude < 0) {
+        aircraft->PredictedAltitude = 0;
+    }
+    if (aircraft->PredictedAltitude > 60000) { // Max 60,000 feet
+        aircraft->PredictedAltitude = 60000;
+    }
+    
+    // Limit latitude to valid range
+    if (aircraft->PredictedLatitude > 90.0) {
+        aircraft->PredictedLatitude = 90.0;
+    } else if (aircraft->PredictedLatitude < -90.0) {
+        aircraft->PredictedLatitude = -90.0;
+    }
+    
+    // Normalize longitude to -180 to 180 range
+    while (aircraft->PredictedLongitude > 180.0) {
+        aircraft->PredictedLongitude -= 360.0;
+    }
+    while (aircraft->PredictedLongitude < -180.0) {
+        aircraft->PredictedLongitude += 360.0;
+    }
+}
+
+//---------------------------------------------------------------------------
+// Check if aircraft data is stale (no updates for a while)
+bool IsAircraftStale(TADS_B_Aircraft *aircraft, __int64 currentTime, __int64 staleThresholdMs)
+{   //printf("currentTiem=%lld, lastSeen=%lld, staleThreshold=%lld\n", currentTime, aircraft->LastSeen, staleThresholdMs);
+    return (currentTime - aircraft->LastSeen) >= staleThresholdMs;
+}

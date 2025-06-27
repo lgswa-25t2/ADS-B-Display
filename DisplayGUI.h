@@ -429,6 +429,7 @@ __published:	// IDE-managed Components
 
 private:	// User declarations
 	bool __fastcall CheckCellClickAndZoom(int X, int Y);
+    void __fastcall DrawDeadReckoningStatusBar(void);
 
 	// Map scrollbars
 	TScrollBar *MapVScrollBar;

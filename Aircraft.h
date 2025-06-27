@@ -39,8 +39,20 @@ typedef struct
 	__int64             PrevTimestamp[FLIGHT_TRACK_HISTORY_COUNT]; 
 	int                 HistoryCount;
 	int                 HistoryIndex;
+	
+	// Dead reckoning fields
+	bool                IsDeadReckoning;     /* True if position is predicted */
+	double              PredictedLatitude;   /* Predicted latitude */
+	double              PredictedLongitude;  /* Predicted longitude */
+	double              PredictedAltitude;   /* Predicted altitude */
+	__int64             LastPredictionTime;  /* Time when prediction was last calculated */
+	double              LastKnownSpeed;      /* Last known speed for prediction */
+	double              LastKnownHeading;    /* Last known heading for prediction */
+	double              LastKnownVerticalRate; /* Last known vertical rate for prediction */
 } TADS_B_Aircraft;
 
 void RawToAircraft(modeS_message *mm,TADS_B_Aircraft *ADS_B_Aircraft);
+void CalculateDeadReckoningPosition(TADS_B_Aircraft *aircraft, __int64 currentTime);
+bool IsAircraftStale(TADS_B_Aircraft *aircraft, __int64 currentTime, __int64 staleThresholdMs);
 //---------------------------------------------------------------------------
 #endif

@@ -308,6 +308,17 @@ bool SBS_Message_Decode( char *msg)
     memset(ADS_B_Aircraft->PrevLongitude, 0, sizeof(ADS_B_Aircraft->PrevLongitude));
     memset(ADS_B_Aircraft->PrevAltitude, 0, sizeof(ADS_B_Aircraft->PrevAltitude));
     memset(ADS_B_Aircraft->PrevTimestamp, 0, sizeof(ADS_B_Aircraft->PrevTimestamp));
+    
+    // Initialize dead reckoning fields
+    ADS_B_Aircraft->IsDeadReckoning = false;
+    ADS_B_Aircraft->PredictedLatitude = 0.0;
+    ADS_B_Aircraft->PredictedLongitude = 0.0;
+    ADS_B_Aircraft->PredictedAltitude = 0.0;
+    ADS_B_Aircraft->LastPredictionTime = 0;
+    ADS_B_Aircraft->LastKnownSpeed = 0.0;
+    ADS_B_Aircraft->LastKnownHeading = 0.0;
+    ADS_B_Aircraft->LastKnownVerticalRate = 0.0;
+    
     if (Form1->CycleImages->Checked){
       Form1->CurrentSpriteImage=(Form1->CurrentSpriteImage+1)%Form1->NumSpriteImages;
     }

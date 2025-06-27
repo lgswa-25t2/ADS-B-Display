@@ -799,11 +799,41 @@ void __fastcall TForm1::DrawObjects(void)
 
 	TAircraftTypeFilter selectedAircraftTypeFilter = (TAircraftTypeFilter)SelectedAircraftTypeFilter;
 	AircraftCountLabel->Caption = IntToStr((int)ght_size(HashTable));
+	
+	__int64 CurrentTime = GetCurrentTimeInMsec();
+    bool isDataConnected = Form1->IdTCPClientRaw->Connected() || Form1->IdTCPClientSBS->Connected();
+
 	for (Data = (TADS_B_Aircraft *)ght_first(HashTable, &iterator, (const void **)&Key);
 		 Data; Data = (TADS_B_Aircraft *)ght_next(HashTable, &iterator, (const void **)&Key))
 	{
+		// Check if aircraft has position data (either real or predicted)
+		bool hasPosition = Data->HaveLatLon;
+		double displayLat, displayLon, displayAlt;
+		double displayHeading, displaySpeed;
+		bool isPredicted = false;
+
 		if (Data->HaveLatLon)
 		{
+            if (isDataConnected) {
+                displayLat = Data->Latitude;
+                displayLon = Data->Longitude;
+                displayAlt = Data->Altitude;
+                displayHeading = Data->Heading;
+                displaySpeed = Data->Speed;
+                isPredicted = false;
+            }
+            else {
+                // Calculate dead reckoning for the first time
+                CalculateDeadReckoningPosition(Data, CurrentTime);
+                displayLat = Data->PredictedLatitude;
+                displayLon = Data->PredictedLongitude;
+                displayAlt = Data->PredictedAltitude;
+                displayHeading = Data->LastKnownHeading;
+                displaySpeed = Data->LastKnownSpeed;
+                isPredicted = true;
+                hasPosition = true;
+            }
+
   			// 1. Aircraft type 판별 (한 번만)
             bool isHelicopter = aircraft_is_helicopter(Data->ICAO, NULL);
             bool isMilitary = IsAircraftMilitary(Data->ICAO);
@@ -847,9 +877,12 @@ void __fastcall TForm1::DrawObjects(void)
 			// 별도 스레드에서 계산된 결과 사용
 			bool isNearAirport = isAircraftNearAirport(Data->ICAO);
 
-			UpdateAircraftHistory(Data);
+			// Only update history for real positions, not predicted ones
+			if (!isPredicted) {
+				UpdateAircraftHistory(Data);
+			}
 
-			LatLon2XY(Data->Latitude, Data->Longitude, ScrX, ScrY);
+			LatLon2XY(displayLat, displayLon, ScrX, ScrY);
 
 			if (ScrX >= 0 && ScrX <= ObjectDisplay->Width &&
 				ScrY >= 0 && ScrY <= ObjectDisplay->Height)
@@ -876,6 +909,13 @@ void __fastcall TForm1::DrawObjects(void)
             } else { // isUnknown
                 glColor4f(0.0f, 0.75f, 1.0f, 1.0f); // Light blue
             }
+
+			// Make predicted aircraft semi-transparent and add red tint
+			if (isPredicted) {
+				float currentColor[4];
+				glGetFloatv(GL_CURRENT_COLOR, currentColor);
+				glColor4f(currentColor[0] + 0.3f, currentColor[1] * 0.7f, currentColor[2] * 0.7f, 0.7f);
+			}
 			
 			if (airportManager && isNearAirport)
 			{
@@ -885,7 +925,7 @@ void __fastcall TForm1::DrawObjects(void)
 			// If aircraft has no speed/heading data, make it semi-transparent
 			if (!Data->HaveSpeedAndHeading)
 			{
-				Data->Heading = 0.0;
+				displayHeading = 0.0;
 				// Make unknown heading aircraft semi-transparent
 				float currentColor[4];
 				glGetFloatv(GL_CURRENT_COLOR, currentColor);
@@ -894,7 +934,7 @@ void __fastcall TForm1::DrawObjects(void)
 
 			if (xf < cellDrawZoomRate)
 			{
-				DrawAirplaneImage(ScrX, ScrY, 0.8, Data->Heading, Data->SpriteImage);
+				DrawAirplaneImage(ScrX, ScrY, 0.8, displayHeading, Data->SpriteImage);
 
 				// 줌 레벨에 따라 텍스트 표시 여부 결정
 				bool showText = true;
@@ -942,20 +982,25 @@ void __fastcall TForm1::DrawObjects(void)
 			if ((Data->HaveSpeedAndHeading) && (TimeToGoCheckBox->State == cbChecked) && xf < cellDrawZoomRate)
 			{
 				double lat, lon, az;
-				if (VDirect(Data->Latitude, Data->Longitude,
-							Data->Heading, Data->Speed / 3060.0 * TimeToGoTrackBar->Position, &lat, &lon, &az) == OKNOERROR)
+				if (VDirect(displayLat, displayLon,
+							displayHeading, displaySpeed / 3060.0 * TimeToGoTrackBar->Position, &lat, &lon, &az) == OKNOERROR)
 				{
 					double ScrX2, ScrY2;
 					LatLon2XY(lat, lon, ScrX2, ScrY2);
 
 					// 고도에 따른 색상 결정 (속도 대신 고도 사용)
 					float r, g, b, alpha;
-					 if (Data->HaveAltitude) {
-					 	GetAltitudeLineColor(Data->Altitude, r, g, b, alpha);
-					 } else {
+					if (Data->HaveAltitude) {
+					 	GetAltitudeLineColor(displayAlt, r, g, b, alpha);
+					} else {
 					 	// 고도 정보가 없으면 회색으로 표시
 					 	r = 0.5f; g = 0.5f; b = 0.5f; alpha = 0.8f;
-					 }
+					}
+
+					// Make prediction lines more transparent
+					if (isPredicted) {
+						alpha *= 0.6f;
+					}
 
 					if (DrawMap->Checked)
 					{
@@ -1221,6 +1266,10 @@ void __fastcall TForm1::DrawObjects(void)
 		}
 	}
 
+    if (!isDataConnected && ght_size(HashTable) > 0) {
+        DrawDeadReckoningStatusBar();
+    }
+
 	// SBS 재생 중일 때 Progress 업데이트
     if (SBSPlaybackButton->Caption == "Stop SBS Playback" && PlayBackSBSStream)
     {
@@ -1286,6 +1335,39 @@ void __fastcall TForm1::DrawCircleWithNumber(float x, float y, float radius, int
 	glRasterPos2i(textX, textY);
 	ObjectDisplay->Draw2DText(numStr);
 }
+
+
+//---------------------------------------------------------------------------
+// Dead reckoning 상태바를 그리는 함수
+void __fastcall TForm1::DrawDeadReckoningStatusBar(void)
+{
+	// 화면 상단에 빨간 막대 그리기
+	int barHeight = 70;
+	int barY = ObjectDisplay->Height - barHeight;
+
+	// 빨간 배경 막대
+	glColor4f(0.8f, 0.1f, 0.1f, 0.9f); // 빨간색, 약간 투명
+	glBegin(GL_QUADS);
+	glVertex2f(0, barY);
+	glVertex2f(ObjectDisplay->Width, barY);
+	glVertex2f(ObjectDisplay->Width, barY + barHeight);
+	glVertex2f(0, barY + barHeight);
+	glEnd();
+
+
+	// 텍스트 그리기
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+	// 메인 메시지
+	AnsiString mainMessage = "Connection disconnected. Dead reckoning mode is running.";
+	int textX = ObjectDisplay->Width - (ObjectDisplay->Width/2) - 300;
+	int textY = barY + barHeight/2 - 15;
+
+	glRasterPos2i(textX, textY);
+	ObjectDisplay->Draw2DText(mainMessage);
+
+}
+
 
 //---------------------------------------------------------------------------
 void __fastcall TForm1::ObjectDisplayMouseDown(TObject *Sender, TMouseButton Button, TShiftState Shift, int X, int Y)

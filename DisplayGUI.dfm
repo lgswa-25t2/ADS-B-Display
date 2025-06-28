@@ -2253,10 +2253,11 @@ object Form1: TForm1
     end
   end
   object PlaybackProgressPanel: TPanel
-    Left = 31
-    Top = -4
+    Left = 463
+    Top = 635
     Width = 496
     Height = 93
+    Anchors = [akRight, akBottom]
     Color = clSnow
     ParentBackground = False
     TabOrder = 4
@@ -2310,6 +2311,7 @@ object Form1: TForm1
       ParentFont = False
       TabOrder = 2
       OnClick = PanelTitle1Click
+      ExplicitLeft = 0
     end
   end
   object MainMenu1: TMainMenu

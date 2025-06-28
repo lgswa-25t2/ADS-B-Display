@@ -826,7 +826,9 @@ void __fastcall TForm1::DrawObjects(void)
     AircraftCountLabel->Caption = IntToStr((int)ght_size(HashTable));
 
     __int64 CurrentTime = GetCurrentTimeInMsec();
-    bool isDataConnected = Form1->IdTCPClientRaw->Connected() || Form1->IdTCPClientSBS->Connected();
+
+    bool isDataThreadWorking = Form1->IdTCPClientRaw->Connected() || Form1->IdTCPClientSBS->Connected();
+    bool isConnectClicked = RawConnectButton->Caption == "Raw Disconnect" || SBSConnectButton->Caption == "SBS Disconnect";
 
     for (Data = (TADS_B_Aircraft *)ght_first(HashTable, &iterator, (const void **)&Key);
          Data; Data = (TADS_B_Aircraft *)ght_next(HashTable, &iterator, (const void **)&Key))
@@ -839,16 +841,7 @@ void __fastcall TForm1::DrawObjects(void)
 
         if (Data->HaveLatLon)
         {
-            if (isDataConnected)
-            {
-                displayLat = Data->Latitude;
-                displayLon = Data->Longitude;
-                displayAlt = Data->Altitude;
-                displayHeading = Data->Heading;
-                displaySpeed = Data->Speed;
-                isPredicted = false;
-            }
-            else
+            if (!isDataThreadWorking && isConnectClicked)
             {
                 // Calculate dead reckoning for the first time
                 CalculateDeadReckoningPosition(Data, CurrentTime);
@@ -859,6 +852,15 @@ void __fastcall TForm1::DrawObjects(void)
                 displaySpeed = Data->LastKnownSpeed;
                 isPredicted = true;
                 hasPosition = true;
+            }
+            else
+            {
+                displayLat = Data->Latitude;
+                displayLon = Data->Longitude;
+                displayAlt = Data->Altitude;
+                displayHeading = Data->Heading;
+                displaySpeed = Data->Speed;
+                isPredicted = false;
             }
 
             // 1. Aircraft type 판별 (한 번만)
@@ -1310,7 +1312,7 @@ void __fastcall TForm1::DrawObjects(void)
         }
     }
 
-    if (!isDataConnected && ght_size(HashTable) > 0)
+    if (!isDataThreadWorking && isConnectClicked && ght_size(HashTable) > 0)
     {
         DrawDeadReckoningStatusBar();
     }

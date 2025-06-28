@@ -5453,7 +5453,6 @@ void __fastcall TForm1::PlaybackProgressBarChange(TObject *Sender)
 void __fastcall TForm1::PlayPauseButtonClick(TObject *Sender)
 {
     PlaybackPaused = !PlaybackPaused;
-    PlaybackPlayPauseButton->Caption = PlaybackPaused ? "Play" : "Pause";
 }
 
 // Progress 업데이트 메서드

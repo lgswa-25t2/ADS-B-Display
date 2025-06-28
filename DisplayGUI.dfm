@@ -4,7 +4,7 @@ object Form1: TForm1
   Caption = 'ADS-B Viewer'
   ClientHeight = 788
   ClientWidth = 1228
-  Color = clBtnFace
+  Color = clSnow
   Constraints.MinHeight = 740
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -58,6 +58,13 @@ object Form1: TForm1
     Font.Style = [fsBold]
     ParentFont = False
   end
+  object Label28: TLabel
+    Left = 78
+    Top = 246
+    Width = 21
+    Height = 12
+    Caption = 'N/A'
+  end
   object Label4: TLabel
     Left = 12
     Top = 247
@@ -70,13 +77,6 @@ object Form1: TForm1
     Font.Name = 'Consolas'
     Font.Style = [fsBold]
     ParentFont = False
-  end
-  object Label28: TLabel
-    Left = 78
-    Top = 246
-    Width = 21
-    Height = 12
-    Caption = 'N/A'
   end
   object RightPanel: TPanel
     Left = 978
@@ -92,8 +92,15 @@ object Form1: TForm1
       Top = 400
       Width = 248
       Height = 122
-      Color = clCream
+      BevelOuter = bvNone
+      Color = clSnow
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Calibri'
+      Font.Style = [fsBold]
       ParentBackground = False
+      ParentFont = False
       TabOrder = 0
       object Label12: TLabel
         Left = 9
@@ -147,35 +154,43 @@ object Form1: TForm1
         Font.Style = []
         ParentFont = False
       end
-      object ZoomIn: TButton
+      object ZoomIn: TPanel
         Left = 6
         Top = 103
-        Width = 65
+        Width = 70
         Height = 18
         Caption = 'Zoom In'
+        Color = clMoneyGreen
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -11
         Font.Name = 'Calibri'
         Font.Style = []
+        ParentBackground = False
         ParentFont = False
         TabOrder = 0
         OnClick = ZoomInClick
+        OnMouseDown = PanelButtonMouseDown
+        OnMouseUp = PanelButtonMouseUp
       end
-      object ZoomOut: TButton
+      object ZoomOut: TPanel
         Left = 161
         Top = 103
-        Width = 65
+        Width = 70
         Height = 18
         Caption = 'Zoom Out'
+        Color = clMoneyGreen
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -11
         Font.Name = 'Calibri'
         Font.Style = []
+        ParentBackground = False
         ParentFont = False
         TabOrder = 1
         OnClick = ZoomOutClick
+        OnMouseDown = PanelButtonMouseDown
+        OnMouseUp = PanelButtonMouseUp
       end
       object TimeToGoTrackBar: TTrackBar
         Left = 1
@@ -227,7 +242,8 @@ object Form1: TForm1
       Height = 375
       Align = alTop
       BevelEdges = []
-      Color = clCream
+      BevelOuter = bvNone
+      Color = clSnow
       Constraints.MinHeight = 70
       Ctl3D = True
       ParentBackground = False
@@ -321,21 +337,6 @@ object Form1: TForm1
         TabOrder = 2
         Value = 90
       end
-      object PurgeButton: TButton
-        Left = 175
-        Top = 12
-        Width = 51
-        Height = 16
-        Caption = 'Purge'
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'Calibri'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 3
-        OnClick = PurgeButtonClick
-      end
       object AreaListView: TListView
         Left = 5
         Top = 250
@@ -362,88 +363,108 @@ object Form1: TForm1
         ReadOnly = True
         RowSelect = True
         ParentFont = False
-        TabOrder = 4
+        TabOrder = 3
         ViewStyle = vsReport
         OnCustomDrawItem = AreaListViewCustomDrawItem
         OnSelectItem = AreaListViewSelectItem
       end
-      object Insert: TButton
+      object Insert: TPanel
         Left = 5
         Top = 350
-        Width = 36
+        Width = 40
         Height = 18
         Caption = 'Insert'
+        Color = clMoneyGreen
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
         Font.Style = []
+        ParentBackground = False
         ParentFont = False
-        TabOrder = 5
+        TabOrder = 4
         OnClick = InsertClick
+        OnMouseDown = PanelButtonMouseDown
+        OnMouseUp = PanelButtonMouseUp
       end
-      object Delete: TButton
-        Left = 158
+      object Delete: TPanel
+        Left = 160
         Top = 350
-        Width = 44
+        Width = 50
         Height = 18
         Caption = 'Delete'
+        Color = clCream
         Enabled = False
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
         Font.Style = []
+        ParentBackground = False
         ParentFont = False
-        TabOrder = 6
+        TabOrder = 5
         OnClick = DeleteClick
+        OnMouseDown = PanelButtonMouseDown
+        OnMouseUp = PanelButtonMouseUp
       end
-      object Complete: TButton
-        Left = 45
+      object Complete: TPanel
+        Left = 50
         Top = 350
-        Width = 59
+        Width = 60
         Height = 18
         Caption = 'Complete'
+        Color = clCream
         Enabled = False
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
         Font.Style = []
+        ParentBackground = False
         ParentFont = False
-        TabOrder = 7
+        TabOrder = 6
         OnClick = CompleteClick
+        OnMouseDown = PanelButtonMouseDown
+        OnMouseUp = PanelButtonMouseUp
       end
-      object Cancel: TButton
-        Left = 107
+      object Cancel: TPanel
+        Left = 115
         Top = 350
         Width = 41
         Height = 18
         Caption = 'Cancel'
+        Color = clCream
         Enabled = False
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
         Font.Style = []
+        ParentBackground = False
         ParentFont = False
-        TabOrder = 8
+        TabOrder = 7
         OnClick = CancelClick
+        OnMouseDown = PanelButtonMouseDown
+        OnMouseUp = PanelButtonMouseUp
       end
-      object RawConnectButton: TButton
+      object RawConnectButton: TPanel
         Left = 5
         Top = 103
         Width = 104
         Height = 18
         Caption = 'Raw Connect'
+        Color = clMoneyGreen
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
         Font.Style = []
+        ParentBackground = False
         ParentFont = False
-        TabOrder = 9
+        TabOrder = 8
         OnClick = RawConnectButtonClick
+        OnMouseDown = PanelButtonMouseDown
+        OnMouseUp = PanelButtonMouseUp
       end
       object RawIpAddress: TComboBox
         Left = 115
@@ -456,7 +477,7 @@ object Form1: TForm1
         Font.Name = 'Calibri'
         Font.Style = []
         ParentFont = False
-        TabOrder = 10
+        TabOrder = 9
         Text = '127.0.0.1'
       end
       object CycleImages: TCheckBox
@@ -471,53 +492,65 @@ object Form1: TForm1
         Font.Name = 'Calibri'
         Font.Style = []
         ParentFont = False
-        TabOrder = 11
+        TabOrder = 10
         OnClick = CycleImagesClick
       end
-      object RawPlaybackButton: TButton
+      object RawPlaybackButton: TPanel
         Left = 115
         Top = 82
         Width = 96
         Height = 17
         Caption = 'Raw Playback'
+        Color = clMoneyGreen
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
         Font.Style = []
+        ParentBackground = False
         ParentFont = False
-        TabOrder = 12
+        TabOrder = 11
         OnClick = RawPlaybackButtonClick
+        OnMouseDown = PanelButtonMouseDown
+        OnMouseUp = PanelButtonMouseUp
       end
-      object RawRecordButton: TButton
+      object RawRecordButton: TPanel
         Left = 5
         Top = 82
         Width = 104
         Height = 17
         Caption = 'Raw Record'
+        Color = clMoneyGreen
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
         Font.Style = []
+        ParentBackground = False
         ParentFont = False
-        TabOrder = 13
+        TabOrder = 12
         OnClick = RawRecordButtonClick
+        OnMouseDown = PanelButtonMouseDown
+        OnMouseUp = PanelButtonMouseUp
       end
-      object SBSConnectButton: TButton
+      object SBSConnectButton: TPanel
         Left = 5
         Top = 126
         Width = 104
         Height = 20
         Caption = 'SBS Connect'
+        Color = clMoneyGreen
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
         Font.Style = []
+        ParentBackground = False
         ParentFont = False
-        TabOrder = 14
+        TabOrder = 13
         OnClick = SBSConnectButtonClick
+        OnMouseDown = PanelButtonMouseDown
+        OnMouseUp = PanelButtonMouseUp
       end
       object SBSIpAddress: TComboBox
         Left = 115
@@ -530,38 +563,46 @@ object Form1: TForm1
         Font.Name = 'Calibri'
         Font.Style = []
         ParentFont = False
-        TabOrder = 15
+        TabOrder = 14
         Text = 'data.adsbhub.org'
       end
-      object SBSRecordButton: TButton
+      object SBSRecordButton: TPanel
         Left = 5
         Top = 150
         Width = 104
         Height = 17
         Caption = 'SBS Record'
+        Color = clMoneyGreen
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
         Font.Style = []
+        ParentBackground = False
         ParentFont = False
-        TabOrder = 16
+        TabOrder = 15
         OnClick = SBSRecordButtonClick
+        OnMouseDown = PanelButtonMouseDown
+        OnMouseUp = PanelButtonMouseUp
       end
-      object SBSPlaybackButton: TButton
+      object SBSPlaybackButton: TPanel
         Left = 115
         Top = 150
         Width = 120
         Height = 17
         Caption = 'SBS Playback'
+        Color = clMoneyGreen
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
         Font.Style = []
+        ParentBackground = False
         ParentFont = False
-        TabOrder = 17
+        TabOrder = 16
         OnClick = SBSPlaybackButtonClick
+        OnMouseDown = PanelButtonMouseDown
+        OnMouseUp = PanelButtonMouseUp
       end
       object DisplayAirportCheckBox: TCheckBox
         Left = 5
@@ -578,25 +619,44 @@ object Form1: TForm1
         TabOrder = 18
         OnClick = DisplayAirportCheckBoxClick
       end
+      object PurgeButton: TPanel
+        Left = 175
+        Top = 10
+        Width = 60
+        Height = 22
+        Caption = 'Purge'
+        Color = clMoneyGreen
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Calibri'
+        Font.Style = []
+        ParentBackground = False
+        ParentFont = False
+        TabOrder = 17
+        OnClick = PurgeButtonClick
+        OnMouseDown = PanelButtonMouseDown
+        OnMouseUp = PanelButtonMouseUp
+      end
     end
     object Panel2: TPanel
       Left = 1
       Top = 199
       Width = 248
       Height = 59
-      Color = clCream
+      Color = clSnow
       ParentBackground = False
       TabOrder = 2
       object MapComboBox: TComboBox
         Left = 5
         Top = 6
         Width = 100
-        Height = 20
+        Height = 23
         Style = csDropDownList
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -10
-        Font.Name = 'Tahoma'
+        Font.Height = -13
+        Font.Name = 'Calibri'
         Font.Style = []
         ParentFont = False
         TabOrder = 0
@@ -645,10 +705,11 @@ object Form1: TForm1
       Width = 248
       Height = 25
       Align = alTop
+      BevelOuter = bvNone
       Caption = 'Control Menu '#9660
-      Color = clMoneyGreen
+      Color = clTeal
       Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
+      Font.Color = clWindow
       Font.Height = -13
       Font.Name = 'Calibri'
       Font.Style = []
@@ -659,11 +720,11 @@ object Form1: TForm1
     end
     object Panel7: TPanel
       Left = 1
-      Top = 282
+      Top = 332
       Width = 248
-      Height = 465
+      Height = 415
       Align = alBottom
-      Color = clMoneyGreen
+      Color = clTeal
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -13
@@ -673,34 +734,41 @@ object Form1: TForm1
       ParentFont = False
       TabOrder = 4
       object PanelTitle2: TLabel
-        Left = 1
-        Top = 1
-        Width = 246
-        Height = 18
+        AlignWithMargins = True
+        Left = 4
+        Top = 6
+        Width = 240
+        Height = 15
+        Margins.Top = 5
         Align = alTop
         Alignment = taCenter
         Caption = 'Aircraft Information'
-        Color = clMoneyGreen
+        Color = clTeal
         Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -15
+        Font.Color = clWindow
+        Font.Height = -13
         Font.Name = 'Calibri'
         Font.Style = []
         ParentColor = False
         ParentFont = False
-        ExplicitWidth = 121
+        Layout = tlCenter
+        ExplicitTop = 11
+        ExplicitWidth = 110
       end
       object Panel4: TScrollBox
         Left = 1
-        Top = 114
+        Top = 24
         Width = 246
-        Height = 350
+        Height = 390
+        VertScrollBar.Color = clCream
+        VertScrollBar.ParentColor = False
+        VertScrollBar.Position = 19
         Align = alBottom
         BevelEdges = []
         BevelInner = bvNone
         BevelOuter = bvNone
         BorderStyle = bsNone
-        Color = clCream
+        Color = clSnow
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
@@ -709,1065 +777,1015 @@ object Form1: TForm1
         ParentColor = False
         ParentFont = False
         TabOrder = 0
-        object CLatLabel: TLabel
-          Left = 70
-          Top = 39
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object CLonLabel: TLabel
-          Left = 70
-          Top = 58
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-          Transparent = False
-        end
-        object SpdLabel: TLabel
-          Left = 70
-          Top = 74
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object HdgLabel: TLabel
-          Left = 70
-          Top = 93
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object AltLabel: TLabel
-          Left = 70
-          Top = 112
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object MsgCntLabel: TLabel
-          Left = 70
-          Top = 295
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object TrkLastUpdateTimeLabel: TLabel
-          Left = 125
-          Top = 723
-          Width = 84
-          Height = 15
-          Caption = '00:00:00:000'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label14: TLabel
-          Left = 5
-          Top = 723
-          Width = 119
-          Height = 15
-          Caption = 'LAST UPDATE TIME:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label13: TLabel
-          Left = 5
-          Top = 295
-          Width = 56
-          Height = 15
-          Caption = 'MSG CNT:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label10: TLabel
-          Left = 5
-          Top = 113
-          Width = 28
-          Height = 15
-          Caption = 'ALT:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label9: TLabel
-          Left = 5
-          Top = 94
-          Width = 28
-          Height = 15
-          Caption = 'HDG:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label8: TLabel
-          Left = 5
-          Top = 75
-          Width = 28
-          Height = 15
-          Caption = 'SPD:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label7: TLabel
-          Left = 5
-          Top = 58
-          Width = 28
-          Height = 15
-          Caption = 'LON:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label6: TLabel
-          Left = 5
-          Top = 39
-          Width = 28
-          Height = 15
-          Caption = 'LAT:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label18: TLabel
-          Left = 5
-          Top = 20
-          Width = 63
-          Height = 15
-          Caption = 'FLIGHT #:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object FlightNumLabel: TLabel
-          Left = 70
-          Top = 20
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object ICAOLabel: TLabel
-          Left = 70
-          Top = 1
-          Width = 49
-          Height = 15
-          Caption = 'No Hook'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label5: TLabel
-          Left = 5
-          Top = 1
-          Width = 35
-          Height = 15
-          Caption = 'ICAO:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label22: TLabel
-          Left = 5
-          Top = 134
-          Width = 28
-          Height = 15
-          Caption = 'S/N:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object SerialNum: TLabel
-          Left = 70
-          Top = 133
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label23: TLabel
-          Left = 4
-          Top = 155
-          Width = 27
-          Height = 15
-          Caption = 'MFR:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Calibri'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Manufacturer: TLabel
-          Left = 70
-          Top = 154
-          Width = 20
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Calibri'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label24: TLabel
-          Left = 5
-          Top = 176
-          Width = 42
-          Height = 15
-          Caption = 'Model:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Model: TLabel
-          Left = 70
-          Top = 175
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label25: TLabel
-          Left = 4
-          Top = 197
-          Width = 53
-          Height = 15
-          Caption = 'MFR Year:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Calibri'
-          Font.Style = []
-          ParentFont = False
-        end
-        object MFRYear: TLabel
-          Left = 70
-          Top = 196
-          Width = 20
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Calibri'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label26: TLabel
-          Left = 4
-          Top = 218
-          Width = 35
-          Height = 15
-          Caption = 'Type:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label27: TLabel
-          Left = 4
-          Top = 239
-          Width = 49
-          Height = 15
-          Caption = 'Engine:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object AirType: TLabel
-          Left = 70
-          Top = 217
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object EngineType: TLabel
-          Left = 70
-          Top = 238
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label29: TLabel
-          Left = 4
-          Top = 259
-          Width = 35
-          Height = 15
-          Caption = 'Cert:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object CeritificatedInfo: TLabel
-          Left = 70
-          Top = 259
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label30: TLabel
-          Left = 4
-          Top = 276
-          Width = 59
-          Height = 15
-          Caption = 'Expiration:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Calibri'
-          Font.Style = []
-          ParentFont = False
-        end
-        object ExpirationData: TLabel
-          Left = 70
-          Top = 276
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label31: TLabel
-          Left = 5
-          Top = 314
-          Width = 175
-          Height = 15
-          Caption = '*** Departure Airport ***'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object DepartureAirportName: TLabel
-          Left = 70
-          Top = 332
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label32: TLabel
-          Left = 5
-          Top = 349
-          Width = 30
-          Height = 15
-          Caption = 'ICAO:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Calibri'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label33: TLabel
-          Left = 5
-          Top = 332
-          Width = 35
-          Height = 15
-          Caption = 'Name:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object DepartureAirportICAO: TLabel
-          Left = 70
-          Top = 349
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label35: TLabel
-          Left = 5
-          Top = 365
-          Width = 63
-          Height = 15
-          Caption = 'Location:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object DepartureAirportLocation: TLabel
-          Left = 70
-          Top = 365
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label34: TLabel
-          Left = 5
-          Top = 381
-          Width = 46
-          Height = 15
-          Caption = 'Country:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Calibri'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label36: TLabel
-          Left = 70
-          Top = 381
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label37: TLabel
-          Left = 5
-          Top = 402
-          Width = 189
-          Height = 15
-          Caption = '*** Destination Airport ***'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label38: TLabel
-          Left = 5
-          Top = 423
-          Width = 34
-          Height = 15
-          Caption = 'Name:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Calibri'
-          Font.Style = []
-          ParentFont = False
-        end
-        object DestinationAirportName: TLabel
-          Left = 70
-          Top = 423
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label39: TLabel
-          Left = 5
-          Top = 444
-          Width = 30
-          Height = 15
-          Caption = 'ICAO:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Calibri'
-          Font.Style = []
-          ParentFont = False
-        end
-        object DestinationAirportICAO: TLabel
-          Left = 70
-          Top = 444
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label40: TLabel
-          Left = 5
-          Top = 465
-          Width = 63
-          Height = 15
-          Caption = 'Location:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object DestinationAirportLocation: TLabel
-          Left = 72
-          Top = 465
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label41: TLabel
-          Left = 5
-          Top = 486
-          Width = 56
-          Height = 15
-          Caption = 'Country:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label42: TLabel
-          Left = 70
-          Top = 486
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label43: TLabel
-          Left = 5
-          Top = 507
-          Width = 182
-          Height = 15
-          Caption = '*** Transit Airport[1] ***'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label44: TLabel
-          Left = 5
-          Top = 528
-          Width = 35
-          Height = 15
-          Caption = 'Name:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object TransitAirport1Name: TLabel
-          Left = 70
-          Top = 528
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label46: TLabel
-          Left = 5
-          Top = 549
-          Width = 35
-          Height = 15
-          Caption = 'ICAO:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object TransitAirport1ICAO: TLabel
-          Left = 70
-          Top = 549
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label48: TLabel
-          Left = 5
-          Top = 570
-          Width = 63
-          Height = 15
-          Caption = 'Location:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object TransitAirport1Location: TLabel
-          Left = 70
-          Top = 570
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label50: TLabel
-          Left = 5
-          Top = 591
-          Width = 56
-          Height = 15
-          Caption = 'Country:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object TransitAirport1Country: TLabel
-          Left = 70
-          Top = 591
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label45: TLabel
-          Left = 3
-          Top = 612
-          Width = 182
-          Height = 15
-          Caption = '*** Transit Airport[2] ***'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label47: TLabel
-          Left = 5
-          Top = 633
-          Width = 35
-          Height = 15
-          Caption = 'Name:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object TransitAirport2Name: TLabel
-          Left = 72
-          Top = 633
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = [fsBold]
-          ParentFont = False
-        end
-        object Label51: TLabel
-          Left = 5
-          Top = 654
-          Width = 35
-          Height = 15
-          Caption = 'ICAO:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object TransitAirport2ICAO: TLabel
-          Left = 72
-          Top = 654
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label53: TLabel
-          Left = 5
-          Top = 675
-          Width = 63
-          Height = 15
-          Caption = 'Location:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object TransitAirport2Location: TLabel
-          Left = 72
-          Top = 675
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label55: TLabel
-          Left = 5
-          Top = 696
-          Width = 56
-          Height = 15
-          Caption = 'Country:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object TransitAirport2Country: TLabel
-          Left = 72
-          Top = 696
-          Width = 21
-          Height = 15
-          Caption = 'N/A'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-      end
-      object Panel5: TPanel
-        Left = 1
-        Top = 19
-        Width = 246
-        Height = 95
-        Align = alClient
-        BevelEdges = []
-        BevelOuter = bvNone
-        Color = clCream
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'Calibri'
-        Font.Style = [fsBold]
-        ParentBackground = False
-        ParentFont = False
-        TabOrder = 1
-        object Lon: TLabel
-          Left = 39
-          Top = 42
-          Width = 7
-          Height = 15
-          Caption = '0'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label3: TLabel
-          Left = 5
-          Top = 40
-          Width = 28
-          Height = 15
-          Caption = 'Lon:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Lat: TLabel
-          Left = 39
-          Top = 21
-          Width = 7
-          Height = 15
-          Caption = '0'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label2: TLabel
-          Left = 5
-          Top = 21
-          Width = 28
-          Height = 15
-          Caption = 'Lat:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object SystemTimeLabel: TLabel
-          Left = 5
-          Top = 4
-          Width = 77
-          Height = 15
-          Caption = 'System Time'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object ViewableAircraftCountLabel: TLabel
-          Left = 85
-          Top = 76
-          Width = 7
-          Height = 15
-          Caption = '0'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object AircraftCountLabel: TLabel
-          Left = 85
-          Top = 58
-          Width = 7
-          Height = 15
-          Caption = '0'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label11: TLabel
-          Left = 16
-          Top = 76
-          Width = 63
-          Height = 15
-          Caption = 'Viewable:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object Label1: TLabel
-          Left = 5
-          Top = 58
-          Width = 77
-          Height = 15
-          Caption = '# Aircraft:'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
-        end
-        object SystemTime: TStaticText
-          Left = 90
-          Top = 4
-          Width = 88
-          Height = 19
-          Caption = '00:00:00:000'
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -13
-          Font.Name = 'Consolas'
-          Font.Style = []
-          ParentFont = False
+        UseWheelForScrolling = True
+        object InnePanel: TPanel
+          Left = 0
+          Top = -19
+          Width = 228
+          Height = 95
+          BevelOuter = bvNone
+          Color = clSnow
+          ParentBackground = False
           TabOrder = 0
+          object Label1: TLabel
+            Left = 5
+            Top = 58
+            Width = 54
+            Height = 15
+            Caption = '# Aircraft:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label2: TLabel
+            Left = 5
+            Top = 21
+            Width = 19
+            Height = 15
+            Caption = 'Lat:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label11: TLabel
+            Left = 16
+            Top = 76
+            Width = 53
+            Height = 15
+            Caption = 'Viewable:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label3: TLabel
+            Left = 5
+            Top = 40
+            Width = 22
+            Height = 15
+            Caption = 'Lon:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object AircraftCountLabel: TLabel
+            Left = 85
+            Top = 58
+            Width = 7
+            Height = 15
+            Caption = '0'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Lon: TLabel
+            Left = 39
+            Top = 42
+            Width = 7
+            Height = 15
+            Caption = '0'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Lat: TLabel
+            Left = 39
+            Top = 21
+            Width = 7
+            Height = 15
+            Caption = '0'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object SystemTimeLabel: TLabel
+            Left = 4
+            Top = 4
+            Width = 67
+            Height = 15
+            Caption = 'System Time'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object ViewableAircraftCountLabel: TLabel
+            Left = 85
+            Top = 76
+            Width = 7
+            Height = 15
+            Caption = '0'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object SystemTime: TStaticText
+            Left = 90
+            Top = 4
+            Width = 76
+            Height = 19
+            Caption = '00:00:00:000'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+            TabOrder = 0
+          end
+        end
+        object InnerPannel2: TPanel
+          Left = 0
+          Top = 76
+          Width = 228
+          Height = 700
+          BevelOuter = bvNone
+          Color = clSnow
+          ParentBackground = False
+          TabOrder = 1
+          object SpdLabel: TLabel
+            Left = 70
+            Top = 37
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object HdgLabel: TLabel
+            Left = 70
+            Top = 56
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object AltLabel: TLabel
+            Left = 70
+            Top = 75
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object MsgCntLabel: TLabel
+            Left = 70
+            Top = 258
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object TrkLastUpdateTimeLabel: TLabel
+            Left = 125
+            Top = 686
+            Width = 72
+            Height = 15
+            Caption = '00:00:00:000'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label14: TLabel
+            Left = 5
+            Top = 686
+            Width = 101
+            Height = 15
+            Caption = 'LAST UPDATE TIME:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label13: TLabel
+            Left = 5
+            Top = 258
+            Width = 51
+            Height = 15
+            Caption = 'MSG CNT:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label10: TLabel
+            Left = 5
+            Top = 76
+            Width = 19
+            Height = 15
+            Caption = 'ALT:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label9: TLabel
+            Left = 5
+            Top = 57
+            Width = 27
+            Height = 15
+            Caption = 'HDG:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label8: TLabel
+            Left = 5
+            Top = 38
+            Width = 24
+            Height = 15
+            Caption = 'SPD:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label18: TLabel
+            Left = 5
+            Top = 20
+            Width = 49
+            Height = 15
+            Caption = 'FLIGHT #:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object FlightNumLabel: TLabel
+            Left = 70
+            Top = 20
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object ICAOLabel: TLabel
+            Left = 70
+            Top = 1
+            Width = 46
+            Height = 15
+            Caption = 'No Hook'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label5: TLabel
+            Left = 5
+            Top = 1
+            Width = 30
+            Height = 15
+            Caption = 'ICAO:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label22: TLabel
+            Left = 5
+            Top = 97
+            Width = 22
+            Height = 15
+            Caption = 'S/N:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object SerialNum: TLabel
+            Left = 70
+            Top = 96
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label23: TLabel
+            Left = 4
+            Top = 118
+            Width = 27
+            Height = 15
+            Caption = 'MFR:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Manufacturer: TLabel
+            Left = 70
+            Top = 117
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label24: TLabel
+            Left = 5
+            Top = 139
+            Width = 38
+            Height = 15
+            Caption = 'Model:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Model: TLabel
+            Left = 70
+            Top = 138
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label25: TLabel
+            Left = 4
+            Top = 160
+            Width = 53
+            Height = 15
+            Caption = 'MFR Year:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object MFRYear: TLabel
+            Left = 70
+            Top = 159
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label26: TLabel
+            Left = 4
+            Top = 181
+            Width = 27
+            Height = 15
+            Caption = 'Type:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label27: TLabel
+            Left = 4
+            Top = 202
+            Width = 39
+            Height = 15
+            Caption = 'Engine:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object AirType: TLabel
+            Left = 70
+            Top = 180
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object EngineType: TLabel
+            Left = 70
+            Top = 201
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label29: TLabel
+            Left = 4
+            Top = 222
+            Width = 25
+            Height = 15
+            Caption = 'Cert:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object CeritificatedInfo: TLabel
+            Left = 70
+            Top = 222
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label30: TLabel
+            Left = 4
+            Top = 239
+            Width = 59
+            Height = 15
+            Caption = 'Expiration:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object ExpirationData: TLabel
+            Left = 70
+            Top = 239
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object SubTitleDeparture: TLabel
+            Left = 5
+            Top = 277
+            Width = 142
+            Height = 15
+            Caption = #9654#9654' Departure Airport '#9664#9664
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object DepartureAirportName: TLabel
+            Left = 70
+            Top = 295
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label32: TLabel
+            Left = 5
+            Top = 312
+            Width = 30
+            Height = 15
+            Caption = 'ICAO:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label33: TLabel
+            Left = 5
+            Top = 295
+            Width = 34
+            Height = 15
+            Caption = 'Name:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object DepartureAirportICAO: TLabel
+            Left = 70
+            Top = 312
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label35: TLabel
+            Left = 5
+            Top = 328
+            Width = 49
+            Height = 15
+            Caption = 'Location:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object DepartureAirportLocation: TLabel
+            Left = 70
+            Top = 328
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label34: TLabel
+            Left = 5
+            Top = 344
+            Width = 46
+            Height = 15
+            Caption = 'Country:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label36: TLabel
+            Left = 70
+            Top = 344
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object subTitleDestination: TLabel
+            Left = 5
+            Top = 365
+            Width = 148
+            Height = 15
+            Caption = #9654#9654' Destination Airport '#9664#9664
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object Label38: TLabel
+            Left = 5
+            Top = 386
+            Width = 34
+            Height = 15
+            Caption = 'Name:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object DestinationAirportName: TLabel
+            Left = 70
+            Top = 386
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label39: TLabel
+            Left = 5
+            Top = 407
+            Width = 30
+            Height = 15
+            Caption = 'ICAO:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object DestinationAirportICAO: TLabel
+            Left = 70
+            Top = 407
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label40: TLabel
+            Left = 5
+            Top = 428
+            Width = 49
+            Height = 15
+            Caption = 'Location:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object DestinationAirportLocation: TLabel
+            Left = 72
+            Top = 428
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label41: TLabel
+            Left = 5
+            Top = 449
+            Width = 46
+            Height = 15
+            Caption = 'Country:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label42: TLabel
+            Left = 70
+            Top = 449
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label43: TLabel
+            Left = 5
+            Top = 470
+            Width = 136
+            Height = 15
+            Caption = #9654#9654' Transit Airport[1] '#9664#9664
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object Label44: TLabel
+            Left = 5
+            Top = 491
+            Width = 34
+            Height = 15
+            Caption = 'Name:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object TransitAirport1Name: TLabel
+            Left = 70
+            Top = 491
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label46: TLabel
+            Left = 5
+            Top = 512
+            Width = 30
+            Height = 15
+            Caption = 'ICAO:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object TransitAirport1ICAO: TLabel
+            Left = 70
+            Top = 512
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label48: TLabel
+            Left = 5
+            Top = 533
+            Width = 49
+            Height = 15
+            Caption = 'Location:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object TransitAirport1Location: TLabel
+            Left = 70
+            Top = 533
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label50: TLabel
+            Left = 5
+            Top = 554
+            Width = 46
+            Height = 15
+            Caption = 'Country:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object TransitAirport1Country: TLabel
+            Left = 70
+            Top = 554
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label45: TLabel
+            Left = 3
+            Top = 575
+            Width = 136
+            Height = 15
+            Caption = #9654#9654' Transit Airport[2] '#9664#9664
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = [fsBold]
+            ParentFont = False
+          end
+          object Label47: TLabel
+            Left = 5
+            Top = 596
+            Width = 34
+            Height = 15
+            Caption = 'Name:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object TransitAirport2Name: TLabel
+            Left = 72
+            Top = 596
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label51: TLabel
+            Left = 5
+            Top = 617
+            Width = 30
+            Height = 15
+            Caption = 'ICAO:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object TransitAirport2ICAO: TLabel
+            Left = 72
+            Top = 617
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label53: TLabel
+            Left = 5
+            Top = 638
+            Width = 49
+            Height = 15
+            Caption = 'Location:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object TransitAirport2Location: TLabel
+            Left = 72
+            Top = 638
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object Label55: TLabel
+            Left = 5
+            Top = 659
+            Width = 46
+            Height = 15
+            Caption = 'Country:'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
+          object TransitAirport2Country: TLabel
+            Left = 72
+            Top = 659
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+            Font.Charset = ANSI_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -13
+            Font.Name = 'Calibri'
+            Font.Style = []
+            ParentFont = False
+          end
         end
       end
     end
@@ -1779,7 +1797,7 @@ object Form1: TForm1
     Height = 40
     Align = alBottom
     BevelOuter = bvLowered
-    Color = clCream
+    Color = clSnow
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -10
@@ -1973,7 +1991,7 @@ object Form1: TForm1
       Height = 38
       BevelEdges = []
       BevelOuter = bvNone
-      Color = clCream
+      Color = clSnow
       ParentBackground = False
       TabOrder = 1
       object TimeToGoLegendTitle: TLabel
@@ -2176,7 +2194,7 @@ object Form1: TForm1
     Width = 401
     Height = 85
     Anchors = [akTop, akRight]
-    Color = clCream
+    Color = clSnow
     ParentBackground = False
     TabOrder = 3
     Visible = False
@@ -2222,9 +2240,9 @@ object Form1: TForm1
       Height = 25
       Align = alTop
       Caption = 'Playback Speed Control'
-      Color = clMoneyGreen
+      Color = clTeal
       Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
+      Font.Color = clWindow
       Font.Height = -13
       Font.Name = 'Calibri'
       Font.Style = []
@@ -2239,6 +2257,8 @@ object Form1: TForm1
     Top = -4
     Width = 496
     Height = 93
+    Color = clSnow
+    ParentBackground = False
     TabOrder = 4
     Visible = False
     object TotalTimeLabel: TLabel
@@ -2263,7 +2283,7 @@ object Form1: TForm1
       TabOrder = 0
       OnChange = PlaybackProgressBarChange
     end
-    object PlaybackPlayPauseButton: TButton
+    object PlaybackPlayPauseButton: TPanel
       Left = 200
       Top = 19
       Width = 75
@@ -2280,9 +2300,9 @@ object Form1: TForm1
       Height = 25
       Align = alTop
       Caption = 'Playback Progressbar'
-      Color = clMoneyGreen
+      Color = clTeal
       Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
+      Font.Color = clWindow
       Font.Height = -13
       Font.Name = 'Calibri'
       Font.Style = []

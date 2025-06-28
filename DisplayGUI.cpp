@@ -1103,16 +1103,7 @@ void __fastcall TForm1::DrawObjects(void)
                 FlightNumLabel->Caption = Data->FlightNum;
             else
                 FlightNumLabel->Caption = "N/A";
-            if (Data->HaveLatLon)
-            {
-                CLatLabel->Caption = DMS::DegreesMinutesSecondsLat(Data->Latitude).c_str();
-                CLonLabel->Caption = DMS::DegreesMinutesSecondsLon(Data->Longitude).c_str();
-            }
-            else
-            {
-                CLatLabel->Caption = "N/A";
-                CLonLabel->Caption = "N/A";
-            }
+
             if (Data->HaveSpeedAndHeading)
             {
                 SpdLabel->Caption = FloatToStrF(Data->Speed, ffFixed, 12, 2) + " KTS  VRATE:" + FloatToStrF(Data->VerticalRate, ffFixed, 12, 2);
@@ -1194,8 +1185,6 @@ void __fastcall TForm1::DrawObjects(void)
             TrackHook.Valid_CC = false;
             ICAOLabel->Caption = "N/A";
             FlightNumLabel->Caption = "N/A";
-            CLatLabel->Caption = "N/A";
-            CLonLabel->Caption = "N/A";
             SpdLabel->Caption = "N/A";
             HdgLabel->Caption = "N/A";
             AltLabel->Caption = "N/A";
@@ -1773,8 +1762,6 @@ void __fastcall TForm1::HookTrack(int X, int Y, bool CPA_Hook)
             TrackHook.Valid_CC = false;
             ICAOLabel->Caption = "N/A";
             FlightNumLabel->Caption = "N/A";
-            CLatLabel->Caption = "N/A";
-            CLonLabel->Caption = "N/A";
             SpdLabel->Caption = "N/A";
             HdgLabel->Caption = "N/A";
             AltLabel->Caption = "N/A";
@@ -1882,9 +1869,12 @@ void __fastcall TForm1::PurgeButtonClick(TObject *Sender)
 void __fastcall TForm1::InsertClick(TObject *Sender)
 {
     Insert->Enabled = false;
+		Insert->Color = clCream;
     LoadARTCCBoundaries1->Enabled = false;
     Complete->Enabled = true;
     Cancel->Enabled = true;
+    Complete->Color = clMoneyGreen;
+    Cancel->Color = clMoneyGreen;
     // Delete->Enabled=false;
 
     AreaTemp = new TArea;
@@ -1901,8 +1891,11 @@ void __fastcall TForm1::CancelClick(TObject *Sender)
     AreaTemp = NULL;
     delete Temp;
     Insert->Enabled = true;
+	Insert->Color = clMoneyGreen;
     Complete->Enabled = false;
+	Complete->Color = clCream;
     Cancel->Enabled = false;
+	Cancel->Color = clCream;
     LoadARTCCBoundaries1->Enabled = true;
     // if (Areas->Count>0)  Delete->Enabled=true;
     // else   Delete->Enabled=false;
@@ -1991,6 +1984,7 @@ void __fastcall TForm1::AreaListViewSelectItem(TObject *Sender, TListItem *Item,
         }
 
         Delete->Enabled = true;
+		Delete->Color = clMoneyGreen;
     }
     else
     {
@@ -2009,6 +2003,7 @@ void __fastcall TForm1::AreaListViewSelectItem(TObject *Sender, TListItem *Item,
             }
         }
         Delete->Enabled = hasSelected;
+		Delete->Color = hasSelected?clMoneyGreen:clCream;
     }
 
     ObjectDisplay->Repaint();
@@ -2262,6 +2257,7 @@ void __fastcall TForm1::RawConnectButtonClick(TObject *Sender)
     {
         // Disable button to prevent multiple clicks
         RawConnectButton->Enabled = false;
+		RawConnectButton->Color = clCream;
         RawConnectButton->Caption = "Connecting...";
 
         // Start connection in separate thread to keep UI responsive
@@ -2275,6 +2271,7 @@ void __fastcall TForm1::RawConnectButtonClick(TObject *Sender)
         IdTCPClientRaw->IOHandler->InputBuffer->Clear();
         RawConnectButton->Caption = "Raw Connect";
         RawPlaybackButton->Enabled = true;
+		RawConnectButton->Color = clMoneyGreen;
     }
 }
 //---------------------------------------------------------------------------
@@ -2287,6 +2284,7 @@ void __fastcall TForm1::IdTCPClientRawConnected(TObject *Sender)
     IdTCPClientRaw->ReadTimeout = 3000;
     RawConnectButton->Caption = "Raw Disconnect";
     RawPlaybackButton->Enabled = false;
+	RawConnectButton->Color = clCream;
     RawTimeoutPopupShown = false;
     RawConnectionLostShown = false; // 연결 재시도 플래그 리셋
     LastHeartbeatTime = GetCurrentTimeInMsec();
@@ -2355,6 +2353,7 @@ void __fastcall TForm1::RawPlaybackButtonClick(TObject *Sender)
                     TCPClientRawHandleThread->Resume();
                     RawPlaybackButton->Caption = "Stop Raw Playback";
                     RawConnectButton->Enabled = false;
+					RawConnectButton->Color = clCream;
                     PlaybackSpeedPanel->Visible = true;
                 }
             }
@@ -2367,6 +2366,7 @@ void __fastcall TForm1::RawPlaybackButtonClick(TObject *Sender)
         PlayBackRawStream = NULL;
         RawPlaybackButton->Caption = "Raw Playback";
         RawConnectButton->Enabled = true;
+        RawConnectButton->Color = clMoneyGreen;
         PlaybackSpeedPanel->Visible = false;
         PlaybackSpeedTrackBar->Position = 0;
     }
@@ -2516,6 +2516,7 @@ void __fastcall TForm1::SBSConnectButtonClick(TObject *Sender)
     {
         // Disable button to prevent multiple clicks
         SBSConnectButton->Enabled = false;
+				SBSConnectButton->Color = clCream;
         SBSConnectButton->Caption = "Connecting...";
 
         // Start connection in separate thread to keep UI responsive
@@ -2529,6 +2530,7 @@ void __fastcall TForm1::SBSConnectButtonClick(TObject *Sender)
         IdTCPClientSBS->IOHandler->InputBuffer->Clear();
         SBSConnectButton->Caption = "SBS Connect";
         SBSPlaybackButton->Enabled = true;
+				SBSConnectButton->Color = clMoneyGreen;
     }
 }
 //---------------------------------------------------------------------------
@@ -2828,6 +2830,7 @@ void __fastcall TForm1::SBSPlaybackButtonClick(TObject *Sender)
                     TCPClientSBSHandleThread->Resume();
                     SBSPlaybackButton->Caption = "Stop SBS Playback";
                     SBSConnectButton->Enabled = false;
+										SBSConnectButton->Color = clCream;
                     PlaybackSpeedPanel->Visible = true;
                 }
             }
@@ -2840,6 +2843,7 @@ void __fastcall TForm1::SBSPlaybackButtonClick(TObject *Sender)
         PlayBackSBSStream = NULL;
         SBSPlaybackButton->Caption = "SBS Playback";
         SBSConnectButton->Enabled = true;
+		SBSConnectButton->Color = clMoneyGreen;
         PlaybackSpeedPanel->Visible = false;
         PlaybackProgressPanel->Visible = false; // Panel 전체를 숨기도록
         PlaybackPaused = false;
@@ -2854,6 +2858,7 @@ void __fastcall TForm1::IdTCPClientSBSConnected(TObject *Sender)
     IdTCPClientSBS->Socket->Binding->SetKeepAliveValues(true, 60 * 1000, 15 * 1000);
     SBSConnectButton->Caption = "SBS Disconnect";
     SBSPlaybackButton->Enabled = false;
+	SBSConnectButton->Color = clCream;
     SBSTimeoutPopupShown = false;
     SBSConnectionLostShown = false; // 연결 재시도 플래그 리셋
     LastSBSDataReceiveTime = GetCurrentTimeInMsec();
@@ -3808,24 +3813,19 @@ void __fastcall TForm1::TogglePanels()
     {
         // 확장 모드
         Panel7->Align = alBottom;
-        Panel7->Height = 465; // 원래 높이
+        Panel7->Height = 415; // 원래 높이
 
-        Panel5->Align = alClient;
         Panel4->Align = alBottom;
-        Panel4->Height = 350;
+        Panel4->Height = 390;
 
         PanelTitle1->Caption = "Control Menu ▼";
-        PanelTitle1->Color = clMoneyGreen;
+        PanelTitle1->Color = clTeal;
         PanelTitle1->Hint = "Click to hide Control Menu";
     }
     else
     {
         // 축소 모드
         Panel7->Align = alClient;
-
-        Panel5->Align = alTop;
-        Panel5->Height = 95;
-
         Panel4->Align = alClient;
         // Panel4 스크롤을 맨 위로 리셋
         Panel4->VertScrollBar->Position = 0;
@@ -3906,6 +3906,7 @@ void __fastcall TConnectionThread::OnConnectionComplete(void)
         Form1->TCPClientSBSHandleThread->Resume();
         Form1->SBSConnectButton->Caption = "SBS Disconnect";
         Form1->SBSConnectButton->Enabled = true;
+		Form1->SBSConnectButton->Color = clMoneyGreen;
 
         // Add to IP history
         Form1->AddToIpHistory(Form1->SBSIpAddress->Text, true);
@@ -3918,6 +3919,7 @@ void __fastcall TConnectionThread::OnConnectionComplete(void)
         Form1->TCPClientRawHandleThread->Resume();
         Form1->RawConnectButton->Caption = "Raw Disconnect";
         Form1->RawConnectButton->Enabled = true;
+		Form1->RawConnectButton->Color = clMoneyGreen;
 
         // Add to IP history
         Form1->AddToIpHistory(Form1->RawIpAddress->Text, false);
@@ -3931,11 +3933,13 @@ void __fastcall TConnectionThread::OnConnectionFailed(void)
     {
         Form1->SBSConnectButton->Caption = "SBS Connect";
         Form1->SBSConnectButton->Enabled = true;
+		Form1->SBSConnectButton->Color = clMoneyGreen;
     }
     else
     {
         Form1->RawConnectButton->Caption = "Raw Connect";
         Form1->RawConnectButton->Enabled = true;
+		Form1->RawConnectButton->Color = clMoneyGreen;
     }
     ShowMessage("Connection failed: " + ErrorMessage);
 }
@@ -4236,6 +4240,7 @@ void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shif
                 }
             }
             Delete->Enabled = false;
+			Delete->Color = clCream;
             printf("All selections and filters cleared\n");
         }
         break;
@@ -4255,6 +4260,7 @@ void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shif
                 }
             }
             Delete->Enabled = (AreaListView->Items->Count > 0);
+			Delete->Color = (AreaListView->Items->Count > 0)?clMoneyGreen:clCream;
             printf("All areas selected (%d areas)\n", AreaListView->Items->Count);
             ObjectDisplay->Repaint();
         }
@@ -5325,6 +5331,7 @@ void __fastcall TForm1::ReconnectToRawDevice()
     // 재연결 시도
     RawConnectButton->Caption = "Connecting...";
     RawPlaybackButton->Enabled = false;
+	RawConnectButton->Color = clCream;
     RawConnectionLostShown = false;
 
     printf("Attempting to reconnect to Pi device (%s)...\n", AnsiString(RawIpAddress->Text).c_str()); // "AnsiString" is for Removing Warning
@@ -5350,6 +5357,7 @@ void __fastcall TForm1::ReconnectToSBSDevice()
     // 재연결 시도
     SBSConnectButton->Caption = "Connecting...";
     SBSPlaybackButton->Enabled = false;
+	SBSConnectButton->Color = clCream;
     SBSConnectionLostShown = false;
 
     printf("Attempting to reconnect to SBS Hub (%s)...\n", AnsiString(SBSIpAddress->Text).c_str()); // "AnsiString" is for Removing Warning
@@ -5709,6 +5717,7 @@ void __fastcall TForm1::UpdateRawConnectionStatus(const AnsiString &status)
     if (RawStatusLabel)
     {
         AnsiString icon;
+        RawStatusLabel->Caption = "●";
         if (status == "Connecting...")
         {
             color = clYellow;
@@ -5727,9 +5736,9 @@ void __fastcall TForm1::UpdateRawConnectionStatus(const AnsiString &status)
         else
         {
             color = clBlack;
+            RawStatusLabel->Caption = "";
         }
 
-        RawStatusLabel->Caption = "●";
         RawStatusLabel->Font->Color = color;
     }
 }
@@ -5739,6 +5748,7 @@ void __fastcall TForm1::UpdateSBSConnectionStatus(const AnsiString &status)
     if (SBSStatusLabel)
     {
         AnsiString icon;
+        SBSStatusLabel->Caption = "●";
         if (status == "Connecting...")
         {
             color = clYellow;
@@ -5757,9 +5767,9 @@ void __fastcall TForm1::UpdateSBSConnectionStatus(const AnsiString &status)
         else
         {
             color = clBlack;
+            SBSStatusLabel->Caption = "";
         }
 
-        SBSStatusLabel->Caption = "●";
         SBSStatusLabel->Font->Color = color;
     }
 }
@@ -5886,5 +5896,25 @@ void TForm1::stopAircraftDistanceCalculationThread()
     {
         delete aircraftAircraftDistanceResult;
         aircraftAircraftDistanceResult = nullptr;
+    }
+}
+
+// 마우스 다운 효과
+void __fastcall TForm1::PanelButtonMouseDown(TObject *Sender, TMouseButton Button,
+    TShiftState Shift, int X, int Y)
+{
+    TPanel* panel = dynamic_cast<TPanel*>(Sender);
+    if (panel) {
+        panel->BevelOuter = bvLowered;  // 눌린 효과
+    }
+}
+
+// 마우스 업 효과
+void __fastcall TForm1::PanelButtonMouseUp(TObject *Sender, TMouseButton Button,
+    TShiftState Shift, int X, int Y)
+{
+    TPanel* panel = dynamic_cast<TPanel*>(Sender);
+    if (panel) {
+        panel->BevelOuter = bvRaised;   // 원래대로
     }
 }

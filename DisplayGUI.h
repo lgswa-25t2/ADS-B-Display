@@ -204,19 +204,17 @@ class TForm1 : public TForm
     TTimer *Timer1;
     TPanel *Panel1;
     TPanel *Panel3;
-    TButton *ZoomIn;
-    TButton *ZoomOut;
+	TPanel *ZoomIn;
+	TPanel *ZoomOut;
     TCheckBox *DrawMap;
     TCheckBox *PurgeStale;
     TTimer *Timer2;
     TCSpinEdit *CSpinStaleTime;
-    TButton *PurgeButton;
     TListView *AreaListView;
-    TButton *Insert;
-    TButton *Delete;
-    TButton *Complete;
-    TButton *Cancel;
-    TButton *RawConnectButton;
+	TPanel *Insert;
+	TPanel *Delete;
+	TPanel *Complete;
+	TPanel *Cancel;
     TLabel *RawStatusLabel; // Raw 연결 상태 표시 라벨
     TLabel *SBSStatusLabel; // SBS 연결 상태 표시 라벨
     // TLabel *Label16;
@@ -227,8 +225,6 @@ class TForm1 : public TForm
     TOpenDialog *PlaybackRawDialog;
     TCheckBox *CycleImages;
     TScrollBox *Panel4;
-    TLabel *CLatLabel;
-    TLabel *CLonLabel;
     TLabel *SpdLabel;
     TLabel *HdgLabel;
     TLabel *AltLabel;
@@ -239,14 +235,10 @@ class TForm1 : public TForm
     TLabel *Label10;
     TLabel *Label9;
     TLabel *Label8;
-    TLabel *Label7;
-    TLabel *Label6;
     TLabel *Label18;
     TLabel *FlightNumLabel;
     TLabel *ICAOLabel;
     TLabel *Label5;
-    // TLabel *Label4;
-    TPanel *Panel5;
     TLabel *Lon;
     TLabel *Label3;
     TLabel *Lat;
@@ -257,13 +249,14 @@ class TForm1 : public TForm
     TLabel *AircraftCountLabel;
     TLabel *Label11;
     TLabel *Label1;
-    TButton *RawPlaybackButton;
-    TButton *RawRecordButton;
+    TPanel *RawConnectButton;
+	TPanel *RawPlaybackButton;
+	TPanel *RawRecordButton;
     TIdTCPClient *IdTCPClientSBS;
-    TButton *SBSConnectButton;
+	TPanel *SBSConnectButton;
     TComboBox *SBSIpAddress;
-    TButton *SBSRecordButton;
-    TButton *SBSPlaybackButton;
+	TPanel *SBSRecordButton;
+	TPanel *SBSPlaybackButton;
     TSaveDialog *RecordSBSSaveDialog;
     TOpenDialog *PlaybackSBSDialog;
     TTrackBar *TimeToGoTrackBar;
@@ -279,7 +272,6 @@ class TForm1 : public TForm
     TMenuItem *UseSBSLocal;
     TMenuItem *UseSBSRemote;
     TMenuItem *LoadARTCCBoundaries1;
-    TLabel *Label16;
     TCheckBox *DisplayAirportCheckBox;
     TTrackBar *PlaybackSpeedTrackBar;
     TMenuItem *Help1;
@@ -288,8 +280,6 @@ class TForm1 : public TForm
     TPanel *PanelTitle1;
     TPanel *Panel7;
     TLabel *PanelTitle2;
-    TLabel *Label20;
-    TLabel *Label21;
     TLabel *Label22;
     TLabel *SerialNum;
     TLabel *Label23;
@@ -302,13 +292,11 @@ class TForm1 : public TForm
     TLabel *Label27;
     TLabel *AirType;
     TLabel *EngineType;
-    TLabel *Label4;
-    TLabel *Label28;
     TLabel *Label29;
     TLabel *CeritificatedInfo;
     TLabel *Label30;
     TLabel *ExpirationData;
-    TLabel *Label31;
+	TLabel *SubTitleDeparture;
     TLabel *DepartureAirportName;
     TLabel *Label32;
     TLabel *Label33;
@@ -317,7 +305,7 @@ class TForm1 : public TForm
     TLabel *DepartureAirportLocation;
     TLabel *Label34;
     TLabel *Label36;
-    TLabel *Label37;
+	TLabel *subTitleDestination;
     TLabel *Label38;
     TLabel *DestinationAirportName;
     TLabel *Label39;
@@ -386,10 +374,17 @@ class TForm1 : public TForm
     TLabel *LowestAltitudeLabel;
     TPanel *PlaybackProgressPanel;
     TTrackBar *PlaybackProgressTrackBar;
-    TButton *PlaybackPlayPauseButton;
+	TPanel *PlaybackPlayPauseButton;
     TLabel *TotalTimeLabel;
     TLabel *PlayTimeLabel;
     TPanel *PlaybackProgressbarTitle;
+	TLabel *Label16;
+	TLabel *Label20;
+	TLabel *Label21;
+	TLabel *Label28;
+	TLabel *Label4;
+	TPanel *InnePanel;
+	TPanel *InnerPannel2;
     void __fastcall ObjectDisplayInit(TObject *Sender);
     void __fastcall ObjectDisplayResize(TObject *Sender);
     void __fastcall ObjectDisplayPaint(TObject *Sender);
@@ -459,7 +454,10 @@ class TForm1 : public TForm
     void __fastcall SeekToPosition(__int64 targetTime);
     void __fastcall BuildFileIndex();
     AnsiString __fastcall FormatPlaybackTime(__int64 timeMs);
-
+    void __fastcall PanelButtonMouseDown(TObject *Sender, TMouseButton Button,
+    TShiftState Shift, int X, int Y);
+    void __fastcall PanelButtonMouseUp(TObject *Sender, TMouseButton Button,
+    TShiftState Shift, int X, int Y);
 private: // User declarations
     bool __fastcall CheckCellClickAndZoom(int X, int Y);
     void __fastcall DrawDeadReckoningStatusBar(void);

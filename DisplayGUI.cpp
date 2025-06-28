@@ -2301,8 +2301,18 @@ void __fastcall TForm1::IdTCPClientRawConnected(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::IdTCPClientRawDisconnected(TObject *Sender)
 {
-    TCPClientRawHandleThread->Terminate();
-    RawTimeoutPopupShown = true;
+	// 안전한 스레드 종료
+	if (TCPClientRawHandleThread && TCPClientRawHandleThread->Handle)
+	{
+		try {
+				TCPClientRawHandleThread->Terminate();
+				TCPClientRawHandleThread->WaitFor();
+			}
+		catch (...) {
+			printf("Error: Raw thread termination failed\n");
+		}
+	}
+	RawTimeoutPopupShown = true;
     RawConnectionLostShown = true;
 }
 //---------------------------------------------------------------------------
@@ -2369,8 +2379,19 @@ void __fastcall TForm1::RawPlaybackButtonClick(TObject *Sender)
         }
     }
     else
-    {
-        TCPClientRawHandleThread->Terminate();
+	{
+		// 안전한 스레드 종료
+		if (TCPClientRawHandleThread && TCPClientRawHandleThread->Handle)
+		{
+			try {
+				TCPClientRawHandleThread->Terminate();
+				TCPClientRawHandleThread->WaitFor();
+			}
+			catch (...) {
+				printf("Error: Raw thread termination failed\n");
+			}
+		}
+
         delete PlayBackRawStream;
         PlayBackRawStream = NULL;
         RawPlaybackButton->Caption = "Raw Playback";
@@ -2531,16 +2552,26 @@ void __fastcall TForm1::SBSConnectButtonClick(TObject *Sender)
         // Start connection in separate thread to keep UI responsive
         TConnectionThread *connectionThread = new TConnectionThread(SBSIpAddress->Text, 5002, true);
         connectionThread->Resume();
-    }
-    else
-    {
-        TCPClientSBSHandleThread->Terminate();
-        IdTCPClientSBS->Disconnect();
-        IdTCPClientSBS->IOHandler->InputBuffer->Clear();
-        SBSConnectButton->Caption = "SBS Connect";
+	}
+	else
+	{
+		// 안전한 스레드 종료
+		if (TCPClientSBSHandleThread && TCPClientSBSHandleThread->Handle)
+		{
+			try {
+				TCPClientSBSHandleThread->Terminate();
+				TCPClientSBSHandleThread->WaitFor();
+			}
+			catch (...) {
+				printf("Error: SBS thread termination failed\n");
+			}
+		}
+		IdTCPClientSBS->Disconnect();
+		IdTCPClientSBS->IOHandler->InputBuffer->Clear();
+		SBSConnectButton->Caption = "SBS Connect";
         SBSPlaybackButton->Enabled = true;
-				SBSConnectButton->Color = clMoneyGreen;
-    }
+		SBSConnectButton->Color = clMoneyGreen;
+	}
 }
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
@@ -2839,7 +2870,7 @@ void __fastcall TForm1::SBSPlaybackButtonClick(TObject *Sender)
                     TCPClientSBSHandleThread->Resume();
                     SBSPlaybackButton->Caption = "Stop SBS Playback";
                     SBSConnectButton->Enabled = false;
-										SBSConnectButton->Color = clCream;
+					SBSConnectButton->Color = clCream;
                     PlaybackSpeedPanel->Visible = true;
                 }
             }
@@ -2847,9 +2878,19 @@ void __fastcall TForm1::SBSPlaybackButtonClick(TObject *Sender)
     }
     else
     {
-        TCPClientSBSHandleThread->Terminate();
-        delete PlayBackSBSStream;
-        PlayBackSBSStream = NULL;
+		// 안전한 스레드 종료
+		if (TCPClientSBSHandleThread && TCPClientSBSHandleThread->Handle)
+		{
+			try {
+				TCPClientSBSHandleThread->Terminate();
+				TCPClientSBSHandleThread->WaitFor();
+			}
+			catch (...) {
+				printf("Error: SBS thread termination failed\n");
+			}
+		}
+		delete PlayBackSBSStream;
+		PlayBackSBSStream = NULL;
         SBSPlaybackButton->Caption = "SBS Playback";
         SBSConnectButton->Enabled = true;
 		SBSConnectButton->Color = clMoneyGreen;
@@ -2875,7 +2916,17 @@ void __fastcall TForm1::IdTCPClientSBSConnected(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::IdTCPClientSBSDisconnected(TObject *Sender)
 {
-    TCPClientSBSHandleThread->Terminate();
+	// 안전한 스레드 종료
+	if (TCPClientSBSHandleThread && TCPClientSBSHandleThread->Handle)
+	{
+		try {
+			TCPClientSBSHandleThread->Terminate();
+			TCPClientSBSHandleThread->WaitFor();
+		}
+		catch (...) {
+			printf("Error: SBS thread termination failed\n");
+		}
+	}
     SBSTimeoutPopupShown = true;
 }
 //---------------------------------------------------------------------------
@@ -5304,10 +5355,17 @@ void __fastcall TForm1::ShowSBSConnectionLostDialog()
 void __fastcall TForm1::ReconnectToRawDevice()
 {
     // Raw 연결 끊기
-    if (TCPClientRawHandleThread)
-    {
-        TCPClientRawHandleThread->Terminate();
-    }
+	// 안전한 스레드 종료
+	if (TCPClientRawHandleThread && TCPClientRawHandleThread->Handle)
+	{
+		try {
+			TCPClientRawHandleThread->Terminate();
+			TCPClientRawHandleThread->WaitFor();
+		}
+		catch (...) {
+			printf("Error: Raw thread termination failed\n");
+		}
+	}
     if (IdTCPClientRaw->Connected())
     {
         IdTCPClientRaw->Disconnect();
@@ -5329,11 +5387,18 @@ void __fastcall TForm1::ReconnectToRawDevice()
 // SBS 디바이스에 재연결
 void __fastcall TForm1::ReconnectToSBSDevice()
 {
-    // SBS 연결 끊기
-    if (TCPClientSBSHandleThread)
-    {
-        TCPClientSBSHandleThread->Terminate();
-    }
+	// SBS 연결 끊기
+	// 안전한 스레드 종료
+	if (TCPClientSBSHandleThread && TCPClientSBSHandleThread->Handle)
+	{
+		try {
+			TCPClientSBSHandleThread->Terminate();
+			TCPClientSBSHandleThread->WaitFor();
+		}
+		catch (...) {
+			printf("Error: SBS thread termination failed\n");
+		}
+	}
     if (IdTCPClientSBS->Connected())
     {
         IdTCPClientSBS->Disconnect();

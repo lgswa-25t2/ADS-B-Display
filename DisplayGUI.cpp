@@ -826,7 +826,9 @@ void __fastcall TForm1::DrawObjects(void)
     AircraftCountLabel->Caption = IntToStr((int)ght_size(HashTable));
 
     __int64 CurrentTime = GetCurrentTimeInMsec();
-    bool isDataConnected = Form1->IdTCPClientRaw->Connected() || Form1->IdTCPClientSBS->Connected();
+
+    bool isDataThreadWorking = Form1->IdTCPClientRaw->Connected() || Form1->IdTCPClientSBS->Connected();
+    bool isConnectClicked = RawConnectButton->Caption == "Raw Disconnect" || SBSConnectButton->Caption == "SBS Disconnect";
 
     for (Data = (TADS_B_Aircraft *)ght_first(HashTable, &iterator, (const void **)&Key);
          Data; Data = (TADS_B_Aircraft *)ght_next(HashTable, &iterator, (const void **)&Key))
@@ -839,16 +841,7 @@ void __fastcall TForm1::DrawObjects(void)
 
         if (Data->HaveLatLon)
         {
-            if (isDataConnected)
-            {
-                displayLat = Data->Latitude;
-                displayLon = Data->Longitude;
-                displayAlt = Data->Altitude;
-                displayHeading = Data->Heading;
-                displaySpeed = Data->Speed;
-                isPredicted = false;
-            }
-            else
+            if (!isDataThreadWorking && isConnectClicked)
             {
                 // Calculate dead reckoning for the first time
                 CalculateDeadReckoningPosition(Data, CurrentTime);
@@ -859,6 +852,15 @@ void __fastcall TForm1::DrawObjects(void)
                 displaySpeed = Data->LastKnownSpeed;
                 isPredicted = true;
                 hasPosition = true;
+            }
+            else
+            {
+                displayLat = Data->Latitude;
+                displayLon = Data->Longitude;
+                displayAlt = Data->Altitude;
+                displayHeading = Data->Heading;
+                displaySpeed = Data->Speed;
+                isPredicted = false;
             }
 
             // 1. Aircraft type 판별 (한 번만)
@@ -1323,7 +1325,7 @@ void __fastcall TForm1::DrawObjects(void)
         }
     }
 
-    if (!isDataConnected && ght_size(HashTable) > 0)
+    if (!isDataThreadWorking && isConnectClicked && ght_size(HashTable) > 0)
     {
         DrawDeadReckoningStatusBar();
     }
@@ -5803,6 +5805,10 @@ void __fastcall TAircraftAircraftDistanceThread::Execute()
                 if (!Data1->HaveAltitude || Data1->Altitude <= 0)
                     continue;
 
+                // 헬리콥터나 군용기는 제외
+                if (aircraft_is_helicopter(Data1->ICAO, NULL) || IsAircraftMilitary(Data1->ICAO))
+                    continue;
+
                 // 두 번째 항공기와의 거리 계산
                 for (Data2 = (TADS_B_Aircraft *)ght_first(Form1->HashTable, &iterator2, (const void **)&Key2);
                      Data2; Data2 = (TADS_B_Aircraft *)ght_next(Form1->HashTable, &iterator2, (const void **)&Key2))
@@ -5817,6 +5823,10 @@ void __fastcall TAircraftAircraftDistanceThread::Execute()
 
                     // 같은 항공기는 제외
                     if (Data1->ICAO == Data2->ICAO)
+                        continue;
+
+                    // 헬리콥터나 군용기는 제외
+                    if (aircraft_is_helicopter(Data2->ICAO, NULL) || IsAircraftMilitary(Data2->ICAO))
                         continue;
 
                     // 1. 평면 거리 계산 (해리 단위)
@@ -5858,8 +5868,14 @@ void __fastcall TAircraftAircraftDistanceThread::Execute()
                             distanceResult->closeAircraftPairs.push_back(pair);
 
                             // 콘솔에 로그 출력
-                            printf("CLOSE AIRCRAFT PAIR: ICAO1=%06X, ICAO2=%06X, Distance=%.2f NM\n",
-                                   icao1, icao2, sqrt(distance3DSquare));
+                            printf("CLOSE AIRCRAFT PAIR: ICAO1=%06X, ICAO2=%06X, Distance=%.2f NM, v=%.2f, h=%.2f\n",
+                                   icao1, icao2, sqrt(distance3DSquare), verticalDistance, sqrt(horizontalDistanceSquare));
+                            printf("    ALT      ICAO1=%.1f, ICAO2=%.1f\n",
+                                   Data1->Altitude, Data2->Altitude);
+                            printf("    LAT      ICAO1=%.5f, ICAO2=%.5f\n",
+                                   Data1->Latitude, Data2->Latitude);
+                            printf("    LON      ICAO1=%.5f, ICAO2=%.5f\n\n",
+                                   Data1->Longitude, Data2->Longitude);
                         }
                     }
                 }

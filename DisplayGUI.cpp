@@ -4590,16 +4590,9 @@ void __fastcall TForm1::MapScrollBoxHScroll(TObject *Sender, TScrollCode ScrollC
 
         MapCenterLon += deltaX;
 
-        // 경계값 체크 (검은색 영역 제외)
-        double zoomLevel = g_EarthView->m_Eye.h;
-        double mapWidth = 360.0 * zoomLevel;
-        double maxLon = 180.0 - mapWidth / 2.0;
-        double minLon = -180.0 + mapWidth / 2.0;
-
-        if (MapCenterLon > maxLon)
-            MapCenterLon = maxLon;
-        if (MapCenterLon < minLon)
-            MapCenterLon = minLon;
+        // 경계값 체크 (전체 경도 범위 - 화살표 키는 끝까지 이동 가능)
+        if (MapCenterLon > 180.0) MapCenterLon = 180.0;
+        if (MapCenterLon < -180.0) MapCenterLon = -180.0;
 
         // 지도 중심점 설정
         SetMapCenter(g_EarthView->m_Eye.x, g_EarthView->m_Eye.y);
@@ -4685,16 +4678,9 @@ void __fastcall TForm1::MapVScrollBarScroll(TObject *Sender, TScrollCode ScrollC
 
         MapCenterLat += deltaY;
 
-        // 경계값 체크 (검은색 영역 제외)
-        double zoomLevel = g_EarthView->m_Eye.h;
-        double mapHeight = 170.0 * zoomLevel;
-        double maxLat = 85.0 - mapHeight / 2.0;
-        double minLat = -85.0 + mapHeight / 2.0;
-
-        if (MapCenterLat > maxLat)
-            MapCenterLat = maxLat;
-        if (MapCenterLat < minLat)
-            MapCenterLat = minLat;
+        // 경계값 체크 (전체 위도 범위 - 화살표 키는 끝까지 이동 가능)
+        if (MapCenterLat > 85.0) MapCenterLat = 85.0;
+        if (MapCenterLat < -85.0) MapCenterLat = -85.0;
 
         // 지도 중심점 설정
         SetMapCenter(g_EarthView->m_Eye.x, g_EarthView->m_Eye.y);
@@ -4715,11 +4701,9 @@ void __fastcall TForm1::MapVScrollBarScroll(TObject *Sender, TScrollCode ScrollC
 
         MapCenterLat += deltaY;
 
-        // 경계값 체크 (전체 위도 범위)
-        if (MapCenterLat > 85.0)
-            MapCenterLat = 85.0;
-        if (MapCenterLat < -85.0)
-            MapCenterLat = -85.0;
+        // 경계값 체크 (전체 위도 범위 - Page 키도 끝까지 이동 가능)
+        if (MapCenterLat > 85.0) MapCenterLat = 85.0;
+        if (MapCenterLat < -85.0) MapCenterLat = -85.0;
 
         // 지도 중심점 설정
         SetMapCenter(g_EarthView->m_Eye.x, g_EarthView->m_Eye.y);
@@ -5010,16 +4994,9 @@ void __fastcall TForm1::MapHScrollBarScroll(TObject *Sender, TScrollCode ScrollC
 
         MapCenterLon += deltaX;
 
-        // 경계값 체크 (검은색 영역 제외)
-        double zoomLevel = g_EarthView->m_Eye.h;
-        double mapWidth = 360.0 * zoomLevel;
-        double maxLon = 180.0 - mapWidth / 2.0;
-        double minLon = -180.0 + mapWidth / 2.0;
-
-        if (MapCenterLon > maxLon)
-            MapCenterLon = maxLon;
-        if (MapCenterLon < minLon)
-            MapCenterLon = minLon;
+        // 경계값 체크 (전체 경도 범위 - 화살표 키는 끝까지 이동 가능)
+        if (MapCenterLon > 180.0) MapCenterLon = 180.0;
+        if (MapCenterLon < -180.0) MapCenterLon = -180.0;
 
         // 지도 중심점 설정
         SetMapCenter(g_EarthView->m_Eye.x, g_EarthView->m_Eye.y);

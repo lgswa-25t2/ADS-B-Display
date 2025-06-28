@@ -715,7 +715,7 @@ object Form1: TForm1
       Height = 25
       Align = alTop
       BevelOuter = bvNone
-      Caption = 'Control Menu '#9660
+      Caption = 'Control Menu '#9650
       Color = clTeal
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindow

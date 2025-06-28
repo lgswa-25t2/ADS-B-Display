@@ -3631,14 +3631,14 @@ void __fastcall TForm1::UpdateAircraftInfo(TADS_B_Aircraft *Data)
     if (a)
     {
         // Update aircraft metadata in right panel
-        SerialNum->Caption = AnsiString(a->Fields[AC_DB_SerialNumber].c_str());
-        Manufacturer->Caption = AnsiString(a->Fields[AC_DB_ManufacturerName].c_str());
-        Model->Caption = AnsiString(a->Fields[AC_DB_Model].c_str());
-        MFRYear->Caption = AnsiString(a->Fields[AC_DB_Built].c_str());
-        CeritificatedInfo->Caption = AnsiString(a->Fields[AC_DB_Registered].c_str());
-        ExpirationData->Caption = AnsiString(a->Fields[AC_DB_RegUntil].c_str());
-        EngineType->Caption = AnsiString(a->Fields[AC_DB_Engines].c_str());
-        AirType->Caption = AnsiString(a->Fields[AC_DB_ICAOAircraftType].c_str());
+        SerialNum->Caption = SafeAnsiString(a->Fields[AC_DB_SerialNumber].c_str());
+        Manufacturer->Caption = SafeAnsiString(a->Fields[AC_DB_ManufacturerName].c_str());
+        Model->Caption = SafeAnsiString(a->Fields[AC_DB_Model].c_str());
+        MFRYear->Caption = SafeAnsiString(a->Fields[AC_DB_Built].c_str());
+        CeritificatedInfo->Caption = SafeAnsiString(a->Fields[AC_DB_Registered].c_str());
+        ExpirationData->Caption = SafeAnsiString(a->Fields[AC_DB_RegUntil].c_str());
+        EngineType->Caption = SafeAnsiString(a->Fields[AC_DB_Engines].c_str());
+        AirType->Caption = SafeAnsiString(a->Fields[AC_DB_ICAOAircraftType].c_str());
 
         printf("Aircraft metadata updated in UI\n");
     }
@@ -3678,10 +3678,10 @@ void __fastcall TForm1::UpdateRouteInfo(TADS_B_Aircraft *Data)
     if (a && a->airport_size > 0)
     {
         // Departure Airport (첫 번째 공항)
-        DepartureAirportName->Caption = AnsiString(a->airport_name[0].c_str());
-        DepartureAirportICAO->Caption = AnsiString(a->airport_icao[0].c_str());
-        DepartureAirportLocation->Caption = AnsiString(a->airport_location[0].c_str());
-        Label36->Caption = AnsiString(a->airport_countryiso2[0].c_str()); // Departure Country
+        DepartureAirportName->Caption = SafeAnsiString(a->airport_name[0].c_str());
+        DepartureAirportICAO->Caption = SafeAnsiString(a->airport_icao[0].c_str());
+        DepartureAirportLocation->Caption = SafeAnsiString(a->airport_location[0].c_str());
+        Label36->Caption = SafeAnsiString(a->airport_countryiso2[0].c_str()); // Departure Country
 
         printf("Departure: %s (%s) - %s, %s\n",
                a->airport_name[0].c_str(),
@@ -3693,10 +3693,10 @@ void __fastcall TForm1::UpdateRouteInfo(TADS_B_Aircraft *Data)
         if (a->airport_size > 1)
         {
             uint32_t lastIndex = a->airport_size - 1;
-            DestinationAirportName->Caption = AnsiString(a->airport_name[lastIndex].c_str());
-            DestinationAirportICAO->Caption = AnsiString(a->airport_icao[lastIndex].c_str());
-            DestinationAirportLocation->Caption = AnsiString(a->airport_location[lastIndex].c_str());
-            DestinationCounty->Caption = AnsiString(a->airport_countryiso2[lastIndex].c_str()); // Destination Country
+            DestinationAirportName->Caption = SafeAnsiString(a->airport_name[lastIndex].c_str());
+            DestinationAirportICAO->Caption = SafeAnsiString(a->airport_icao[lastIndex].c_str());
+            DestinationAirportLocation->Caption = SafeAnsiString(a->airport_location[lastIndex].c_str());
+            DestinationCounty->Caption = SafeAnsiString(a->airport_countryiso2[lastIndex].c_str()); // Destination Country
 
             printf("Destination: %s (%s) - %s, %s\n",
                    a->airport_name[lastIndex].c_str(),
@@ -3716,10 +3716,10 @@ void __fastcall TForm1::UpdateRouteInfo(TADS_B_Aircraft *Data)
         // Transit Airport 1 (두 번째 공항, airport_size > 2인 경우)
         if (a->airport_size > 2)
         {
-            TransitAirport1Name->Caption = AnsiString(a->airport_name[1].c_str());
-            TransitAirport1ICAO->Caption = AnsiString(a->airport_icao[1].c_str());
-            TransitAirport1Location->Caption = AnsiString(a->airport_location[1].c_str());
-            TransitAirport1Country->Caption = AnsiString(a->airport_countryiso2[1].c_str());
+            TransitAirport1Name->Caption = SafeAnsiString(a->airport_name[1].c_str());
+            TransitAirport1ICAO->Caption = SafeAnsiString(a->airport_icao[1].c_str());
+            TransitAirport1Location->Caption = SafeAnsiString(a->airport_location[1].c_str());
+            TransitAirport1Country->Caption = SafeAnsiString(a->airport_countryiso2[1].c_str());
 
             printf("Transit1: %s (%s) - %s, %s\n",
                    a->airport_name[1].c_str(),
@@ -3738,10 +3738,10 @@ void __fastcall TForm1::UpdateRouteInfo(TADS_B_Aircraft *Data)
         // Transit Airport 2 (세 번째 공항, airport_size > 3인 경우)
         if (a->airport_size > 3)
         {
-            TransitAirport2Name->Caption = AnsiString(a->airport_name[2].c_str());
-            TransitAirport2ICAO->Caption = AnsiString(a->airport_icao[2].c_str());
-            TransitAirport2Location->Caption = AnsiString(a->airport_location[2].c_str());
-            TransitAirport2Country->Caption = AnsiString(a->airport_countryiso2[2].c_str());
+            TransitAirport2Name->Caption = SafeAnsiString(a->airport_name[2].c_str());
+            TransitAirport2ICAO->Caption = SafeAnsiString(a->airport_icao[2].c_str());
+            TransitAirport2Location->Caption = SafeAnsiString(a->airport_location[2].c_str());
+            TransitAirport2Country->Caption = SafeAnsiString(a->airport_countryiso2[2].c_str());
 
             printf("Transit2: %s (%s) - %s, %s\n",
                    a->airport_name[2].c_str(),
@@ -3835,7 +3835,7 @@ void __fastcall TForm1::TogglePanels()
         Panel4->Align = alBottom;
         Panel4->Height = 390;
 
-        PanelTitle1->Caption = "Control Menu ▼";
+        PanelTitle1->Caption = "Control Menu ▲";
         PanelTitle1->Color = clTeal;
         PanelTitle1->Hint = "Click to hide Control Menu";
     }
@@ -5939,4 +5939,15 @@ void __fastcall TForm1::PanelButtonMouseUp(TObject *Sender, TMouseButton Button,
     if (panel) {
         panel->BevelOuter = bvRaised;   // 원래대로
     }
+}
+
+AnsiString __fastcall TForm1::SafeAnsiString(AnsiString input)
+{
+    AnsiString trimmed = input.Trim();
+    
+    // 빈 문자열이거나 "?"이면 "N/A" 반환
+    if (trimmed.IsEmpty() || trimmed == "?" || trimmed == "???" || trimmed == "????")
+        return "N/A";
+    
+    return trimmed;
 }

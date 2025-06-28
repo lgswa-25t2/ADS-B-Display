@@ -646,6 +646,7 @@ public: // User declarations
     // Draw all airport in the map by checkbox
     void __fastcall DrawAllAirports();
     void __fastcall GetAltitudeLineColor(double altitude, float &r, float &g, float &b, float &alpha);
+    AnsiString __fastcall SafeAnsiString(AnsiString input);
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TForm1 *Form1;

@@ -51,8 +51,11 @@ void __fastcall TAreaConfirm::OkButtonClick(TObject *Sender)
 
  Form1->AreaTemp=NULL;
  Form1->Insert->Enabled=true;
+ Form1->Insert->Color = clMoneyGreen;
  Form1->Complete->Enabled=false;
+ Form1->Complete->Color = clCream;
  Form1->Cancel->Enabled=false;
+ Form1->Cancel->Color = clCream;
  Form1->LoadARTCCBoundaries1->Enabled=true;
 // if (Form1->Areas->Count>0)  Form1->Delete->Enabled=true;
  //else   Form1->Delete->Enabled=false;

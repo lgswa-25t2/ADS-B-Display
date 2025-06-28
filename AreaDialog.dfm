@@ -4,7 +4,7 @@ object AreaConfirm: TAreaConfirm
   Caption = 'Comfirm'
   ClientHeight = 179
   ClientWidth = 279
-  Color = clBtnFace
+  Color = clSnow
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11

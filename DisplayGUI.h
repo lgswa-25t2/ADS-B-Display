@@ -26,6 +26,8 @@
 #include <IdTCPConnection.hpp>
 #include "cspin.h"
 #include "Aircraft.h"
+#include <Vcl.Grids.hpp>
+#include <Vcl.Outline.hpp>
 #include <map>
 #include <unordered_map>
 #include <chrono>
@@ -313,7 +315,7 @@ class TForm1 : public TForm
     TLabel *Label40;
     TLabel *DestinationAirportLocation;
     TLabel *Label41;
-    TLabel *Label42;
+	TLabel *DestinationCounty;
     TLabel *Label43;
     TLabel *Label44;
     TLabel *TransitAirport1Name;
@@ -383,6 +385,12 @@ class TForm1 : public TForm
 	TLabel *Label4;
 	TPanel *InnePanel;
 	TPanel *InnerPannel2;
+	TOutline *Outline1;
+	TLabel *LabelLat;
+	TLabel *LabelLong;
+	TLabel *CLatiLabel;
+	TLabel *CLongtLabel;
+	TShape *Shape1;
     void __fastcall ObjectDisplayInit(TObject *Sender);
     void __fastcall ObjectDisplayResize(TObject *Sender);
     void __fastcall ObjectDisplayPaint(TObject *Sender);

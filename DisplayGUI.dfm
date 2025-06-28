@@ -87,8 +87,6 @@ object Form1: TForm1
     Color = clWindow
     Constraints.MaxWidth = 250
     TabOrder = 0
-    ExplicitLeft = 978
-    ExplicitHeight = 748
     object Panel1: TPanel
       Left = -2
       Top = 400
@@ -700,6 +698,15 @@ object Form1: TForm1
         TabOrder = 2
         OnClick = LiveMapCheckboxClick
       end
+      object Outline1: TOutline
+        Left = 232
+        Top = 48
+        Width = 121
+        Height = 97
+        ItemHeight = 13
+        TabOrder = 3
+        ItemSeparator = '\'
+      end
     end
     object PanelTitle1: TPanel
       Left = 1
@@ -735,7 +742,6 @@ object Form1: TForm1
       ParentBackground = False
       ParentFont = False
       TabOrder = 4
-      ExplicitTop = 332
       object PanelTitle2: TLabel
         AlignWithMargins = True
         Left = 4
@@ -762,9 +768,9 @@ object Form1: TForm1
         Top = 24
         Width = 246
         Height = 390
+        HorzScrollBar.Visible = False
         VertScrollBar.Color = clCream
         VertScrollBar.ParentColor = False
-        VertScrollBar.Position = 163
         Align = alBottom
         BevelEdges = []
         BevelInner = bvNone
@@ -782,7 +788,7 @@ object Form1: TForm1
         UseWheelForScrolling = True
         object InnePanel: TPanel
           Left = 0
-          Top = -163
+          Top = 0
           Width = 228
           Height = 95
           BevelOuter = bvNone
@@ -816,7 +822,7 @@ object Form1: TForm1
             ParentFont = False
           end
           object Label11: TLabel
-            Left = 16
+            Left = 5
             Top = 76
             Width = 53
             Height = 15
@@ -906,6 +912,14 @@ object Form1: TForm1
             Font.Style = []
             ParentFont = False
           end
+          object Shape1: TShape
+            Left = 0
+            Top = 92
+            Width = 228
+            Height = 2
+            Brush.Color = clMoneyGreen
+            Pen.Color = clMoneyGreen
+          end
           object SystemTime: TStaticText
             Left = 90
             Top = 4
@@ -923,8 +937,8 @@ object Form1: TForm1
         end
         object InnerPannel2: TPanel
           Left = 0
-          Top = -68
-          Width = 228
+          Top = 95
+          Width = 240
           Height = 700
           BevelOuter = bvNone
           Color = clSnow
@@ -932,7 +946,7 @@ object Form1: TForm1
           TabOrder = 1
           object SpdLabel: TLabel
             Left = 70
-            Top = 37
+            Top = 76
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -945,7 +959,7 @@ object Form1: TForm1
           end
           object HdgLabel: TLabel
             Left = 70
-            Top = 56
+            Top = 95
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -958,7 +972,7 @@ object Form1: TForm1
           end
           object AltLabel: TLabel
             Left = 70
-            Top = 75
+            Top = 114
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -971,7 +985,7 @@ object Form1: TForm1
           end
           object MsgCntLabel: TLabel
             Left = 70
-            Top = 258
+            Top = 297
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -984,7 +998,7 @@ object Form1: TForm1
           end
           object TrkLastUpdateTimeLabel: TLabel
             Left = 125
-            Top = 686
+            Top = 725
             Width = 72
             Height = 15
             Caption = '00:00:00:000'
@@ -997,7 +1011,7 @@ object Form1: TForm1
           end
           object Label14: TLabel
             Left = 5
-            Top = 686
+            Top = 725
             Width = 101
             Height = 15
             Caption = 'LAST UPDATE TIME:'
@@ -1010,7 +1024,7 @@ object Form1: TForm1
           end
           object Label13: TLabel
             Left = 5
-            Top = 258
+            Top = 297
             Width = 51
             Height = 15
             Caption = 'MSG CNT:'
@@ -1023,7 +1037,7 @@ object Form1: TForm1
           end
           object Label10: TLabel
             Left = 5
-            Top = 76
+            Top = 115
             Width = 19
             Height = 15
             Caption = 'ALT:'
@@ -1036,7 +1050,7 @@ object Form1: TForm1
           end
           object Label9: TLabel
             Left = 5
-            Top = 57
+            Top = 96
             Width = 27
             Height = 15
             Caption = 'HDG:'
@@ -1049,7 +1063,7 @@ object Form1: TForm1
           end
           object Label8: TLabel
             Left = 5
-            Top = 38
+            Top = 77
             Width = 24
             Height = 15
             Caption = 'SPD:'
@@ -1062,59 +1076,59 @@ object Form1: TForm1
           end
           object Label18: TLabel
             Left = 5
-            Top = 20
-            Width = 49
+            Top = 19
+            Width = 50
             Height = 15
             Caption = 'FLIGHT #:'
             Font.Charset = ANSI_CHARSET
-            Font.Color = clWindowText
+            Font.Color = clNavy
             Font.Height = -13
             Font.Name = 'Calibri'
-            Font.Style = []
+            Font.Style = [fsBold]
             ParentFont = False
           end
           object FlightNumLabel: TLabel
             Left = 70
-            Top = 20
-            Width = 20
+            Top = 19
+            Width = 22
             Height = 15
             Caption = 'N/A'
             Font.Charset = ANSI_CHARSET
-            Font.Color = clWindowText
+            Font.Color = clNavy
             Font.Height = -13
             Font.Name = 'Calibri'
-            Font.Style = []
+            Font.Style = [fsBold]
             ParentFont = False
           end
           object ICAOLabel: TLabel
             Left = 70
-            Top = 1
-            Width = 46
+            Top = 2
+            Width = 47
             Height = 15
             Caption = 'No Hook'
             Font.Charset = ANSI_CHARSET
-            Font.Color = clWindowText
+            Font.Color = clNavy
             Font.Height = -13
             Font.Name = 'Calibri'
-            Font.Style = []
+            Font.Style = [fsBold]
             ParentFont = False
           end
           object Label5: TLabel
             Left = 5
-            Top = 1
-            Width = 30
+            Top = 2
+            Width = 31
             Height = 15
             Caption = 'ICAO:'
             Font.Charset = ANSI_CHARSET
-            Font.Color = clWindowText
+            Font.Color = clNavy
             Font.Height = -13
             Font.Name = 'Calibri'
-            Font.Style = []
+            Font.Style = [fsBold]
             ParentFont = False
           end
           object Label22: TLabel
             Left = 5
-            Top = 97
+            Top = 136
             Width = 22
             Height = 15
             Caption = 'S/N:'
@@ -1127,7 +1141,7 @@ object Form1: TForm1
           end
           object SerialNum: TLabel
             Left = 70
-            Top = 96
+            Top = 135
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -1140,7 +1154,7 @@ object Form1: TForm1
           end
           object Label23: TLabel
             Left = 4
-            Top = 118
+            Top = 157
             Width = 27
             Height = 15
             Caption = 'MFR:'
@@ -1153,7 +1167,7 @@ object Form1: TForm1
           end
           object Manufacturer: TLabel
             Left = 70
-            Top = 117
+            Top = 156
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -1166,7 +1180,7 @@ object Form1: TForm1
           end
           object Label24: TLabel
             Left = 5
-            Top = 139
+            Top = 178
             Width = 38
             Height = 15
             Caption = 'Model:'
@@ -1179,7 +1193,7 @@ object Form1: TForm1
           end
           object Model: TLabel
             Left = 70
-            Top = 138
+            Top = 177
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -1192,7 +1206,7 @@ object Form1: TForm1
           end
           object Label25: TLabel
             Left = 4
-            Top = 160
+            Top = 199
             Width = 53
             Height = 15
             Caption = 'MFR Year:'
@@ -1205,7 +1219,7 @@ object Form1: TForm1
           end
           object MFRYear: TLabel
             Left = 70
-            Top = 159
+            Top = 198
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -1218,7 +1232,7 @@ object Form1: TForm1
           end
           object Label26: TLabel
             Left = 4
-            Top = 181
+            Top = 220
             Width = 27
             Height = 15
             Caption = 'Type:'
@@ -1231,7 +1245,7 @@ object Form1: TForm1
           end
           object Label27: TLabel
             Left = 4
-            Top = 202
+            Top = 241
             Width = 39
             Height = 15
             Caption = 'Engine:'
@@ -1244,7 +1258,7 @@ object Form1: TForm1
           end
           object AirType: TLabel
             Left = 70
-            Top = 180
+            Top = 219
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -1257,7 +1271,7 @@ object Form1: TForm1
           end
           object EngineType: TLabel
             Left = 70
-            Top = 201
+            Top = 240
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -1270,7 +1284,7 @@ object Form1: TForm1
           end
           object Label29: TLabel
             Left = 4
-            Top = 222
+            Top = 261
             Width = 25
             Height = 15
             Caption = 'Cert:'
@@ -1283,7 +1297,7 @@ object Form1: TForm1
           end
           object CeritificatedInfo: TLabel
             Left = 70
-            Top = 222
+            Top = 261
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -1296,7 +1310,7 @@ object Form1: TForm1
           end
           object Label30: TLabel
             Left = 4
-            Top = 239
+            Top = 278
             Width = 59
             Height = 15
             Caption = 'Expiration:'
@@ -1309,7 +1323,7 @@ object Form1: TForm1
           end
           object ExpirationData: TLabel
             Left = 70
-            Top = 239
+            Top = 278
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -1322,7 +1336,7 @@ object Form1: TForm1
           end
           object SubTitleDeparture: TLabel
             Left = 5
-            Top = 277
+            Top = 316
             Width = 142
             Height = 15
             Caption = #9654#9654' Departure Airport '#9664#9664
@@ -1335,7 +1349,7 @@ object Form1: TForm1
           end
           object DepartureAirportName: TLabel
             Left = 70
-            Top = 295
+            Top = 334
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -1348,7 +1362,7 @@ object Form1: TForm1
           end
           object Label32: TLabel
             Left = 5
-            Top = 312
+            Top = 351
             Width = 30
             Height = 15
             Caption = 'ICAO:'
@@ -1361,7 +1375,7 @@ object Form1: TForm1
           end
           object Label33: TLabel
             Left = 5
-            Top = 295
+            Top = 334
             Width = 34
             Height = 15
             Caption = 'Name:'
@@ -1374,7 +1388,7 @@ object Form1: TForm1
           end
           object DepartureAirportICAO: TLabel
             Left = 70
-            Top = 312
+            Top = 351
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -1387,7 +1401,7 @@ object Form1: TForm1
           end
           object Label35: TLabel
             Left = 5
-            Top = 328
+            Top = 367
             Width = 49
             Height = 15
             Caption = 'Location:'
@@ -1400,7 +1414,7 @@ object Form1: TForm1
           end
           object DepartureAirportLocation: TLabel
             Left = 70
-            Top = 328
+            Top = 367
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -1413,7 +1427,7 @@ object Form1: TForm1
           end
           object Label34: TLabel
             Left = 5
-            Top = 344
+            Top = 383
             Width = 46
             Height = 15
             Caption = 'Country:'
@@ -1426,7 +1440,7 @@ object Form1: TForm1
           end
           object Label36: TLabel
             Left = 70
-            Top = 344
+            Top = 383
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -1439,7 +1453,7 @@ object Form1: TForm1
           end
           object subTitleDestination: TLabel
             Left = 5
-            Top = 365
+            Top = 404
             Width = 148
             Height = 15
             Caption = #9654#9654' Destination Airport '#9664#9664
@@ -1452,7 +1466,7 @@ object Form1: TForm1
           end
           object Label38: TLabel
             Left = 5
-            Top = 386
+            Top = 425
             Width = 34
             Height = 15
             Caption = 'Name:'
@@ -1465,7 +1479,7 @@ object Form1: TForm1
           end
           object DestinationAirportName: TLabel
             Left = 70
-            Top = 386
+            Top = 425
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -1478,7 +1492,7 @@ object Form1: TForm1
           end
           object Label39: TLabel
             Left = 5
-            Top = 407
+            Top = 446
             Width = 30
             Height = 15
             Caption = 'ICAO:'
@@ -1491,7 +1505,7 @@ object Form1: TForm1
           end
           object DestinationAirportICAO: TLabel
             Left = 70
-            Top = 407
+            Top = 446
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -1504,7 +1518,7 @@ object Form1: TForm1
           end
           object Label40: TLabel
             Left = 5
-            Top = 428
+            Top = 467
             Width = 49
             Height = 15
             Caption = 'Location:'
@@ -1517,7 +1531,7 @@ object Form1: TForm1
           end
           object DestinationAirportLocation: TLabel
             Left = 72
-            Top = 428
+            Top = 467
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -1530,7 +1544,7 @@ object Form1: TForm1
           end
           object Label41: TLabel
             Left = 5
-            Top = 449
+            Top = 488
             Width = 46
             Height = 15
             Caption = 'Country:'
@@ -1541,9 +1555,9 @@ object Form1: TForm1
             Font.Style = []
             ParentFont = False
           end
-          object Label42: TLabel
+          object DestinationCounty: TLabel
             Left = 70
-            Top = 449
+            Top = 488
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -1556,7 +1570,7 @@ object Form1: TForm1
           end
           object Label43: TLabel
             Left = 5
-            Top = 470
+            Top = 509
             Width = 136
             Height = 15
             Caption = #9654#9654' Transit Airport[1] '#9664#9664
@@ -1569,7 +1583,7 @@ object Form1: TForm1
           end
           object Label44: TLabel
             Left = 5
-            Top = 491
+            Top = 530
             Width = 34
             Height = 15
             Caption = 'Name:'
@@ -1582,7 +1596,7 @@ object Form1: TForm1
           end
           object TransitAirport1Name: TLabel
             Left = 70
-            Top = 491
+            Top = 530
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -1595,7 +1609,7 @@ object Form1: TForm1
           end
           object Label46: TLabel
             Left = 5
-            Top = 512
+            Top = 551
             Width = 30
             Height = 15
             Caption = 'ICAO:'
@@ -1608,7 +1622,7 @@ object Form1: TForm1
           end
           object TransitAirport1ICAO: TLabel
             Left = 70
-            Top = 512
+            Top = 551
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -1621,7 +1635,7 @@ object Form1: TForm1
           end
           object Label48: TLabel
             Left = 5
-            Top = 533
+            Top = 572
             Width = 49
             Height = 15
             Caption = 'Location:'
@@ -1634,7 +1648,7 @@ object Form1: TForm1
           end
           object TransitAirport1Location: TLabel
             Left = 70
-            Top = 533
+            Top = 572
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -1647,7 +1661,7 @@ object Form1: TForm1
           end
           object Label50: TLabel
             Left = 5
-            Top = 554
+            Top = 593
             Width = 46
             Height = 15
             Caption = 'Country:'
@@ -1660,7 +1674,7 @@ object Form1: TForm1
           end
           object TransitAirport1Country: TLabel
             Left = 70
-            Top = 554
+            Top = 593
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -1673,7 +1687,7 @@ object Form1: TForm1
           end
           object Label45: TLabel
             Left = 3
-            Top = 575
+            Top = 614
             Width = 136
             Height = 15
             Caption = #9654#9654' Transit Airport[2] '#9664#9664
@@ -1686,7 +1700,7 @@ object Form1: TForm1
           end
           object Label47: TLabel
             Left = 5
-            Top = 596
+            Top = 635
             Width = 34
             Height = 15
             Caption = 'Name:'
@@ -1699,7 +1713,7 @@ object Form1: TForm1
           end
           object TransitAirport2Name: TLabel
             Left = 72
-            Top = 596
+            Top = 635
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -1712,7 +1726,7 @@ object Form1: TForm1
           end
           object Label51: TLabel
             Left = 5
-            Top = 617
+            Top = 656
             Width = 30
             Height = 15
             Caption = 'ICAO:'
@@ -1725,7 +1739,7 @@ object Form1: TForm1
           end
           object TransitAirport2ICAO: TLabel
             Left = 72
-            Top = 617
+            Top = 656
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -1738,7 +1752,7 @@ object Form1: TForm1
           end
           object Label53: TLabel
             Left = 5
-            Top = 638
+            Top = 677
             Width = 49
             Height = 15
             Caption = 'Location:'
@@ -1751,7 +1765,7 @@ object Form1: TForm1
           end
           object TransitAirport2Location: TLabel
             Left = 72
-            Top = 638
+            Top = 677
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -1764,7 +1778,7 @@ object Form1: TForm1
           end
           object Label55: TLabel
             Left = 5
-            Top = 659
+            Top = 698
             Width = 46
             Height = 15
             Caption = 'Country:'
@@ -1777,7 +1791,7 @@ object Form1: TForm1
           end
           object TransitAirport2Country: TLabel
             Left = 72
-            Top = 659
+            Top = 698
             Width = 20
             Height = 15
             Caption = 'N/A'
@@ -1787,6 +1801,34 @@ object Form1: TForm1
             Font.Name = 'Calibri'
             Font.Style = []
             ParentFont = False
+          end
+          object LabelLat: TLabel
+            Left = 5
+            Top = 40
+            Width = 41
+            Height = 15
+            Caption = 'Lat(AC):'
+          end
+          object LabelLong: TLabel
+            Left = 5
+            Top = 59
+            Width = 44
+            Height = 15
+            Caption = 'Lon(AC):'
+          end
+          object CLatiLabel: TLabel
+            Left = 70
+            Top = 40
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
+          end
+          object CLongtLabel: TLabel
+            Left = 70
+            Top = 59
+            Width = 20
+            Height = 15
+            Caption = 'N/A'
           end
         end
       end
@@ -1808,8 +1850,6 @@ object Form1: TForm1
     ParentBackground = False
     ParentFont = False
     TabOrder = 1
-    ExplicitTop = 748
-    ExplicitWidth = 1228
     object LegendTitle: TLabel
       Left = 7
       Top = 6
@@ -2191,7 +2231,6 @@ object Form1: TForm1
     OnInit = ObjectDisplayInit
     OnResize = ObjectDisplayResize
     OnPaint = ObjectDisplayPaint
-    ExplicitLeft = -1
   end
   object PlaybackSpeedPanel: TPanel
     Left = 914
@@ -2203,7 +2242,6 @@ object Form1: TForm1
     ParentBackground = False
     TabOrder = 3
     Visible = False
-    ExplicitLeft = 556
     DesignSize = (
       401
       85)

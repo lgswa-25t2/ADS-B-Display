@@ -1104,6 +1104,17 @@ void __fastcall TForm1::DrawObjects(void)
             else
                 FlightNumLabel->Caption = "N/A";
 
+        	 if (Data->HaveLatLon)
+            {
+                CLatiLabel->Caption = DMS::DegreesMinutesSecondsLat(Data->Latitude).c_str();
+                CLongtLabel->Caption = DMS::DegreesMinutesSecondsLon(Data->Longitude).c_str();
+            }
+            else
+            {
+                CLatiLabel->Caption = "N/A";
+                CLongtLabel->Caption = "N/A";
+            }
+
             if (Data->HaveSpeedAndHeading)
             {
                 SpdLabel->Caption = FloatToStrF(Data->Speed, ffFixed, 12, 2) + " KTS  VRATE:" + FloatToStrF(Data->VerticalRate, ffFixed, 12, 2);
@@ -1185,6 +1196,8 @@ void __fastcall TForm1::DrawObjects(void)
             TrackHook.Valid_CC = false;
             ICAOLabel->Caption = "N/A";
             FlightNumLabel->Caption = "N/A";
+            CLatiLabel->Caption = "N/A";
+            CLongtLabel->Caption = "N/A";
             SpdLabel->Caption = "N/A";
             HdgLabel->Caption = "N/A";
             AltLabel->Caption = "N/A";
@@ -1762,6 +1775,8 @@ void __fastcall TForm1::HookTrack(int X, int Y, bool CPA_Hook)
             TrackHook.Valid_CC = false;
             ICAOLabel->Caption = "N/A";
             FlightNumLabel->Caption = "N/A";
+            CLatiLabel->Caption = "N/A";
+            CLongtLabel->Caption = "N/A";
             SpdLabel->Caption = "N/A";
             HdgLabel->Caption = "N/A";
             AltLabel->Caption = "N/A";
@@ -3679,7 +3694,7 @@ void __fastcall TForm1::UpdateRouteInfo(TADS_B_Aircraft *Data)
             DestinationAirportName->Caption = AnsiString(a->airport_name[lastIndex].c_str());
             DestinationAirportICAO->Caption = AnsiString(a->airport_icao[lastIndex].c_str());
             DestinationAirportLocation->Caption = AnsiString(a->airport_location[lastIndex].c_str());
-            Label42->Caption = AnsiString(a->airport_countryiso2[lastIndex].c_str()); // Destination Country
+            DestinationCounty->Caption = AnsiString(a->airport_countryiso2[lastIndex].c_str()); // Destination Country
 
             printf("Destination: %s (%s) - %s, %s\n",
                    a->airport_name[lastIndex].c_str(),
@@ -3693,7 +3708,7 @@ void __fastcall TForm1::UpdateRouteInfo(TADS_B_Aircraft *Data)
             DestinationAirportName->Caption = "N/A";
             DestinationAirportICAO->Caption = "N/A";
             DestinationAirportLocation->Caption = "N/A";
-            Label42->Caption = "N/A";
+            DestinationCounty->Caption = "N/A";
         }
 
         // Transit Airport 1 (두 번째 공항, airport_size > 2인 경우)
@@ -3779,7 +3794,7 @@ void __fastcall TForm1::ClearRouteInfo()
     DestinationAirportName->Caption = "N/A";
     DestinationAirportICAO->Caption = "N/A";
     DestinationAirportLocation->Caption = "N/A";
-    Label42->Caption = "N/A"; // Destination Country
+    DestinationCounty->Caption = "N/A"; // Destination Country
 
     // Clear Transit Airport 1
     TransitAirport1Name->Caption = "N/A";

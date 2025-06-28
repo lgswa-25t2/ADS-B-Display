@@ -1216,9 +1216,9 @@ void __fastcall TForm1::DrawObjects(void)
             double tcpa, cpa_distance_nm, vertical_cpa;
             double lat1, lon1, lat2, lon2, junk;
             if (computeCPA(Data->Latitude, Data->Longitude, Data->Altitude,
-                           Data->Speed, Data->Heading,
+                           Data->Speed, Data->Heading, Data->VerticalRate,
                            DataCPA->Latitude, DataCPA->Longitude, DataCPA->Altitude,
-                           DataCPA->Speed, DataCPA->Heading,
+                           DataCPA->Speed, DataCPA->Heading, DataCPA->VerticalRate,
                            tcpa, cpa_distance_nm, vertical_cpa))
             {
                 if (VDirect(Data->Latitude, Data->Longitude,
@@ -2160,24 +2160,16 @@ void __fastcall TForm1::FormMouseWheel(TObject *Sender, TShiftState Shift,
         {
             g_EarthView->ZoomAtPoint(MousePos.x, MousePos.y, NAV_ZOOM_OUT);
         }
+
+        // 줌 후 스크롤바 업데이트
+        UpdateScrollBarRanges();
+        UpdateScrollBarPositions();
+        ObjectDisplay->Repaint();
     }
     else
     {
-        // 화면 밖이면 기존 방식 (화면 중심 기준)
-        if (WheelDelta > 0)
-        {
-            g_EarthView->SingleMovement(NAV_ZOOM_IN);
-        }
-        else
-        {
-            g_EarthView->SingleMovement(NAV_ZOOM_OUT);
-        }
+        // 화면 밖이면 Do Nothing
     }
-
-    // 줌 후 스크롤바 업데이트
-    UpdateScrollBarRanges();
-    UpdateScrollBarPositions();
-    ObjectDisplay->Repaint();
 }
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
@@ -2309,8 +2301,18 @@ void __fastcall TForm1::IdTCPClientRawConnected(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::IdTCPClientRawDisconnected(TObject *Sender)
 {
-    TCPClientRawHandleThread->Terminate();
-    RawTimeoutPopupShown = true;
+	// 안전한 스레드 종료
+	if (TCPClientRawHandleThread && TCPClientRawHandleThread->Handle)
+	{
+		try {
+				TCPClientRawHandleThread->Terminate();
+				TCPClientRawHandleThread->WaitFor();
+			}
+		catch (...) {
+			printf("Error: Raw thread termination failed\n");
+		}
+	}
+	RawTimeoutPopupShown = true;
     RawConnectionLostShown = true;
 }
 //---------------------------------------------------------------------------
@@ -2377,8 +2379,19 @@ void __fastcall TForm1::RawPlaybackButtonClick(TObject *Sender)
         }
     }
     else
-    {
-        TCPClientRawHandleThread->Terminate();
+	{
+		// 안전한 스레드 종료
+		if (TCPClientRawHandleThread && TCPClientRawHandleThread->Handle)
+		{
+			try {
+				TCPClientRawHandleThread->Terminate();
+				TCPClientRawHandleThread->WaitFor();
+			}
+			catch (...) {
+				printf("Error: Raw thread termination failed\n");
+			}
+		}
+
         delete PlayBackRawStream;
         PlayBackRawStream = NULL;
         RawPlaybackButton->Caption = "Raw Playback";
@@ -2539,16 +2552,26 @@ void __fastcall TForm1::SBSConnectButtonClick(TObject *Sender)
         // Start connection in separate thread to keep UI responsive
         TConnectionThread *connectionThread = new TConnectionThread(SBSIpAddress->Text, 5002, true);
         connectionThread->Resume();
-    }
-    else
-    {
-        TCPClientSBSHandleThread->Terminate();
-        IdTCPClientSBS->Disconnect();
-        IdTCPClientSBS->IOHandler->InputBuffer->Clear();
-        SBSConnectButton->Caption = "SBS Connect";
+	}
+	else
+	{
+		// 안전한 스레드 종료
+		if (TCPClientSBSHandleThread && TCPClientSBSHandleThread->Handle)
+		{
+			try {
+				TCPClientSBSHandleThread->Terminate();
+				TCPClientSBSHandleThread->WaitFor();
+			}
+			catch (...) {
+				printf("Error: SBS thread termination failed\n");
+			}
+		}
+		IdTCPClientSBS->Disconnect();
+		IdTCPClientSBS->IOHandler->InputBuffer->Clear();
+		SBSConnectButton->Caption = "SBS Connect";
         SBSPlaybackButton->Enabled = true;
-				SBSConnectButton->Color = clMoneyGreen;
-    }
+		SBSConnectButton->Color = clMoneyGreen;
+	}
 }
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
@@ -2847,7 +2870,7 @@ void __fastcall TForm1::SBSPlaybackButtonClick(TObject *Sender)
                     TCPClientSBSHandleThread->Resume();
                     SBSPlaybackButton->Caption = "Stop SBS Playback";
                     SBSConnectButton->Enabled = false;
-										SBSConnectButton->Color = clCream;
+					SBSConnectButton->Color = clCream;
                     PlaybackSpeedPanel->Visible = true;
                 }
             }
@@ -2855,9 +2878,19 @@ void __fastcall TForm1::SBSPlaybackButtonClick(TObject *Sender)
     }
     else
     {
-        TCPClientSBSHandleThread->Terminate();
-        delete PlayBackSBSStream;
-        PlayBackSBSStream = NULL;
+		// 안전한 스레드 종료
+		if (TCPClientSBSHandleThread && TCPClientSBSHandleThread->Handle)
+		{
+			try {
+				TCPClientSBSHandleThread->Terminate();
+				TCPClientSBSHandleThread->WaitFor();
+			}
+			catch (...) {
+				printf("Error: SBS thread termination failed\n");
+			}
+		}
+		delete PlayBackSBSStream;
+		PlayBackSBSStream = NULL;
         SBSPlaybackButton->Caption = "SBS Playback";
         SBSConnectButton->Enabled = true;
 		SBSConnectButton->Color = clMoneyGreen;
@@ -2883,7 +2916,17 @@ void __fastcall TForm1::IdTCPClientSBSConnected(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::IdTCPClientSBSDisconnected(TObject *Sender)
 {
-    TCPClientSBSHandleThread->Terminate();
+	// 안전한 스레드 종료
+	if (TCPClientSBSHandleThread && TCPClientSBSHandleThread->Handle)
+	{
+		try {
+			TCPClientSBSHandleThread->Terminate();
+			TCPClientSBSHandleThread->WaitFor();
+		}
+		catch (...) {
+			printf("Error: SBS thread termination failed\n");
+		}
+	}
     SBSTimeoutPopupShown = true;
 }
 //---------------------------------------------------------------------------
@@ -5312,10 +5355,17 @@ void __fastcall TForm1::ShowSBSConnectionLostDialog()
 void __fastcall TForm1::ReconnectToRawDevice()
 {
     // Raw 연결 끊기
-    if (TCPClientRawHandleThread)
-    {
-        TCPClientRawHandleThread->Terminate();
-    }
+	// 안전한 스레드 종료
+	if (TCPClientRawHandleThread && TCPClientRawHandleThread->Handle)
+	{
+		try {
+			TCPClientRawHandleThread->Terminate();
+			TCPClientRawHandleThread->WaitFor();
+		}
+		catch (...) {
+			printf("Error: Raw thread termination failed\n");
+		}
+	}
     if (IdTCPClientRaw->Connected())
     {
         IdTCPClientRaw->Disconnect();
@@ -5337,11 +5387,18 @@ void __fastcall TForm1::ReconnectToRawDevice()
 // SBS 디바이스에 재연결
 void __fastcall TForm1::ReconnectToSBSDevice()
 {
-    // SBS 연결 끊기
-    if (TCPClientSBSHandleThread)
-    {
-        TCPClientSBSHandleThread->Terminate();
-    }
+	// SBS 연결 끊기
+	// 안전한 스레드 종료
+	if (TCPClientSBSHandleThread && TCPClientSBSHandleThread->Handle)
+	{
+		try {
+			TCPClientSBSHandleThread->Terminate();
+			TCPClientSBSHandleThread->WaitFor();
+		}
+		catch (...) {
+			printf("Error: SBS thread termination failed\n");
+		}
+	}
     if (IdTCPClientSBS->Connected())
     {
         IdTCPClientSBS->Disconnect();
@@ -5837,9 +5894,9 @@ void __fastcall TAircraftAircraftDistanceThread::Execute()
                     double horizontalDistanceSquare = latDist * latDist + lonDist * lonDist;
 
                     // 2. 고도 차이 계산 (feet를 해리로 변환)
-                    // 1 해리 = 6076.12 feet
+                    // 1 NM = 6076.12 feet
                     double altitudeDiff = abs(Data1->Altitude - Data2->Altitude);
-                    double verticalDistance = altitudeDiff / 6076.12; // feet를 해리로 변환
+                    double verticalDistance = altitudeDiff / 6076.12; // feet to NM
 
                     // 3. 3차원 거리 계산 (피타고라스 정리)
                     double distance3DSquare = horizontalDistanceSquare + verticalDistance * verticalDistance;
@@ -5868,14 +5925,16 @@ void __fastcall TAircraftAircraftDistanceThread::Execute()
                             distanceResult->closeAircraftPairs.push_back(pair);
 
                             // 콘솔에 로그 출력
-                            printf("CLOSE AIRCRAFT PAIR: ICAO1=%06X, ICAO2=%06X, Distance=%.2f NM, v=%.2f, h=%.2f\n",
-                                   icao1, icao2, sqrt(distance3DSquare), verticalDistance, sqrt(horizontalDistanceSquare));
-                            printf("    ALT      ICAO1=%.1f, ICAO2=%.1f\n",
-                                   Data1->Altitude, Data2->Altitude);
-                            printf("    LAT      ICAO1=%.5f, ICAO2=%.5f\n",
-                                   Data1->Latitude, Data2->Latitude);
-                            printf("    LON      ICAO1=%.5f, ICAO2=%.5f\n\n",
-                                   Data1->Longitude, Data2->Longitude);
+                            printf("CLOSE AIRCRAFT PAIR: ICAO1=%06X, ICAO2=%06X, Distance=%.2f NM\n",
+                                   icao1, icao2, sqrt(distance3DSquare));
+                            //printf("CLOSE AIRCRAFT PAIR: ICAO1=%06X, ICAO2=%06X, Distance=%.2f NM, v=%.2f, h=%.2f\n",
+                            //       icao1, icao2, sqrt(distance3DSquare), verticalDistance, sqrt(horizontalDistanceSquare));
+                            //printf("    ALT      ICAO1=%.1f, ICAO2=%.1f\n",
+                            //       Data1->Altitude, Data2->Altitude);
+                            //printf("    LAT      ICAO1=%.5f, ICAO2=%.5f\n",
+                            //       Data1->Latitude, Data2->Latitude);
+                            //printf("    LON      ICAO1=%.5f, ICAO2=%.5f\n\n",
+                            //       Data1->Longitude, Data2->Longitude);
                         }
                     }
                 }

@@ -98,53 +98,53 @@ object Form1: TForm1
       object Label12: TLabel
         Left = 9
         Top = 1
-        Width = 54
+        Width = 53
         Height = 15
         Caption = 'CPA TIME:'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
       end
       object Label19: TLabel
         Left = 9
         Top = 19
-        Width = 80
+        Width = 77
         Height = 15
         Caption = 'CPA DISTANCE:'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
       end
       object CpaTimeValue: TLabel
         Left = 75
         Top = 1
-        Width = 33
+        Width = 31
         Height = 15
         Caption = 'NONE'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
       end
       object CpaDistanceValue: TLabel
         Left = 103
         Top = 19
-        Width = 30
+        Width = 28
         Height = 15
         Caption = 'None'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
       end
       object ZoomIn: TButton
@@ -157,7 +157,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -11
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
         TabOrder = 0
         OnClick = ZoomInClick
@@ -172,7 +172,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -11
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
         TabOrder = 1
         OnClick = ZoomOutClick
@@ -200,7 +200,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
         State = cbChecked
         TabOrder = 3
@@ -208,14 +208,14 @@ object Form1: TForm1
       object TimeToGoText: TStaticText
         Left = 120
         Top = 37
-        Width = 79
+        Width = 76
         Height = 19
         Caption = '00:00:00:000'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
         TabOrder = 4
       end
@@ -236,22 +236,22 @@ object Form1: TForm1
       object Label15: TLabel
         Left = 72
         Top = 235
-        Width = 94
+        Width = 92
         Height = 15
         Caption = 'Areas Of Interest'
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
       end
       object RawStatusLabel: TLabel
         Left = 235
         Top = 103
-        Width = 8
-        Height = 18
-        Caption = '●'
+        Width = 18
+        Height = 24
+        Caption = '??'
         Font.Charset = ANSI_CHARSET
         Font.Color = clRed
         Font.Height = -20
@@ -262,9 +262,9 @@ object Form1: TForm1
       object SBSStatusLabel: TLabel
         Left = 235
         Top = 126
-        Width = 8
-        Height = 20
-        Caption = '●'
+        Width = 18
+        Height = 24
+        Caption = '??'
         Font.Charset = ANSI_CHARSET
         Font.Color = clRed
         Font.Height = -20
@@ -283,7 +283,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
         State = cbChecked
         TabOrder = 0
@@ -299,7 +299,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
         State = cbChecked
         TabOrder = 1
@@ -309,9 +309,15 @@ object Form1: TForm1
         Top = 10
         Width = 62
         Height = 21
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -10
+        Font.Name = 'Tahoma'
+        Font.Style = []
         Increment = 5
         MaxValue = 1000
         MinValue = 5
+        ParentFont = False
         TabOrder = 2
         Value = 90
       end
@@ -325,7 +331,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
         TabOrder = 3
         OnClick = PurgeButtonClick
@@ -367,6 +373,12 @@ object Form1: TForm1
         Width = 36
         Height = 18
         Caption = 'Insert'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Calibri'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 5
         OnClick = InsertClick
       end
@@ -381,7 +393,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
         TabOrder = 6
         OnClick = DeleteClick
@@ -397,7 +409,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
         TabOrder = 7
         OnClick = CompleteClick
@@ -413,7 +425,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
         TabOrder = 8
         OnClick = CancelClick
@@ -428,7 +440,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
         TabOrder = 9
         OnClick = RawConnectButtonClick
@@ -442,7 +454,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
         TabOrder = 10
         Text = '127.0.0.1'
@@ -457,7 +469,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
         TabOrder = 11
         OnClick = CycleImagesClick
@@ -472,7 +484,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
         TabOrder = 12
         OnClick = RawPlaybackButtonClick
@@ -487,7 +499,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
         TabOrder = 13
         OnClick = RawRecordButtonClick
@@ -502,7 +514,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
         TabOrder = 14
         OnClick = SBSConnectButtonClick
@@ -516,7 +528,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
         TabOrder = 15
         Text = 'data.adsbhub.org'
@@ -531,7 +543,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
         TabOrder = 16
         OnClick = SBSRecordButtonClick
@@ -546,7 +558,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
         TabOrder = 17
         OnClick = SBSPlaybackButtonClick
@@ -561,7 +573,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
         TabOrder = 18
         OnClick = DisplayAirportCheckBoxClick
@@ -581,6 +593,12 @@ object Form1: TForm1
         Width = 100
         Height = 20
         Style = csDropDownList
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -10
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 0
         OnCloseUp = MapComboBoxCloseUp
         Items.Strings = (
@@ -600,7 +618,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
         TabOrder = 1
         OnClick = BigQueryCheckBoxClick
@@ -615,7 +633,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
         TabOrder = 2
         OnClick = LiveMapCheckboxClick
@@ -633,7 +651,7 @@ object Form1: TForm1
       Font.Color = clWindowText
       Font.Height = -13
       Font.Name = 'Calibri'
-      Font.Style = [fsBold]
+      Font.Style = []
       ParentBackground = False
       ParentFont = False
       TabOrder = 3
@@ -667,10 +685,10 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -15
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentColor = False
         ParentFont = False
-        ExplicitWidth = 123
+        ExplicitWidth = 121
       end
       object Panel4: TScrollBox
         Left = 1
@@ -679,13 +697,15 @@ object Form1: TForm1
         Height = 350
         Align = alBottom
         BevelEdges = []
-        BevelKind = bkFlat
+        BevelInner = bvNone
+        BevelOuter = bvNone
+        BorderStyle = bsNone
         Color = clCream
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentColor = False
         ParentFont = False
         TabOrder = 0
@@ -699,7 +719,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object CLonLabel: TLabel
@@ -712,7 +732,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
           Transparent = False
         end
@@ -726,7 +746,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object HdgLabel: TLabel
@@ -739,7 +759,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object AltLabel: TLabel
@@ -752,7 +772,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object MsgCntLabel: TLabel
@@ -765,7 +785,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object TrkLastUpdateTimeLabel: TLabel
@@ -778,7 +798,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label14: TLabel
@@ -791,7 +811,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label13: TLabel
@@ -804,7 +824,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label10: TLabel
@@ -817,7 +837,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label9: TLabel
@@ -830,7 +850,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label8: TLabel
@@ -843,7 +863,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label7: TLabel
@@ -856,7 +876,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label6: TLabel
@@ -869,7 +889,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label18: TLabel
@@ -882,7 +902,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object FlightNumLabel: TLabel
@@ -895,7 +915,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object ICAOLabel: TLabel
@@ -908,7 +928,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label5: TLabel
@@ -921,7 +941,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label22: TLabel
@@ -934,7 +954,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object SerialNum: TLabel
@@ -947,22 +967,34 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label23: TLabel
           Left = 4
           Top = 155
-          Width = 28
+          Width = 27
           Height = 15
           Caption = 'MFR:'
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Calibri'
+          Font.Style = []
+          ParentFont = False
         end
         object Manufacturer: TLabel
           Left = 70
           Top = 154
-          Width = 22
+          Width = 20
           Height = 15
           Caption = 'N/A'
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Calibri'
+          Font.Style = []
+          ParentFont = False
         end
         object Label24: TLabel
           Left = 5
@@ -974,7 +1006,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Model: TLabel
@@ -987,22 +1019,34 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label25: TLabel
           Left = 4
           Top = 197
-          Width = 55
+          Width = 53
           Height = 15
           Caption = 'MFR Year:'
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Calibri'
+          Font.Style = []
+          ParentFont = False
         end
         object MFRYear: TLabel
           Left = 70
           Top = 196
-          Width = 22
+          Width = 20
           Height = 15
           Caption = 'N/A'
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Calibri'
+          Font.Style = []
+          ParentFont = False
         end
         object Label26: TLabel
           Left = 4
@@ -1014,7 +1058,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label27: TLabel
@@ -1027,7 +1071,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object AirType: TLabel
@@ -1040,7 +1084,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object EngineType: TLabel
@@ -1053,7 +1097,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label29: TLabel
@@ -1066,7 +1110,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object CeritificatedInfo: TLabel
@@ -1079,7 +1123,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label30: TLabel
@@ -1088,6 +1132,12 @@ object Form1: TForm1
           Width = 59
           Height = 15
           Caption = 'Expiration:'
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Calibri'
+          Font.Style = []
+          ParentFont = False
         end
         object ExpirationData: TLabel
           Left = 70
@@ -1099,7 +1149,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label31: TLabel
@@ -1112,7 +1162,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object DepartureAirportName: TLabel
@@ -1125,15 +1175,21 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label32: TLabel
           Left = 5
           Top = 349
-          Width = 31
+          Width = 30
           Height = 15
           Caption = 'ICAO:'
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Calibri'
+          Font.Style = []
+          ParentFont = False
         end
         object Label33: TLabel
           Left = 5
@@ -1145,7 +1201,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object DepartureAirportICAO: TLabel
@@ -1158,7 +1214,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label35: TLabel
@@ -1171,7 +1227,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object DepartureAirportLocation: TLabel
@@ -1184,15 +1240,21 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label34: TLabel
           Left = 5
           Top = 381
-          Width = 48
+          Width = 46
           Height = 15
           Caption = 'Country:'
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Calibri'
+          Font.Style = []
+          ParentFont = False
         end
         object Label36: TLabel
           Left = 70
@@ -1204,7 +1266,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label37: TLabel
@@ -1217,15 +1279,21 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label38: TLabel
           Left = 5
           Top = 423
-          Width = 37
+          Width = 34
           Height = 15
           Caption = 'Name:'
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Calibri'
+          Font.Style = []
+          ParentFont = False
         end
         object DestinationAirportName: TLabel
           Left = 70
@@ -1237,15 +1305,21 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label39: TLabel
           Left = 5
           Top = 444
-          Width = 31
+          Width = 30
           Height = 15
           Caption = 'ICAO:'
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -13
+          Font.Name = 'Calibri'
+          Font.Style = []
+          ParentFont = False
         end
         object DestinationAirportICAO: TLabel
           Left = 70
@@ -1257,7 +1331,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label40: TLabel
@@ -1270,7 +1344,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object DestinationAirportLocation: TLabel
@@ -1283,7 +1357,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label41: TLabel
@@ -1296,7 +1370,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label42: TLabel
@@ -1309,7 +1383,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label43: TLabel
@@ -1322,7 +1396,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label44: TLabel
@@ -1335,7 +1409,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object TransitAirport1Name: TLabel
@@ -1348,7 +1422,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label46: TLabel
@@ -1361,7 +1435,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object TransitAirport1ICAO: TLabel
@@ -1374,7 +1448,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label48: TLabel
@@ -1387,7 +1461,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object TransitAirport1Location: TLabel
@@ -1400,7 +1474,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label50: TLabel
@@ -1413,7 +1487,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object TransitAirport1Country: TLabel
@@ -1426,7 +1500,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label45: TLabel
@@ -1439,7 +1513,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label47: TLabel
@@ -1452,7 +1526,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object TransitAirport2Name: TLabel
@@ -1478,7 +1552,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object TransitAirport2ICAO: TLabel
@@ -1491,7 +1565,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label53: TLabel
@@ -1504,7 +1578,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object TransitAirport2Location: TLabel
@@ -1517,7 +1591,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label55: TLabel
@@ -1530,7 +1604,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object TransitAirport2Country: TLabel
@@ -1543,7 +1617,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
       end
@@ -1554,7 +1628,7 @@ object Form1: TForm1
         Height = 95
         Align = alClient
         BevelEdges = []
-        BevelKind = bkFlat
+        BevelOuter = bvNone
         Color = clCream
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -1574,7 +1648,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label3: TLabel
@@ -1587,7 +1661,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Lat: TLabel
@@ -1600,7 +1674,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label2: TLabel
@@ -1613,7 +1687,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object SystemTimeLabel: TLabel
@@ -1626,7 +1700,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object ViewableAircraftCountLabel: TLabel
@@ -1639,7 +1713,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object AircraftCountLabel: TLabel
@@ -1652,7 +1726,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label11: TLabel
@@ -1665,7 +1739,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object Label1: TLabel
@@ -1678,7 +1752,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
         end
         object SystemTime: TStaticText
@@ -1691,7 +1765,7 @@ object Form1: TForm1
           Font.Color = clWindowText
           Font.Height = -13
           Font.Name = 'Consolas'
-          Font.Style = [fsBold]
+          Font.Style = []
           ParentFont = False
           TabOrder = 0
         end
@@ -1717,14 +1791,14 @@ object Form1: TForm1
     object LegendTitle: TLabel
       Left = 7
       Top = 6
-      Width = 87
+      Width = 85
       Height = 15
       Caption = 'Aircraft Legend:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -13
       Font.Name = 'Calibri'
-      Font.Style = [fsBold]
+      Font.Style = []
       ParentFont = False
     end
     object HelicopterColorBox: TShape
@@ -1905,14 +1979,14 @@ object Form1: TForm1
       object TimeToGoLegendTitle: TLabel
         Left = 0
         Top = 1
-        Width = 201
+        Width = 194
         Height = 15
         Caption = 'Time-to-Go Line (by Altitude) Unit: ft'
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
       end
       object HighAltitudeShape: TShape
@@ -1934,7 +2008,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
       end
       object MedHighAltitudeShape: TShape
@@ -1956,7 +2030,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
       end
       object MedAltitudeShape: TShape
@@ -1978,7 +2052,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
       end
       object LowMedAltitudeShape: TShape
@@ -2000,7 +2074,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
       end
       object LowAltitudeLabel: TLabel
@@ -2013,7 +2087,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
       end
       object LowAltitudeShape: TShape
@@ -2034,7 +2108,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
       end
       object VeryLowAltitudeShape: TShape
@@ -2063,7 +2137,7 @@ object Form1: TForm1
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = [fsBold]
+        Font.Style = []
         ParentFont = False
       end
     end
@@ -2153,7 +2227,7 @@ object Form1: TForm1
       Font.Color = clWindowText
       Font.Height = -13
       Font.Name = 'Calibri'
-      Font.Style = [fsBold]
+      Font.Style = []
       ParentBackground = False
       ParentFont = False
       TabOrder = 1
@@ -2211,7 +2285,7 @@ object Form1: TForm1
       Font.Color = clWindowText
       Font.Height = -13
       Font.Name = 'Calibri'
-      Font.Style = [fsBold]
+      Font.Style = []
       ParentBackground = False
       ParentFont = False
       TabOrder = 2

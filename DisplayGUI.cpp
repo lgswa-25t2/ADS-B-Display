@@ -5894,9 +5894,9 @@ void __fastcall TAircraftAircraftDistanceThread::Execute()
                     double horizontalDistanceSquare = latDist * latDist + lonDist * lonDist;
 
                     // 2. 고도 차이 계산 (feet를 해리로 변환)
-                    // 1 해리 = 6076.12 feet
+                    // 1 NM = 6076.12 feet
                     double altitudeDiff = abs(Data1->Altitude - Data2->Altitude);
-                    double verticalDistance = altitudeDiff / 6076.12; // feet를 해리로 변환
+                    double verticalDistance = altitudeDiff / 6076.12; // feet to NM
 
                     // 3. 3차원 거리 계산 (피타고라스 정리)
                     double distance3DSquare = horizontalDistanceSquare + verticalDistance * verticalDistance;
@@ -5925,14 +5925,16 @@ void __fastcall TAircraftAircraftDistanceThread::Execute()
                             distanceResult->closeAircraftPairs.push_back(pair);
 
                             // 콘솔에 로그 출력
-                            printf("CLOSE AIRCRAFT PAIR: ICAO1=%06X, ICAO2=%06X, Distance=%.2f NM, v=%.2f, h=%.2f\n",
-                                   icao1, icao2, sqrt(distance3DSquare), verticalDistance, sqrt(horizontalDistanceSquare));
-                            printf("    ALT      ICAO1=%.1f, ICAO2=%.1f\n",
-                                   Data1->Altitude, Data2->Altitude);
-                            printf("    LAT      ICAO1=%.5f, ICAO2=%.5f\n",
-                                   Data1->Latitude, Data2->Latitude);
-                            printf("    LON      ICAO1=%.5f, ICAO2=%.5f\n\n",
-                                   Data1->Longitude, Data2->Longitude);
+                            printf("CLOSE AIRCRAFT PAIR: ICAO1=%06X, ICAO2=%06X, Distance=%.2f NM\n",
+                                   icao1, icao2, sqrt(distance3DSquare));
+                            //printf("CLOSE AIRCRAFT PAIR: ICAO1=%06X, ICAO2=%06X, Distance=%.2f NM, v=%.2f, h=%.2f\n",
+                            //       icao1, icao2, sqrt(distance3DSquare), verticalDistance, sqrt(horizontalDistanceSquare));
+                            //printf("    ALT      ICAO1=%.1f, ICAO2=%.1f\n",
+                            //       Data1->Altitude, Data2->Altitude);
+                            //printf("    LAT      ICAO1=%.5f, ICAO2=%.5f\n",
+                            //       Data1->Latitude, Data2->Latitude);
+                            //printf("    LON      ICAO1=%.5f, ICAO2=%.5f\n\n",
+                            //       Data1->Longitude, Data2->Longitude);
                         }
                     }
                 }

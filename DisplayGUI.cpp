@@ -2160,24 +2160,16 @@ void __fastcall TForm1::FormMouseWheel(TObject *Sender, TShiftState Shift,
         {
             g_EarthView->ZoomAtPoint(MousePos.x, MousePos.y, NAV_ZOOM_OUT);
         }
+
+        // 줌 후 스크롤바 업데이트
+        UpdateScrollBarRanges();
+        UpdateScrollBarPositions();
+        ObjectDisplay->Repaint();
     }
     else
     {
-        // 화면 밖이면 기존 방식 (화면 중심 기준)
-        if (WheelDelta > 0)
-        {
-            g_EarthView->SingleMovement(NAV_ZOOM_IN);
-        }
-        else
-        {
-            g_EarthView->SingleMovement(NAV_ZOOM_OUT);
-        }
+        // 화면 밖이면 Do Nothing
     }
-
-    // 줌 후 스크롤바 업데이트
-    UpdateScrollBarRanges();
-    UpdateScrollBarPositions();
-    ObjectDisplay->Repaint();
 }
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------

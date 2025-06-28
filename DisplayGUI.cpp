@@ -5808,6 +5808,10 @@ void __fastcall TAircraftAircraftDistanceThread::Execute()
                 if (!Data1->HaveLatLon)
                     continue;
 
+                // 고도 정보가 없거나 N/A이거나 0인 경우 제외
+                if (!Data1->HaveAltitude || Data1->Altitude <= 0)
+                    continue;
+
                 // 두 번째 항공기와의 거리 계산
                 for (Data2 = (TADS_B_Aircraft *)ght_first(Form1->HashTable, &iterator2, (const void **)&Key2);
                      Data2; Data2 = (TADS_B_Aircraft *)ght_next(Form1->HashTable, &iterator2, (const void **)&Key2))
@@ -5816,24 +5820,35 @@ void __fastcall TAircraftAircraftDistanceThread::Execute()
                     if (!Data2->HaveLatLon)
                         continue;
 
+                    // 고도 정보가 없거나 N/A이거나 0인 경우 제외
+                    if (!Data2->HaveAltitude || Data2->Altitude <= 0)
+                        continue;
+
                     // 같은 항공기는 제외
                     if (Data1->ICAO == Data2->ICAO)
                         continue;
 
-                    // 간단한 근사 거리 계산
+                    // 1. 평면 거리 계산 (해리 단위)
                     double dlat = Data1->Latitude - Data2->Latitude;
                     double dlon = Data1->Longitude - Data2->Longitude;
                     double latDist = dlat * 60.0;
                     double lonDist = dlon * 60.0 * cos(Data1->Latitude * DEG_TO_RAD);
-                    double distance = sqrt(latDist * latDist + lonDist * lonDist);
+                    double horizontalDistanceSquare = latDist * latDist + lonDist * lonDist;
+
+                    // 2. 고도 차이 계산 (feet를 해리로 변환)
+                    // 1 해리 = 6076.12 feet
+                    double altitudeDiff = abs(Data1->Altitude - Data2->Altitude);
+                    double verticalDistance = altitudeDiff / 6076.12; // feet를 해리로 변환
+
+                    // 3. 3차원 거리 계산 (피타고라스 정리)
+                    double distance3DSquare = horizontalDistanceSquare + verticalDistance * verticalDistance;
 
                     // 1해리 이내인 경우 결과에 추가
-                    if (distance <= 1.0)
+                    if (distance3DSquare <= 1.0)
                     {
                         // 중복 방지를 위해 작은 ICAO가 앞에 오도록 정렬
                         uint32_t icao1 = (Data1->ICAO < Data2->ICAO) ? Data1->ICAO : Data2->ICAO;
                         uint32_t icao2 = (Data1->ICAO < Data2->ICAO) ? Data2->ICAO : Data1->ICAO;
-
                         std::pair<uint32_t, uint32_t> pair = std::make_pair(icao1, icao2);
 
                         // 중복 체크
@@ -5853,7 +5868,7 @@ void __fastcall TAircraftAircraftDistanceThread::Execute()
 
                             // 콘솔에 로그 출력
                             printf("CLOSE AIRCRAFT PAIR: ICAO1=%06X, ICAO2=%06X, Distance=%.2f NM\n",
-                                   icao1, icao2, distance);
+                                   icao1, icao2, sqrt(distance3DSquare));
                         }
                     }
                 }

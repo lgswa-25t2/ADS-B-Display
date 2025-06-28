@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'ADS-B Viewer'
-  ClientHeight = 788
-  ClientWidth = 1228
+  ClientHeight = 807
+  ClientWidth = 1586
   Color = clSnow
   Constraints.MinHeight = 740
   Font.Charset = DEFAULT_CHARSET
@@ -16,8 +16,8 @@ object Form1: TForm1
   WindowState = wsMaximized
   OnMouseWheel = FormMouseWheel
   DesignSize = (
-    1228
-    788)
+    1586
+    807)
   TextHeight = 12
   object Label16: TLabel
     Left = 74
@@ -79,14 +79,16 @@ object Form1: TForm1
     ParentFont = False
   end
   object RightPanel: TPanel
-    Left = 978
+    Left = 1336
     Top = 0
     Width = 250
-    Height = 748
+    Height = 767
     Align = alRight
     Color = clWindow
     Constraints.MaxWidth = 250
     TabOrder = 0
+    ExplicitLeft = 978
+    ExplicitHeight = 748
     object Panel1: TPanel
       Left = -2
       Top = 400
@@ -720,7 +722,7 @@ object Form1: TForm1
     end
     object Panel7: TPanel
       Left = 1
-      Top = 332
+      Top = 351
       Width = 248
       Height = 415
       Align = alBottom
@@ -733,6 +735,7 @@ object Form1: TForm1
       ParentBackground = False
       ParentFont = False
       TabOrder = 4
+      ExplicitTop = 332
       object PanelTitle2: TLabel
         AlignWithMargins = True
         Left = 4
@@ -752,7 +755,6 @@ object Form1: TForm1
         ParentColor = False
         ParentFont = False
         Layout = tlCenter
-        ExplicitTop = 11
         ExplicitWidth = 110
       end
       object Panel4: TScrollBox
@@ -762,7 +764,7 @@ object Form1: TForm1
         Height = 390
         VertScrollBar.Color = clCream
         VertScrollBar.ParentColor = False
-        VertScrollBar.Position = 19
+        VertScrollBar.Position = 163
         Align = alBottom
         BevelEdges = []
         BevelInner = bvNone
@@ -780,7 +782,7 @@ object Form1: TForm1
         UseWheelForScrolling = True
         object InnePanel: TPanel
           Left = 0
-          Top = -19
+          Top = -163
           Width = 228
           Height = 95
           BevelOuter = bvNone
@@ -921,7 +923,7 @@ object Form1: TForm1
         end
         object InnerPannel2: TPanel
           Left = 0
-          Top = 76
+          Top = -68
           Width = 228
           Height = 700
           BevelOuter = bvNone
@@ -1792,8 +1794,8 @@ object Form1: TForm1
   end
   object LegendPanel: TPanel
     Left = 0
-    Top = 748
-    Width = 1228
+    Top = 767
+    Width = 1586
     Height = 40
     Align = alBottom
     BevelOuter = bvLowered
@@ -1806,6 +1808,8 @@ object Form1: TForm1
     ParentBackground = False
     ParentFont = False
     TabOrder = 1
+    ExplicitTop = 748
+    ExplicitWidth = 1228
     object LegendTitle: TLabel
       Left = 7
       Top = 6
@@ -2163,8 +2167,8 @@ object Form1: TForm1
   object ObjectDisplay: TOpenGLPanel
     Left = 0
     Top = 0
-    Width = 978
-    Height = 748
+    Width = 1336
+    Height = 767
     Cursor = crCross
     Align = alClient
     TabOrder = 2
@@ -2187,9 +2191,10 @@ object Form1: TForm1
     OnInit = ObjectDisplayInit
     OnResize = ObjectDisplayResize
     OnPaint = ObjectDisplayPaint
+    ExplicitLeft = -1
   end
   object PlaybackSpeedPanel: TPanel
-    Left = 556
+    Left = 914
     Top = 0
     Width = 401
     Height = 85
@@ -2198,6 +2203,7 @@ object Form1: TForm1
     ParentBackground = False
     TabOrder = 3
     Visible = False
+    ExplicitLeft = 556
     DesignSize = (
       401
       85)
@@ -2253,63 +2259,36 @@ object Form1: TForm1
     end
   end
   object PlaybackProgressPanel: TPanel
-    Left = 31
-    Top = -4
-    Width = 496
-    Height = 93
+    Left = 1169
+    Top = 768
+    Width = 417
+    Height = 52
+    Anchors = [akRight, akBottom]
     Color = clSnow
     ParentBackground = False
     TabOrder = 4
     Visible = False
     object TotalTimeLabel: TLabel
-      Left = 432
-      Top = 32
+      Left = 352
+      Top = 2
       Width = 48
       Height = 12
       Caption = '00:00:00'
     end
     object PlayTimeLabel: TLabel
-      Left = 15
-      Top = 32
+      Left = 11
+      Top = 2
       Width = 48
       Height = 12
       Caption = '00:00:00'
     end
     object PlaybackProgressTrackBar: TTrackBar
-      Left = 23
-      Top = 50
-      Width = 458
+      Left = 6
+      Top = 14
+      Width = 403
       Height = 45
       TabOrder = 0
       OnChange = PlaybackProgressBarChange
-    end
-    object PlaybackPlayPauseButton: TPanel
-      Left = 200
-      Top = 19
-      Width = 75
-      Height = 25
-      Caption = 'Play/Pause'
-      TabOrder = 1
-      Visible = False
-      OnClick = PlayPauseButtonClick
-    end
-    object PlaybackProgressbarTitle: TPanel
-      Left = 1
-      Top = 1
-      Width = 494
-      Height = 25
-      Align = alTop
-      Caption = 'Playback Progressbar'
-      Color = clTeal
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindow
-      Font.Height = -13
-      Font.Name = 'Calibri'
-      Font.Style = []
-      ParentBackground = False
-      ParentFont = False
-      TabOrder = 2
-      OnClick = PanelTitle1Click
     end
   end
   object MainMenu1: TMainMenu

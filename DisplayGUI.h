@@ -374,10 +374,8 @@ class TForm1 : public TForm
     TLabel *LowestAltitudeLabel;
     TPanel *PlaybackProgressPanel;
     TTrackBar *PlaybackProgressTrackBar;
-	TPanel *PlaybackPlayPauseButton;
     TLabel *TotalTimeLabel;
     TLabel *PlayTimeLabel;
-    TPanel *PlaybackProgressbarTitle;
 	TLabel *Label16;
 	TLabel *Label20;
 	TLabel *Label21;

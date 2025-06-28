@@ -16,6 +16,9 @@
 #define KM_TO_NM 0.539957    // Convert km to nautical miles
 #define FEET_TO_KM 0.0003048 // Convert feet to km
 #define DEG_TO_RAD 0.0174532925199433  // M_PI / 180.0 Degrees to radians
+#define WGS84_A 6378.137 // WGS-84 semi-major axis in kilometers
+#define WGS84_INV_FLATTENING 298.257223563 // WGS-84 inverse flattening factor
+#define WGS84_FLATTENING (1.0 / WGS84_INV_FLATTENING) // WGS-84 flattening factor
 
 // Structure to store aircraft information
 typedef struct {
@@ -31,16 +34,22 @@ void latLonToECEF(double lat, double lon, double altitude, double *x, double *y,
     lat *= DEG_TO_RAD;
     lon *= DEG_TO_RAD;
     altitude *= FEET_TO_KM; // Convert feet to km
-    double R = EARTH_RADIUS + altitude;
 
-    *x = R * cos(lat) * cos(lon);
-    *y = R * cos(lat) * sin(lon);
-    *z = R * sin(lat);
+    // WGS-84 ellipsoid parameters
+    const double e2 = 2 * WGS84_FLATTENING - WGS84_FLATTENING * WGS84_FLATTENING; // Square of eccentricity
+    const double sin_lat = sin(lat); // Sine of latitude
+    const double N = WGS84_A / sqrt(1 - e2 * sin_lat * sin_lat); // Radius of curvature in the prime vertical
+
+    // Convert latitude, longitude, and altitude to ECEF coordinates
+    *x = (N + altitude) * cos(lat) * cos(lon); // ECEF X coordinate
+    *y = (N + altitude) * cos(lat) * sin(lon); // ECEF Y coordinate
+    *z = (N * (1.0 - e2) + altitude) * sin_lat; // ECEF Z coordinate
 }
 
 // Convert speed and heading to ECEF velocity components
-void velocityVector(double lat, double lon, double speed, double heading, double *vx, double *vy, double *vz) {
+void velocityVector(double lat, double lon, double speed, double heading, double verticalRate, double *vx, double *vy, double *vz) {
     speed *= KNOTS_TO_KMPH / 3600.0; // Convert knots to km/s
+    verticalRate *= FEET_TO_KM / 60.0; // Convert feet/min to km/s
     heading *= DEG_TO_RAD;
     lat *= DEG_TO_RAD;
     lon *= DEG_TO_RAD;
@@ -50,14 +59,14 @@ void velocityVector(double lat, double lon, double speed, double heading, double
     double v_east = speed * sin(heading);
 
     // Convert velocity components to ECEF coordinates
-    *vx = -v_north * sin(lat) * cos(lon) - v_east * sin(lon);
-    *vy = -v_north * sin(lat) * sin(lon) + v_east * cos(lon);
-    *vz = v_north * cos(lat);
+    *vx = -v_north * sin(lat) * cos(lon) - v_east * sin(lon) + verticalRate * cos(lat) * cos(lon); // ECEF X velocity component
+    *vy = -v_north * sin(lat) * sin(lon) + v_east * cos(lon) + verticalRate * cos(lat) * sin(lon); // ECEF Y velocity component
+    *vz = v_north * cos(lat) + verticalRate * sin(lat); // ECEF Z velocity component
 }
 
 // Compute CPA and TCPA
-bool computeCPA(double lat1, double lon1,double altitude1, double speed1, double heading1,
-				double lat2, double lon2,double altitude2, double speed2, double heading2,
+bool computeCPA(double lat1, double lon1,double altitude1, double speed1, double heading1, double verticalRate1,
+				double lat2, double lon2,double altitude2, double speed2, double heading2, double verticalRate2,
 				double &tcpa,double &cpa_distance_nm, double &vertical_cpa) {
     double x1, y1, z1, x2, y2, z2;
     double vx1, vy1, vz1, vx2, vy2, vz2;
@@ -67,8 +76,8 @@ bool computeCPA(double lat1, double lon1,double altitude1, double speed1, double
 	latLonToECEF(lat2, lon2, altitude2, &x2, &y2, &z2);
 
     // Compute velocity vectors for both aircraft in ECEF frame
-	velocityVector(lat1, lon1, speed1, heading1, &vx1, &vy1, &vz1);
-	velocityVector(lat1, lon2, speed2, heading2, &vx2, &vy2, &vz2);
+	velocityVector(lat1, lon1, speed1, heading1, verticalRate1, &vx1, &vy1, &vz1);
+	velocityVector(lat2, lon2, speed2, heading2, verticalRate2, &vx2, &vy2, &vz2);
 
     // Relative position and velocity
     double dx = x2 - x1, dy = y2 - y1, dz = z2 - z1;

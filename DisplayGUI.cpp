@@ -1216,9 +1216,9 @@ void __fastcall TForm1::DrawObjects(void)
             double tcpa, cpa_distance_nm, vertical_cpa;
             double lat1, lon1, lat2, lon2, junk;
             if (computeCPA(Data->Latitude, Data->Longitude, Data->Altitude,
-                           Data->Speed, Data->Heading,
+                           Data->Speed, Data->Heading, Data->VerticalRate,
                            DataCPA->Latitude, DataCPA->Longitude, DataCPA->Altitude,
-                           DataCPA->Speed, DataCPA->Heading,
+                           DataCPA->Speed, DataCPA->Heading, DataCPA->VerticalRate,
                            tcpa, cpa_distance_nm, vertical_cpa))
             {
                 if (VDirect(Data->Latitude, Data->Longitude,

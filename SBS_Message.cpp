@@ -301,7 +301,7 @@ bool SBS_Message_Decode( char *msg)
     // init value for tracking
     ADS_B_Aircraft->HistoryIndex = 0;
     ADS_B_Aircraft->HistoryCount = 0;
-      // 위치 변경 시간 초기화
+    // Initialize fucntion Position Changing Time
     ADS_B_Aircraft->LastPositionChangeTime = GetCurrentTimeInMsec();
     memset(ADS_B_Aircraft->PrevLatitude, 0, sizeof(ADS_B_Aircraft->PrevLatitude));
     memset(ADS_B_Aircraft->PrevLongitude, 0, sizeof(ADS_B_Aircraft->PrevLongitude));

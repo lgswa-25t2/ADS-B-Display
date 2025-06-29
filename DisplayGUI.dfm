@@ -451,7 +451,7 @@ object Form1: TForm1
         Left = 5
         Top = 103
         Width = 104
-        Height = 18
+        Height = 20
         Caption = 'Raw Connect'
         Color = clMoneyGreen
         Font.Charset = ANSI_CHARSET
@@ -469,8 +469,9 @@ object Form1: TForm1
       object RawIpAddress: TComboBox
         Left = 115
         Top = 103
-        Width = 110
+        Width = 117
         Height = 23
+        DropDownWidth = 117
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
@@ -496,9 +497,9 @@ object Form1: TForm1
         OnClick = CycleImagesClick
       end
       object RawPlaybackButton: TPanel
-        Left = 115
+        Left = 114
         Top = 82
-        Width = 96
+        Width = 117
         Height = 17
         Caption = 'Raw Playback'
         Color = clMoneyGreen
@@ -586,9 +587,9 @@ object Form1: TForm1
         OnMouseUp = PanelButtonMouseUp
       end
       object SBSPlaybackButton: TPanel
-        Left = 115
+        Left = 114
         Top = 150
-        Width = 120
+        Width = 117
         Height = 17
         Caption = 'SBS Playback'
         Color = clMoneyGreen

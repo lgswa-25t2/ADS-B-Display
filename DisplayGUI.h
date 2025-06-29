@@ -594,6 +594,8 @@ private: // User declarations
     bool PlaybackPaused;
     TStringList *PlaybackFileIndex;
 
+    enum { DIR_NONE, DIR_VERT, DIR_HORZ } lastArrowDir = DIR_NONE;
+
 public: // User declarations
     __fastcall TForm1(TComponent *Owner);
     __fastcall ~TForm1();

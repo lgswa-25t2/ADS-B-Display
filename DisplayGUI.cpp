@@ -4408,21 +4408,8 @@ void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shif
     
     switch (Key)
     {
-    case VK_PRIOR: // Page Up
-        if (MapVScrollBar->Visible) {
-            MapVScrollBar->Position -= MapVScrollBar->LargeChange;
-            int pos = MapVScrollBar->Position;
-            MapVScrollBar->OnScroll(MapVScrollBar, scPageUp, pos);
-        }
-        break;
-    case VK_NEXT: // Page Down
-        if (MapVScrollBar->Visible) {
-            MapVScrollBar->Position += MapVScrollBar->LargeChange;
-            int pos = MapVScrollBar->Position;
-            MapVScrollBar->OnScroll(MapVScrollBar, scPageDown, pos);
-        }
-        break;
     case VK_UP: // 위쪽 화살표
+        lastArrowDir = DIR_VERT;
         if (MapVScrollBar->Visible) {
             MapVScrollBar->Position -= MapVScrollBar->SmallChange;
             int pos = MapVScrollBar->Position;
@@ -4430,6 +4417,7 @@ void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shif
         }
         break;
     case VK_DOWN: // 아래쪽 화살표
+        lastArrowDir = DIR_VERT;
         if (MapVScrollBar->Visible) {
             MapVScrollBar->Position += MapVScrollBar->SmallChange;
             int pos = MapVScrollBar->Position;
@@ -4437,6 +4425,7 @@ void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shif
         }
         break;
     case VK_LEFT: // 왼쪽 화살표
+        lastArrowDir = DIR_HORZ;
         if (MapHScrollBar->Visible) {
             MapHScrollBar->Position -= MapHScrollBar->SmallChange;
             int pos = MapHScrollBar->Position;
@@ -4444,10 +4433,41 @@ void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shif
         }
         break;
     case VK_RIGHT: // 오른쪽 화살표
+        lastArrowDir = DIR_HORZ;
         if (MapHScrollBar->Visible) {
             MapHScrollBar->Position += MapHScrollBar->SmallChange;
             int pos = MapHScrollBar->Position;
             MapHScrollBar->OnScroll(MapHScrollBar, scLineDown, pos);
+        }
+        break;
+    case VK_PRIOR: // Page Up
+        if (lastArrowDir == DIR_HORZ) {
+            if (MapHScrollBar->Visible) {
+                MapHScrollBar->Position -= MapHScrollBar->LargeChange;
+                int pos = MapHScrollBar->Position;
+                MapHScrollBar->OnScroll(MapHScrollBar, scPageUp, pos);
+            }
+        } else {
+            if (MapVScrollBar->Visible) {
+                MapVScrollBar->Position -= MapVScrollBar->LargeChange;
+                int pos = MapVScrollBar->Position;
+                MapVScrollBar->OnScroll(MapVScrollBar, scPageUp, pos);
+            }
+        }
+        break;
+    case VK_NEXT: // Page Down
+        if (lastArrowDir == DIR_HORZ) {
+            if (MapHScrollBar->Visible) {
+                MapHScrollBar->Position += MapHScrollBar->LargeChange;
+                int pos = MapHScrollBar->Position;
+                MapHScrollBar->OnScroll(MapHScrollBar, scPageDown, pos);
+            }
+        } else {
+            if (MapVScrollBar->Visible) {
+                MapVScrollBar->Position += MapVScrollBar->LargeChange;
+                int pos = MapVScrollBar->Position;
+                MapVScrollBar->OnScroll(MapVScrollBar, scPageDown, pos);
+            }
         }
         break;
     case VK_HOME: // Home 키: 피츠버그로 이동
@@ -5063,6 +5083,18 @@ void __fastcall TForm1::UpdateScrollBarRanges()
             printf("Map out of bounds: Lat=%.2f, Lon=%.2f\n", MapCenterLat, MapCenterLon);
         }
     }
+
+    // SmallChange를 보이는 영역의 1/10로 동적으로 설정
+    int horzSmallChange = std::max(1, int((effectiveLonRange / 10.0)));
+    int vertSmallChange = std::max(1, int((effectiveLatRange / 10.0)));
+    MapHScrollBar->SmallChange = horzSmallChange;
+    MapVScrollBar->SmallChange = vertSmallChange;
+
+    // LargeChange를 보이는 영역의 1/2로 동적으로 설정
+    int horzLargeChange = std::max(1, int(effectiveLonRange));
+    int vertLargeChange = std::max(1, int(effectiveLatRange));
+    MapHScrollBar->LargeChange = horzLargeChange;
+    MapVScrollBar->LargeChange = vertLargeChange;
 }
 
 //---------------------------------------------------------------------------

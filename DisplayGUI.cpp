@@ -716,8 +716,11 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
         for (Data = (TADS_B_Aircraft *)ght_first(HashTable, &iterator, (const void **)&Key);
              Data; Data = (TADS_B_Aircraft *)ght_next(HashTable, &iterator, (const void **)&Key))
         {
-            // 각 항공기의 30초 이상된 이동 경로 삭제
-            PurgeOldHistory(Data, CurrentTime);
+            // Playback 중일 때만 각 항공기의 30초 이상된 이동 경로 삭제
+            if (PlayBackSBSStream != NULL)
+            {
+                PurgeOldHistory(Data, CurrentTime);
+            }
         }
         
         lastHistoryPurge = CurrentTime;
@@ -2951,8 +2954,9 @@ void __fastcall TForm1::SBSPlaybackButtonClick(TObject *Sender)
         if (PlaybackSBSDialog->Execute())
         {
             // First, check if the file exists.
-            if (!FileExists(PlaybackSBSDialog->FileName))
+            if (!FileExists(PlaybackSBSDialog->FileName)){
                 ShowMessage("File " + PlaybackSBSDialog->FileName + " does not exist");
+            }
             else
             {
                 // Open a file for writing. Creates the file if it doesn't exist, or overwrites it if it does.

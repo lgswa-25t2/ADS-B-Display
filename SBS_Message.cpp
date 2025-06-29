@@ -1,18 +1,16 @@
 //---------------------------------------------------------------------------
-
 #pragma hdrstop
 #include "DisplayGUI.h"
 #include "Aircraft.h"
 #include "SBS_Message.h"
 #include "TimeFunctions.h"
 #include <math.h>
-
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #define SMALL_VAL        0.0001
 #define BIG_VAL          9999999.0
 #define VALID_POS(pos)   (fabs(pos->Longitude) >= SMALL_VAL && fabs(pos->Longitude) < 180.0 && \
-						  fabs(pos->Latitude) >= SMALL_VAL && fabs(pos->Latitude) < 90.0)
+              fabs(pos->Latitude) >= SMALL_VAL && fabs(pos->Latitude) < 90.0)
 
 #define SBS_MESSAGE_TYPE      0
 #define SBS_TRANSMISSION_TYPE 1
@@ -36,7 +34,6 @@
 #define SBS_EMERGENCY         19
 #define SBS_SBI               20
 #define SBS_IS_ON_GROUND      21
-
 
 static char *strsep (char **stringp, const char *delim);
 static  int hexDigitVal(int c);
@@ -186,13 +183,13 @@ bool ModeS_Build_SBS_Message (const modeS_message *mm, TADS_B_Aircraft *a, char 
   }
   else if (mm->msg_type == 17 && mm->ME_type >= 9 && mm->ME_type <= 18)
   {
-	if ((!a->HaveLatLon) || !VALID_POS(a))
-		 p += sprintf (p, "MSG,3,1,1,%06X,1,%s,,%d,,,,,,,0,0,0,0",
+  if ((!a->HaveLatLon) || !VALID_POS(a))
+     p += sprintf (p, "MSG,3,1,1,%06X,1,%s,,%d,,,,,,,0,0,0,0",
                        aircraft_get_addr(mm->AA[0], mm->AA[1], mm->AA[2]),
                        date_str, mm->altitude);
     else p += sprintf (p, "MSG,3,1,1,%06X,1,%s,,%d,,,%1.5f,%1.5f,,,0,0,0,0",
                        aircraft_get_addr(mm->AA[0], mm->AA[1], mm->AA[2]),
-					   date_str, mm->altitude, a->Latitude, a->Longitude);
+             date_str, mm->altitude, a->Latitude, a->Longitude);
   }
   else if (mm->msg_type == 17 && mm->ME_type == 19 && mm->ME_subtype == 1)
   {
@@ -209,7 +206,7 @@ bool ModeS_Build_SBS_Message (const modeS_message *mm, TADS_B_Aircraft *a, char 
                   date_str, mm->identity, alert, emergency, spi, ground);
   }
   else
-	return(false);
+  return(false);
 
   *p++ = '\0';
   return(true);
@@ -246,15 +243,15 @@ bool SBS_Message_Decode( char *msg)
     return(false);
   }
 
-	if ((SBS_Fields[SBS_HEX_INDENT]==0) || (strlen(SBS_Fields[SBS_HEX_INDENT]) < 6) || (strlen(SBS_Fields[SBS_HEX_INDENT]) > 7))  // icao must be 6 characters
+  if ((SBS_Fields[SBS_HEX_INDENT]==0) || (strlen(SBS_Fields[SBS_HEX_INDENT]) < 6) || (strlen(SBS_Fields[SBS_HEX_INDENT]) > 7))  // icao must be 6 characters
   {
-		if ((SBS_Fields[SBS_HEX_INDENT]==0) || (strlen(SBS_Fields[SBS_HEX_INDENT]) > 7))
-		{
+    if ((SBS_Fields[SBS_HEX_INDENT]==0) || (strlen(SBS_Fields[SBS_HEX_INDENT]) > 7))
+    {
       printf("invalid ICAO 1 Field is %s\n",SBS_Fields[SBS_HEX_INDENT]);
       return(false);
-		}
-		else
-		{
+    }
+    else
+    {
       int current_length=strlen(SBS_Fields[SBS_HEX_INDENT]);
       int padding_length = 6 - current_length;
       memset(FixHex, '0', padding_length);
@@ -263,7 +260,7 @@ bool SBS_Message_Decode( char *msg)
       SBS_Fields[SBS_HEX_INDENT]=FixHex;
     }
   }
-	char *icao = SBS_Fields[SBS_HEX_INDENT];
+  char *icao = SBS_Fields[SBS_HEX_INDENT];
   int non_icao = 0;
   if (icao[0] == '~')
   {
@@ -304,6 +301,8 @@ bool SBS_Message_Decode( char *msg)
     // init value for tracking
     ADS_B_Aircraft->HistoryIndex = 0;
     ADS_B_Aircraft->HistoryCount = 0;
+      // 위치 변경 시간 초기화
+    ADS_B_Aircraft->LastPositionChangeTime = GetCurrentTimeInMsec();
     memset(ADS_B_Aircraft->PrevLatitude, 0, sizeof(ADS_B_Aircraft->PrevLatitude));
     memset(ADS_B_Aircraft->PrevLongitude, 0, sizeof(ADS_B_Aircraft->PrevLongitude));
     memset(ADS_B_Aircraft->PrevAltitude, 0, sizeof(ADS_B_Aircraft->PrevAltitude));

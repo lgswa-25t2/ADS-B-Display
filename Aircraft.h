@@ -39,7 +39,9 @@ typedef struct
 	__int64             PrevTimestamp[FLIGHT_TRACK_HISTORY_COUNT]; 
 	int                 HistoryCount;
 	int                 HistoryIndex;
-	
+	// Last position change time tracking
+    __int64             LastPositionChangeTime;  /* Time when position actually changed */
+
 	// Dead reckoning fields
 	bool                IsDeadReckoning;     /* True if position is predicted */
 	double              PredictedLatitude;   /* Predicted latitude */

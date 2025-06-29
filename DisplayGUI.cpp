@@ -705,6 +705,24 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
         }
     }
 
+    // 모든 항공기의 오래된 이동 경로 정리 (5초마다)
+    static __int64 lastHistoryPurge = 0;
+    if (CurrentTime - lastHistoryPurge > 5000) // 5초마다 실행
+    {
+        uint32_t *Key;
+        ght_iterator_t iterator;
+        TADS_B_Aircraft *Data;
+
+        for (Data = (TADS_B_Aircraft *)ght_first(HashTable, &iterator, (const void **)&Key);
+             Data; Data = (TADS_B_Aircraft *)ght_next(HashTable, &iterator, (const void **)&Key))
+        {
+            // 각 항공기의 30초 이상된 이동 경로 삭제
+            PurgeOldHistory(Data, CurrentTime);
+        }
+        
+        lastHistoryPurge = CurrentTime;
+    }
+
     ObjectDisplay->Repaint();
     UpdateRawConnectionStatus(RawConnectButton->Caption);
     UpdateSBSConnectionStatus(SBSConnectButton->Caption);
@@ -1224,7 +1242,7 @@ void __fastcall TForm1::DrawObjects(void)
                     LatLon2XY(Data->PrevLatitude[idx], Data->PrevLongitude[idx], historyScrX, historyScrY);
                     glVertex2f(historyScrX, historyScrY);
 
-                    // printf("[OK] Valid Aircraft History %s idx=%d %f %f\n", Data->HexAddr, idx, Data->PrevLatitude[idx], Data->PrevLongitude[idx]);
+                    //printf("[OK] Valid Aircraft History %s idx=%d %f %f\n", Data->HexAddr, idx, Data->PrevLatitude[idx], Data->PrevLongitude[idx]);
                 }
                 glEnd();
             }
@@ -1598,17 +1616,38 @@ void __fastcall TForm1::UpdateAircraftHistory(TADS_B_Aircraft *aircraft)
         aircraft->HistoryCount = 0;
     }
 
+    // 위치 변경 감지를 위한 정밀도 설정 (약 10미터 정도)
+    const double POSITION_CHANGE_THRESHOLD = 0.0001; // 위도/경도 기준
+
     // Compare previous loc and current loc
     bool shouldUpdate = true;
+    bool positionChanged = true;
+
     if (aircraft->HistoryCount > 0)
     {
         int prevIdx = (aircraft->HistoryIndex - 1 + FLIGHT_TRACK_HISTORY_COUNT) % FLIGHT_TRACK_HISTORY_COUNT;
+
+        // 이전 위치와 현재 위치의 차이 계산
+        double latDiff = fabs(aircraft->PrevLatitude[prevIdx] - aircraft->Latitude);
+        double lonDiff = fabs(aircraft->PrevLongitude[prevIdx] - aircraft->Longitude);
+
+        // 위치 변경 감지
+        if (latDiff < POSITION_CHANGE_THRESHOLD && lonDiff < POSITION_CHANGE_THRESHOLD)
+        {
+            positionChanged = false;
+        }
+
         // Same data, not save
         if (aircraft->PrevLatitude[prevIdx] == aircraft->Latitude &&
             aircraft->PrevLongitude[prevIdx] == aircraft->Longitude)
         {
             shouldUpdate = false;
         }
+    }
+    else
+    {
+        // 첫 번째 데이터인 경우 LastPositionChangeTime 초기화
+        aircraft->LastPositionChangeTime = aircraft->LastSeen;
     }
 
     if (shouldUpdate)
@@ -1621,6 +1660,8 @@ void __fastcall TForm1::UpdateAircraftHistory(TADS_B_Aircraft *aircraft)
         aircraft->PrevAltitude[idx] = aircraft->Altitude;
         aircraft->PrevTimestamp[idx] = aircraft->LastSeen;
 
+        //printf("[OK] Valid Aircraft History LastSeen %lld\n", aircraft->LastSeen);
+
         // Circular buffer index update
         aircraft->HistoryIndex = (aircraft->HistoryIndex + 1) % FLIGHT_TRACK_HISTORY_COUNT;
         if (aircraft->HistoryCount < FLIGHT_TRACK_HISTORY_COUNT)
@@ -1628,32 +1669,58 @@ void __fastcall TForm1::UpdateAircraftHistory(TADS_B_Aircraft *aircraft)
             aircraft->HistoryCount++;
         }
     }
+
+    // 실제 위치가 변경된 경우에만 LastPositionChangeTime 업데이트
+    if (positionChanged)
+    {
+        aircraft->LastPositionChangeTime = aircraft->LastSeen;
+        //printf("[MOVE] Aircraft %s position changed at %lld\n", aircraft->HexAddr, aircraft->LastSeen);
+    }
 }
 
 //---------------------------------------------------------------------------
+// 개선된 PurgeOldHistory 함수
 void __fastcall TForm1::PurgeOldHistory(TADS_B_Aircraft *aircraft, __int64 currentTime)
 {
-    // printf("PurgeOldHistory\n");
-    if (aircraft->HistoryCount == 0)
+    if (!aircraft || aircraft->HistoryCount == 0)
         return;
 
-    int validCount = 0;
-    int newIndex = 0;
-
-    for (int i = 0; i < aircraft->HistoryCount; i++)
+    const __int64 HISTORY_TIMEOUT_MS = 30000; // 30초
+    // 두 가지 조건 중 하나라도 만족하면 경로 삭제
+    bool shouldClearHistory = false;
+    AnsiString reason = "";
+    
+    // 조건 1: 30초 동안 데이터가 안 들어옴
+    __int64 timeSinceLastData = currentTime - aircraft->LastSeen;
+    if (timeSinceLastData >= HISTORY_TIMEOUT_MS)
     {
-        int idx = (aircraft->HistoryIndex - i - 1 + 100) % 100;
-        if ((currentTime - aircraft->PrevTimestamp[idx]) <= 30000)
-        {
-            validCount++;
-        }
-        else
-        {
-            break;
-        }
+        shouldClearHistory = true;
+        reason = "No data for " + IntToStr((int)(timeSinceLastData / 1000)) + " seconds";
     }
-
-    aircraft->HistoryCount = validCount;
+    
+    // 조건 2: 30초 동안 위치 변경이 없음 (데이터는 들어오지만 같은 위치)
+    __int64 timeSinceLastMove = currentTime - aircraft->LastPositionChangeTime;
+    if (timeSinceLastMove >= HISTORY_TIMEOUT_MS)
+    {
+        shouldClearHistory = true;
+        if (reason.Length() > 0) reason += " and ";
+        reason += "No position change for " + IntToStr((int)(timeSinceLastMove / 1000)) + " seconds";
+    }
+    
+    if (shouldClearHistory)
+    {
+        // 경로 히스토리 완전 삭제
+        aircraft->HistoryCount = 0;
+        aircraft->HistoryIndex = 0;
+        
+        // 배열 초기화 (메모리 정리)
+        memset(aircraft->PrevLatitude, 0, sizeof(aircraft->PrevLatitude));
+        memset(aircraft->PrevLongitude, 0, sizeof(aircraft->PrevLongitude));
+        memset(aircraft->PrevAltitude, 0, sizeof(aircraft->PrevAltitude));
+        memset(aircraft->PrevTimestamp, 0, sizeof(aircraft->PrevTimestamp));
+        
+        printf("[CLEAR] Aircraft %s track history cleared: %s\n", aircraft->HexAddr, reason.c_str());
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -2263,6 +2330,8 @@ void __fastcall TTCPClientRawHandleThread::HandleInput(void)
             // init value for tracking
             ADS_B_Aircraft->HistoryIndex = 0;
             ADS_B_Aircraft->HistoryCount = 0;
+            // 위치 변경 시간 초기화
+            ADS_B_Aircraft->LastPositionChangeTime = GetCurrentTimeInMsec();
             memset(ADS_B_Aircraft->PrevLatitude, 0, sizeof(ADS_B_Aircraft->PrevLatitude));
             memset(ADS_B_Aircraft->PrevLongitude, 0, sizeof(ADS_B_Aircraft->PrevLongitude));
             memset(ADS_B_Aircraft->PrevAltitude, 0, sizeof(ADS_B_Aircraft->PrevAltitude));
@@ -5510,7 +5579,6 @@ void __fastcall TForm1::ShowSBSTimeoutDialog()
 // Progress Bar 초기화 메서드 구현
 void __fastcall TForm1::InitializePlaybackProgress()
 {
-
     PlaybackProgressTrackBar->Min = 0;
     PlaybackProgressTrackBar->Max = 1000;
     PlaybackProgressTrackBar->Position = 0;

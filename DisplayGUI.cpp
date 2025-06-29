@@ -4399,6 +4399,19 @@ int __fastcall TForm1::GetFilteredAreaCount()
 
 void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shift)
 {
+    // ComboBox에 포커스가 있을 때는 Key로 맵 이동 하지 않음.
+    if (ActiveControl && 
+        (ActiveControl == MapComboBox || 
+         ActiveControl == AircraftTypeFilterComboBox ||
+         ActiveControl == AltitudeFilterComboBox ||
+         ActiveControl == SpeedFilterComboBox ||
+         ActiveControl == SBSIpAddress ||
+         ActiveControl == RawIpAddress ||
+         ActiveControl->ClassName() == "TComboBox"))
+    {
+        return; // Key는 각 Compbo Box에서 처리됨.
+    }
+
     // 키 반복 방지 - static 변수로 이전 키 추적
     static WORD lastKey = 0;
     static DWORD lastKeyTime = 0;

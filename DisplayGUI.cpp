@@ -3789,7 +3789,7 @@ void __fastcall TForm1::AboutADSBDisplay1Click(TObject *Sender)
 void __fastcall TForm1::UserManual1Click(TObject *Sender)
 {
     printf("User Manual Clicked\n");
-    ShellExecute(0, L"open", L"https://www.naver.com", NULL, NULL, SW_SHOWNORMAL);
+    ShellExecute(0, L"open", L"https://github.com/lgswa-25t2/ADS-B-Display/blob/main/docs/usermanual/User_Guide_EN.md", NULL, NULL, SW_SHOWNORMAL);
 }
 
 void __fastcall TForm1::UpdateAircraftInfo(TADS_B_Aircraft *Data)

@@ -498,6 +498,9 @@ class TForm1 : public TForm
     TShiftState Shift, int X, int Y);
     void __fastcall PanelButtonMouseUp(TObject *Sender, TMouseButton Button,
     TShiftState Shift, int X, int Y);
+    void __fastcall FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shift);
+    void __fastcall FormKeyUp(TObject *Sender, WORD &Key, TShiftState Shift);
+    void __fastcall FormActivate(TObject *Sender);
 private: // User declarations
     bool __fastcall CheckCellClickAndZoom(int X, int Y);
     void __fastcall DrawDeadReckoningStatusBar(void);
@@ -618,8 +621,6 @@ public: // User declarations
     void __fastcall ToggleAreaInFilter(TArea *area);
     bool __fastcall IsAreaInFilter(TArea *area);
     int __fastcall GetFilteredAreaCount();
-    void __fastcall FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shift);
-
     int MouseDownX, MouseDownY;
     bool MouseDown;
     TTrackHook TrackHook;

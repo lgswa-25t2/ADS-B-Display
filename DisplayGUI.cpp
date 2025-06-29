@@ -204,6 +204,11 @@ static char *stristr(const char *String, const char *Pattern)
 __fastcall TForm1::TForm1(TComponent *Owner)
     : TForm(Owner)
 {
+    // 키 이벤트를 Form에서 받을 수 있도록 설정
+    this->KeyPreview = true;
+    this->OnKeyDown = FormKeyDown;
+    this->OnKeyUp = FormKeyUp;
+
     // Initialize IP history
     LoadIpHistory();
 
@@ -217,6 +222,7 @@ __fastcall TForm1::TForm1(TComponent *Owner)
     MapVScrollBar->Align = alNone;  // 자동 정렬 비활성화
     MapVScrollBar->Width = 17;      // 스크롤바 너비 설정
     MapVScrollBar->Visible = false; // 처음에는 숨김
+    MapVScrollBar->TabStop = false; // 키 이벤트를 가로채지 않도록 설정
     MapVScrollBar->OnScroll = MapVScrollBarScroll;
 
     // Create horizontal scrollbar
@@ -226,11 +232,13 @@ __fastcall TForm1::TForm1(TComponent *Owner)
     MapHScrollBar->Align = alNone;  // 자동 정렬 비활성화
     MapHScrollBar->Height = 17;     // 스크롤바 높이 설정
     MapHScrollBar->Visible = false; // 처음에는 숨김
+    MapHScrollBar->TabStop = false; // 키 이벤트를 가로채지 않도록 설정
     MapHScrollBar->OnScroll = MapHScrollBarScroll;
 
     // ObjectDisplay는 원래 부모로 복원 (지도 표시용)
     // ObjectDisplay->Parent = Panel7; // 이 줄 제거
     // ObjectDisplay->Align = alClient; // 이 줄 제거
+    ObjectDisplay->TabStop = false; // ObjectDisplay가 포커스를 받지 않도록 설정
 
     AircraftDBPathFileName = ExtractFilePath(ExtractFileDir(Application->ExeName)) + AnsiString("..\\AircraftDB\\") + AIRCRAFT_DATABASE_FILE;
     ARTCCBoundaryDataPathFileName = ExtractFilePath(ExtractFileDir(Application->ExeName)) + AnsiString("..\\ARTCC_Boundary_Data\\") + ARTCC_BOUNDARY_FILE;
@@ -1485,6 +1493,8 @@ void __fastcall TForm1::DrawDeadReckoningStatusBar(void)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::ObjectDisplayMouseDown(TObject *Sender, TMouseButton Button, TShiftState Shift, int X, int Y)
 {
+    if (this->Visible && this->Enabled)
+        this->SetFocus();
     if (Button == mbLeft)
     {
         // Cell 클릭 감지 및 zoom-in 기능 추가
@@ -4377,86 +4387,100 @@ int __fastcall TForm1::GetFilteredAreaCount()
 
 void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shift)
 {
+    // 키 반복 방지 - static 변수로 이전 키 추적
+    static WORD lastKey = 0;
+    static DWORD lastKeyTime = 0;
+    DWORD currentTime = GetTickCount();
+    
+    // 같은 키가 50ms 이내에 다시 들어오면 반복으로 간주
+    if (Key == lastKey && (currentTime - lastKeyTime) < 50) {
+        return; // 반복 키는 무시
+    }
+    
+    lastKey = Key;
+    lastKeyTime = currentTime;
+    
+    printf("Key pressed: %d (0x%X)\n", Key, Key);
+    
+    // g_EarthView가 초기화되지 않았으면 스킵
+    if (!g_EarthView)
+        return;
+    
     switch (Key)
     {
-    case VK_F1: // F1 키로 필터 토글 (현재 선택된 Area들)
-        if (selectedFilterAreas->Count > 0)
-        {
-            areaFilterEnabled = !areaFilterEnabled;
-            printf("Area filter %s (%lld areas)\n",
-                   areaFilterEnabled ? "enabled" : "disabled",
-                   selectedFilterAreas->Count);
-            ObjectDisplay->Repaint();
-        }
-        else
-        {
-            printf("No areas selected for filtering\n");
+    case VK_PRIOR: // Page Up
+        if (MapVScrollBar->Visible) {
+            MapVScrollBar->Position -= MapVScrollBar->LargeChange;
+            int pos = MapVScrollBar->Position;
+            MapVScrollBar->OnScroll(MapVScrollBar, scPageUp, pos);
         }
         break;
-
-    case VK_ESCAPE: // ESC 키로 모든 필터 해제
-        if (selectedFilterAreas->Count > 0)
-        {
-            ClearAreaFilter();
-            // UI에서도 모든 선택 해제
-            for (int i = 0; i < AreaListView->Items->Count; i++)
-            {
-                AreaListView->Items->Item[i]->Selected = false;
-                TArea *area = (TArea *)AreaListView->Items->Item[i]->Data;
-                if (area)
-                {
-                    area->Selected = false;
-                }
-            }
-            Delete->Enabled = false;
-			Delete->Color = clCream;
-            printf("All selections and filters cleared\n");
+    case VK_NEXT: // Page Down
+        if (MapVScrollBar->Visible) {
+            MapVScrollBar->Position += MapVScrollBar->LargeChange;
+            int pos = MapVScrollBar->Position;
+            MapVScrollBar->OnScroll(MapVScrollBar, scPageDown, pos);
         }
         break;
-
-    case 'A': // Ctrl+A로 모든 Area 선택
-        if (Shift.Contains(ssCtrl))
-        {
-            for (int i = 0; i < AreaListView->Items->Count; i++)
-            {
-                TListItem *item = AreaListView->Items->Item[i];
-                TArea *area = (TArea *)item->Data;
-                if (area)
-                {
-                    item->Selected = true;
-                    area->Selected = true;
-                    AddAreaToFilter(area);
-                }
-            }
-            Delete->Enabled = (AreaListView->Items->Count > 0);
-			Delete->Color = (AreaListView->Items->Count > 0)?clMoneyGreen:clCream;
-            printf("All areas selected (%d areas)\n", AreaListView->Items->Count);
-            ObjectDisplay->Repaint();
+    case VK_UP: // 위쪽 화살표
+        if (MapVScrollBar->Visible) {
+            MapVScrollBar->Position -= MapVScrollBar->SmallChange;
+            int pos = MapVScrollBar->Position;
+            MapVScrollBar->OnScroll(MapVScrollBar, scLineUp, pos);
         }
         break;
-
-    case VK_DELETE: // Delete 키로 선택된 Area들 삭제
-        if (Delete->Enabled)
-        {
-            DeleteClick(nullptr);
+    case VK_DOWN: // 아래쪽 화살표
+        if (MapVScrollBar->Visible) {
+            MapVScrollBar->Position += MapVScrollBar->SmallChange;
+            int pos = MapVScrollBar->Position;
+            MapVScrollBar->OnScroll(MapVScrollBar, scLineDown, pos);
         }
         break;
-
-    case VK_F2: // F2 키로 필터 상태 정보 출력
-        printf("=== Area Filter Status ===\n");
-        printf("Filter enabled: %s\n", areaFilterEnabled ? "Yes" : "No");
-        printf("Selected areas: %lld\n", selectedFilterAreas->Count);
-        printf("Total areas: %lld\n", Areas->Count);
-        for (int i = 0; i < selectedFilterAreas->Count; i++)
-        {
-            TArea *area = (TArea *)selectedFilterAreas->Items[i];
-            if (area)
-            {
-                printf("  - %s\n", area->Name.c_str());
-            }
+    case VK_LEFT: // 왼쪽 화살표
+        if (MapHScrollBar->Visible) {
+            MapHScrollBar->Position -= MapHScrollBar->SmallChange;
+            int pos = MapHScrollBar->Position;
+            MapHScrollBar->OnScroll(MapHScrollBar, scLineUp, pos);
         }
+        break;
+    case VK_RIGHT: // 오른쪽 화살표
+        if (MapHScrollBar->Visible) {
+            MapHScrollBar->Position += MapHScrollBar->SmallChange;
+            int pos = MapHScrollBar->Position;
+            MapHScrollBar->OnScroll(MapHScrollBar, scLineDown, pos);
+        }
+        break;
+    case VK_HOME: // Home 키: 피츠버그로 이동
+        MapCenterLat = 40.4406;   // 피츠버그 위도
+        MapCenterLon = -79.9959;  // 피츠버그 경도
+        SetMapCenter(g_EarthView->m_Eye.x, g_EarthView->m_Eye.y);
+        UpdateScrollBarRanges();
+        UpdateScrollBarPositions();
+        ObjectDisplay->Repaint();
+        break;
+    case VK_END: // End 키: 비활성화 (아무 동작 안 함)
+        break;
+    case VK_F1:
+        printf("========================\n");
+        printf("F1 Key Pressed - Debug Info:\n");
+        printf("MapCenterLat: %.6f\n", MapCenterLat);
+        printf("MapCenterLon: %.6f\n", MapCenterLon);
+        printf("g_EarthView->m_Eye.x: %.6f\n", g_EarthView->m_Eye.x);
+        printf("g_EarthView->m_Eye.y: %.6f\n", g_EarthView->m_Eye.y);
+        printf("g_EarthView->m_Eye.h: %.6f\n", g_EarthView->m_Eye.h);
         printf("========================\n");
         break;
+    }
+}
+
+//---------------------------------------------------------------------------
+void __fastcall TForm1::FormKeyUp(TObject *Sender, WORD &Key, TShiftState Shift)
+{
+    // 키를 떼면 lastKey 초기화
+    static WORD lastKey = 0;
+    if (Key == lastKey) {
+        lastKey = 0;
+        printf("Key released: %d (0x%X)\n", Key, Key);
     }
 }
 
@@ -6189,4 +6213,12 @@ void __fastcall TForm1::AltitudeFilterComboBoxCloseUp(TObject *Sender)
 void __fastcall TForm1::SpeedFilterComboBoxCloseUp(TObject *Sender)
 {
     SelectedSpeedFilter = SpeedFilterComboBox->ItemIndex;
+}
+
+void __fastcall TForm1::FormActivate(TObject *Sender)
+{
+    if (this->Visible && this->Enabled)
+        this->SetFocus();
+    this->ActiveControl = nullptr;
+    printf("Form activated, focus set to Form\n");
 }

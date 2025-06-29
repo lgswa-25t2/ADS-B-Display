@@ -407,6 +407,10 @@ __fastcall TForm1::TForm1(TComponent *Owner)
     SpeedFilterComboBox->Items->Add("200-300 knots");
     SpeedFilterComboBox->Items->Add("Below 200 knots");
     SpeedFilterComboBox->ItemIndex = 0;
+
+    // 빠른 클릭 감지 변수 초기화
+    rapidClickCount = 0;
+    firstClickTime = 0;
 }
 //---------------------------------------------------------------------------
 __fastcall TForm1::~TForm1()
@@ -1497,6 +1501,40 @@ void __fastcall TForm1::ObjectDisplayMouseDown(TObject *Sender, TMouseButton But
         this->SetFocus();
     if (Button == mbLeft)
     {
+        // 빠른 클릭 감지 로직 추가
+        __int64 currentTime = GetCurrentTimeInMsec();
+
+        if (rapidClickCount == 0)
+        {
+            // 첫 번째 클릭
+            firstClickTime = currentTime;
+            rapidClickCount = 1;
+        }
+        else
+        {
+            // 후속 클릭들
+            if (currentTime - firstClickTime <= RAPID_CLICK_TIME_WINDOW)
+            {
+                // 시간 윈도우 내의 클릭
+                rapidClickCount++;
+
+                if (rapidClickCount >= RAPID_CLICK_THRESHOLD)
+                {
+                    // 10회 클릭 달성!
+                    ShowSecretDialog();
+                    rapidClickCount = 0;  // 카운터 리셋
+                    firstClickTime = 0;
+                    return; // 다른 처리 건너뛰기
+                }
+            }
+            else
+            {
+                // 시간 윈도우 초과, 카운터 리셋
+                firstClickTime = currentTime;
+                rapidClickCount = 1;
+            }
+        }
+
         // Cell 클릭 감지 및 zoom-in 기능 추가
         if (CheckCellClickAndZoom(X, Y))
         {
@@ -3790,6 +3828,21 @@ void __fastcall TForm1::UserManual1Click(TObject *Sender)
 {
     printf("User Manual Clicked\n");
     ShellExecute(0, L"open", L"https://github.com/lgswa-25t2/ADS-B-Display/blob/main/docs/usermanual/User_Guide_EN.md", NULL, NULL, SW_SHOWNORMAL);
+}
+
+void __fastcall TForm1::ShowSecretDialog()
+{
+    printf("Secret dialog triggered by rapid clicks!\n");
+    ShowMessage("-> SECRET FEATURE UNLOCKED! <-\n\n"
+                "You discovered the hidden Easter Egg!\n"
+                "Rapid clicking 10 times in 2 seconds unlocks this message.\n\n"
+                "## ADS-B Display - Advanced Features\n"
+                "* Performance - Being super fast application speed\n"
+                "* Userablility - Special userablility adapted\n"
+		        "* Modifiability - Enhanced Modifiability provided\n"
+                "* Resiliency - Self-healing mechanisms enabled\n"
+                "* Call to Leader of LG SA Team 2 Leader\n\n"
+                "Keep exploring the skies!!");
 }
 
 void __fastcall TForm1::UpdateAircraftInfo(TADS_B_Aircraft *Data)

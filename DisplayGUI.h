@@ -587,6 +587,15 @@ private: // User declarations
     __int64 LastRawConnectionCheck; // 마지막 Raw 연결 체크 시간
     __int64 LastSBSConnectionCheck; // 마지막 SBS 연결 체크 시간
 
+    // 빠른 클릭 감지를 위한 변수들
+    int rapidClickCount;         // 빠른 클릭 횟수
+    __int64 firstClickTime;      // 첫 번째 클릭 시간
+    static const int RAPID_CLICK_THRESHOLD = 10;    // 클릭 임계값 (10회)
+    static const int RAPID_CLICK_TIME_WINDOW = 2000; // 시간 윈도우 (2초, 밀리초)
+
+    // 숨겨진 기능 다이얼로그 표시
+    void __fastcall ShowSecretDialog();
+
     bool PlaybackSeeking;
     __int64 PlaybackStartTime;
     __int64 PlaybackEndTime;

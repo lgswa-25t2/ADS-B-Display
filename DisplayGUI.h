@@ -81,6 +81,31 @@ enum TAircraftTypeFilter
     atfKnownCivilian = 3,
     atfUnknown = 4
 };
+
+// 고도 필터 enum 추가
+enum TAltitudeFilter
+{
+    afAll = 0,
+    af35000Plus = 1,        // 35000+ feet
+    af25000To35000 = 2,     // 25000-35000 feet
+    af15000To25000 = 3,     // 15000-25000 feet
+    af8000To15000 = 4,      // 8000-15000 feet
+    af3000To8000 = 5,       // 3000-8000 feet
+    af1000To3000 = 6,       // 1000-3000 feet
+    afBelow1000 = 7         // 1000 미만 feet
+};
+
+// 속도 필터 enum 추가
+enum TSpeedFilter
+{
+    sfAll = 0,
+    sf500Plus = 1,          // 500+ knots
+    sf400To500 = 2,         // 400-500 knots
+    sf300To400 = 3,         // 300-400 knots
+    sf200To300 = 4,         // 200-300 knots
+    sfBelow200 = 5          // 200 미만 knots
+};
+
 // 캐시 만료 시간 (밀리초)
 const int CACHE_EXPIRY_MS = 3000;           // 3 Sec
 const int CACHE_CLEANUP_INTERVAL_MS = 5000; // 5초마다 캐시 정리
@@ -391,6 +416,13 @@ class TForm1 : public TForm
 	TLabel *CLatiLabel;
 	TLabel *CLongtLabel;
 	TShape *Shape1;
+    TComboBox *AltitudeFilterComboBox;
+	TComboBox *SpeedFilterComboBox;
+    TLabel *Label6;
+	TShape *Shape2;
+	TShape *Shape3;
+	TShape *Shape4;
+	TShape *Shape5;
     void __fastcall ObjectDisplayInit(TObject *Sender);
     void __fastcall ObjectDisplayResize(TObject *Sender);
     void __fastcall ObjectDisplayPaint(TObject *Sender);
@@ -444,6 +476,8 @@ class TForm1 : public TForm
     void __fastcall UserManual1Click(TObject *Sender);
     void __fastcall PanelTitle1Click(TObject *Sender);
     void __fastcall AircraftTypeFilterComboBoxCloseUp(TObject *Sender);
+    void __fastcall AltitudeFilterComboBoxCloseUp(TObject *Sender);
+    void __fastcall SpeedFilterComboBoxCloseUp(TObject *Sender); 
     // Scrollbar
     void __fastcall MapScrollBoxScroll(TObject *Sender, TScrollBarKind ScrollBarKind, int ScrollCode, int &ScrollPos);
     void __fastcall MapScrollBoxVScroll(TObject *Sender, TScrollCode ScrollCode, int &ScrollPos);
@@ -624,6 +658,8 @@ public: // User declarations
     AnsiString ARTCCBoundaryDataPathFileName;
     int SelectedMapIndex;
     int SelectedAircraftTypeFilter;
+    int SelectedAltitudeFilter;
+    int SelectedSpeedFilter;
     int gCell[10][10] = {
         0,
     };
@@ -647,6 +683,10 @@ public: // User declarations
     void __fastcall DrawAllAirports();
     void __fastcall GetAltitudeLineColor(double altitude, float &r, float &g, float &b, float &alpha);
     AnsiString __fastcall SafeAnsiString(AnsiString input);
+    // aircraft altitude filter
+    bool __fastcall IsAircraftInAltitudeFilter(TADS_B_Aircraft *aircraft);  
+    // aircraft speed filter
+    bool __fastcall IsAircraftInSpeedFilter(TADS_B_Aircraft *aircraft);  
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TForm1 *Form1;

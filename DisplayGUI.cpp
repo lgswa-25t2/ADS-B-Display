@@ -352,6 +352,8 @@ __fastcall TForm1::TForm1(TComponent *Owner)
     PlaybackSpeedPanel->Visible = false;
     AircraftTypeFilterComboBox->ItemIndex = 0; // "All" 선택
     SelectedAircraftTypeFilter = 0;
+    SelectedAltitudeFilter = 0; 
+    SelectedSpeedFilter = 0;
 
     // 거리 계산 스레드 초기화
     aircraftAirportDistanceResult = nullptr;
@@ -376,6 +378,27 @@ __fastcall TForm1::TForm1(TComponent *Owner)
 
     // 항공기 간 거리 계산 스레드 시작
     startAircraftDistanceCalculationThread();
+
+    // ComboBox 초기화
+    AltitudeFilterComboBox->Items->Clear();
+    AltitudeFilterComboBox->Items->Add("All Altitudes");
+    AltitudeFilterComboBox->Items->Add("35000+ feet");
+    AltitudeFilterComboBox->Items->Add("25000-35000 feet");
+    AltitudeFilterComboBox->Items->Add("15000-25000 feet");
+    AltitudeFilterComboBox->Items->Add("8000-15000 feet");
+    AltitudeFilterComboBox->Items->Add("3000-8000 feet");
+    AltitudeFilterComboBox->Items->Add("1000-3000 feet");
+    AltitudeFilterComboBox->Items->Add("Below 1000 feet");
+    AltitudeFilterComboBox->ItemIndex = 0;
+
+    SpeedFilterComboBox->Items->Clear();
+    SpeedFilterComboBox->Items->Add("All Speeds");
+    SpeedFilterComboBox->Items->Add("500+ knots");
+    SpeedFilterComboBox->Items->Add("400-500 knots");
+    SpeedFilterComboBox->Items->Add("300-400 knots");
+    SpeedFilterComboBox->Items->Add("200-300 knots");
+    SpeedFilterComboBox->Items->Add("Below 200 knots");
+    SpeedFilterComboBox->ItemIndex = 0;
 }
 //---------------------------------------------------------------------------
 __fastcall TForm1::~TForm1()
@@ -896,6 +919,19 @@ void __fastcall TForm1::DrawObjects(void)
             {
                 continue; // 이 항공기는 건너뛰기
             }
+            // 고도 필터링 추가
+            if (!IsAircraftInAltitudeFilter(Data))
+            {
+                continue;
+            }
+            
+            // 속도 필터링 추가
+            if (!IsAircraftInSpeedFilter(Data))
+            {
+                continue;
+            }
+            
+        
             // feature selectedAreas
             if (!IsAircraftInSelectedAreas(Data))
             {
@@ -6009,4 +6045,76 @@ AnsiString __fastcall TForm1::SafeAnsiString(AnsiString input)
         return "N/A";
     
     return trimmed;
+}
+
+// 고도 필터링 함수
+bool __fastcall TForm1::IsAircraftInAltitudeFilter(TADS_B_Aircraft *aircraft)
+{
+    if (SelectedAltitudeFilter == afAll)
+        return true;
+        
+    if (!aircraft->HaveAltitude)
+        return false;
+        
+    double altitude = aircraft->Altitude;
+    
+    switch (SelectedAltitudeFilter)
+    {
+        case af35000Plus:
+            return altitude >= 35000;
+        case af25000To35000:
+            return altitude >= 25000 && altitude < 35000;
+        case af15000To25000:
+            return altitude >= 15000 && altitude < 25000;
+        case af8000To15000:
+            return altitude >= 8000 && altitude < 15000;
+        case af3000To8000:
+            return altitude >= 3000 && altitude < 8000;
+        case af1000To3000:
+            return altitude >= 1000 && altitude < 3000;
+        case afBelow1000:
+            return altitude < 1000;
+        default:
+            return true;
+    }
+}
+
+// 속도 필터링 함수
+bool __fastcall TForm1::IsAircraftInSpeedFilter(TADS_B_Aircraft *aircraft)
+{
+    if (SelectedSpeedFilter == sfAll)
+        return true;
+        
+    if (!aircraft->Speed)
+        return false;
+        
+    double speed = aircraft->Speed;
+    
+    switch (SelectedSpeedFilter)
+    {
+        case sf500Plus:
+            return speed >= 500;
+        case sf400To500:
+            return speed >= 400 && speed < 500;
+        case sf300To400:
+            return speed >= 300 && speed < 400;
+        case sf200To300:
+            return speed >= 200 && speed < 300;
+        case sfBelow200:
+            return speed < 200;
+        default:
+            return true;
+    }
+}
+
+// 고도 필터 ComboBox 이벤트
+void __fastcall TForm1::AltitudeFilterComboBoxCloseUp(TObject *Sender)
+{
+    SelectedAltitudeFilter = AltitudeFilterComboBox->ItemIndex;
+}
+
+// 속도 필터 ComboBox 이벤트
+void __fastcall TForm1::SpeedFilterComboBoxCloseUp(TObject *Sender)
+{
+    SelectedSpeedFilter = SpeedFilterComboBox->ItemIndex;
 }

@@ -82,7 +82,7 @@ object Form1: TForm1
     Left = 1336
     Top = 0
     Width = 250
-    Height = 767
+    Height = 757
     Align = alRight
     Color = clWindow
     Constraints.MaxWidth = 250
@@ -729,7 +729,7 @@ object Form1: TForm1
     end
     object Panel7: TPanel
       Left = 1
-      Top = 351
+      Top = 341
       Width = 248
       Height = 415
       Align = alBottom
@@ -768,10 +768,12 @@ object Form1: TForm1
         Top = 24
         Width = 246
         Height = 390
-        HorzScrollBar.Visible = False
-        VertScrollBar.Color = clCream
-        VertScrollBar.ParentColor = False
+        HorzScrollBar.Range = 280
+        HorzScrollBar.Smooth = True
+        VertScrollBar.Range = 797
+        VertScrollBar.Smooth = True
         Align = alBottom
+        AutoScroll = False
         BevelEdges = []
         BevelInner = bvNone
         BevelOuter = bvNone
@@ -789,11 +791,13 @@ object Form1: TForm1
         object InnePanel: TPanel
           Left = 0
           Top = 0
-          Width = 228
+          Width = 280
           Height = 95
           BevelOuter = bvNone
           Color = clSnow
+          Ctl3D = True
           ParentBackground = False
+          ParentCtl3D = False
           TabOrder = 0
           object Label1: TLabel
             Left = 5
@@ -915,10 +919,9 @@ object Form1: TForm1
           object Shape1: TShape
             Left = 0
             Top = 92
-            Width = 228
-            Height = 2
-            Brush.Color = clMoneyGreen
-            Pen.Color = clMoneyGreen
+            Width = 280
+            Height = 3
+            Pen.Color = clSilver
           end
           object SystemTime: TStaticText
             Left = 90
@@ -936,9 +939,9 @@ object Form1: TForm1
           end
         end
         object InnerPannel2: TPanel
-          Left = 0
-          Top = 95
-          Width = 240
+          Left = 4
+          Top = 97
+          Width = 280
           Height = 700
           BevelOuter = bvNone
           Color = clSnow
@@ -1830,15 +1833,43 @@ object Form1: TForm1
             Height = 15
             Caption = 'N/A'
           end
+          object Shape2: TShape
+            Left = 0
+            Top = 130
+            Width = 280
+            Height = 1
+            Pen.Color = clSilver
+          end
+          object Shape3: TShape
+            Left = 0
+            Top = 215
+            Width = 280
+            Height = 1
+            Pen.Color = clSilver
+          end
+          object Shape4: TShape
+            Left = 0
+            Top = 315
+            Width = 280
+            Height = 1
+            Pen.Color = clSilver
+          end
+          object Shape5: TShape
+            Left = 0
+            Top = 507
+            Width = 280
+            Height = 1
+            Pen.Color = clSilver
+          end
         end
       end
     end
   end
   object LegendPanel: TPanel
     Left = 0
-    Top = 767
+    Top = 757
     Width = 1586
-    Height = 40
+    Height = 50
     Align = alBottom
     BevelOuter = bvLowered
     Color = clSnow
@@ -1853,27 +1884,27 @@ object Form1: TForm1
     object LegendTitle: TLabel
       Left = 7
       Top = 6
-      Width = 85
+      Width = 117
       Height = 15
-      Caption = 'Aircraft Legend:'
+      Caption = 'Filter by Aircraft Type'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -13
       Font.Name = 'Calibri'
-      Font.Style = []
+      Font.Style = [fsBold]
       ParentFont = False
     end
     object HelicopterColorBox: TShape
-      Left = 100
-      Top = 8
+      Left = 140
+      Top = 10
       Width = 12
       Height = 12
       Brush.Color = 26367
       Shape = stCircle
     end
     object HelicopterLabel: TLabel
-      Left = 118
-      Top = 6
+      Left = 158
+      Top = 10
       Width = 57
       Height = 15
       Caption = 'Helicopter'
@@ -1885,16 +1916,16 @@ object Form1: TForm1
       ParentFont = False
     end
     object MilitaryColorBox: TShape
-      Left = 188
-      Top = 8
+      Left = 228
+      Top = 10
       Width = 12
       Height = 12
       Brush.Color = clLime
       Shape = stCircle
     end
     object MilitaryLabel: TLabel
-      Left = 206
-      Top = 6
+      Left = 246
+      Top = 10
       Width = 45
       Height = 15
       Caption = 'Military'
@@ -1906,16 +1937,16 @@ object Form1: TForm1
       ParentFont = False
     end
     object CivilianColorBox: TShape
-      Left = 261
-      Top = 8
+      Left = 301
+      Top = 10
       Width = 12
       Height = 12
       Brush.Color = clFuchsia
       Shape = stCircle
     end
     object CivilianLabel: TLabel
-      Left = 279
-      Top = 6
+      Left = 319
+      Top = 10
       Width = 43
       Height = 15
       Caption = 'Civilian'
@@ -1927,16 +1958,16 @@ object Form1: TForm1
       ParentFont = False
     end
     object UnknownColorBox: TShape
-      Left = 334
-      Top = 8
+      Left = 374
+      Top = 10
       Width = 12
       Height = 12
       Brush.Color = clAqua
       Shape = stCircle
     end
     object UnknownLabel: TLabel
-      Left = 352
-      Top = 6
+      Left = 392
+      Top = 10
       Width = 51
       Height = 15
       Caption = 'Unknown'
@@ -1948,16 +1979,16 @@ object Form1: TForm1
       ParentFont = False
     end
     object NearAirportColorBox: TShape
-      Left = 100
-      Top = 22
+      Left = 140
+      Top = 31
       Width = 12
       Height = 12
       Brush.Color = clYellow
       Shape = stCircle
     end
     object NearAirportLabel: TLabel
-      Left = 118
-      Top = 20
+      Left = 158
+      Top = 31
       Width = 68
       Height = 15
       Caption = 'Near Airport'
@@ -1969,8 +2000,8 @@ object Form1: TForm1
       ParentFont = False
     end
     object SelectedColorBox: TShape
-      Left = 198
-      Top = 22
+      Left = 238
+      Top = 31
       Width = 12
       Height = 12
       Brush.Style = bsClear
@@ -1979,8 +2010,8 @@ object Form1: TForm1
       Shape = stCircle
     end
     object SelectedLabel: TLabel
-      Left = 216
-      Top = 20
+      Left = 256
+      Top = 31
       Width = 45
       Height = 15
       Caption = 'Selected'
@@ -1992,15 +2023,15 @@ object Form1: TForm1
       ParentFont = False
     end
     object TrackHistoryColorBox: TShape
-      Left = 276
-      Top = 22
+      Left = 316
+      Top = 31
       Width = 12
       Height = 12
       Pen.Color = clGray
     end
     object TrackHistoryLabel: TLabel
-      Left = 294
-      Top = 20
+      Left = 334
+      Top = 31
       Width = 72
       Height = 15
       Caption = 'Track History'
@@ -2012,8 +2043,8 @@ object Form1: TForm1
       ParentFont = False
     end
     object AircraftTypeFilterComboBox: TComboBox
-      Left = 440
-      Top = 6
+      Left = 14
+      Top = 27
       Width = 120
       Height = 20
       Style = csDropDownList
@@ -2029,10 +2060,10 @@ object Form1: TForm1
         'Unknown')
     end
     object TimeToGoLegendPanel: TPanel
-      Left = 600
-      Top = 3
-      Width = 615
-      Height = 38
+      Left = 469
+      Top = 2
+      Width = 692
+      Height = 48
       BevelEdges = []
       BevelOuter = bvNone
       Color = clSnow
@@ -2040,20 +2071,20 @@ object Form1: TForm1
       TabOrder = 1
       object TimeToGoLegendTitle: TLabel
         Left = 0
-        Top = 1
-        Width = 194
+        Top = 4
+        Width = 210
         Height = 15
-        Caption = 'Time-to-Go Line (by Altitude) Unit: ft'
+        Caption = 'Filter by Altitude:ft (Leader Line color)'
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
         Font.Name = 'Calibri'
-        Font.Style = []
+        Font.Style = [fsBold]
         ParentFont = False
       end
       object HighAltitudeShape: TShape
-        Left = 208
-        Top = 8
+        Left = 224
+        Top = 11
         Width = 20
         Height = 5
         Brush.Color = clHotpink
@@ -2061,8 +2092,8 @@ object Form1: TForm1
         Pen.Width = 2
       end
       object HighAltitudeLabel: TLabel
-        Left = 233
-        Top = 3
+        Left = 249
+        Top = 6
         Width = 44
         Height = 15
         Caption = '35,000+'
@@ -2074,8 +2105,8 @@ object Form1: TForm1
         ParentFont = False
       end
       object MedHighAltitudeShape: TShape
-        Left = 289
-        Top = 8
+        Left = 305
+        Top = 11
         Width = 20
         Height = 5
         Brush.Color = clMediumblue
@@ -2083,8 +2114,8 @@ object Form1: TForm1
         Pen.Width = 2
       end
       object MedHighAltitudeLabel: TLabel
-        Left = 315
-        Top = 2
+        Left = 331
+        Top = 5
         Width = 80
         Height = 15
         Caption = '25,000-35,000'
@@ -2096,8 +2127,8 @@ object Form1: TForm1
         ParentFont = False
       end
       object MedAltitudeShape: TShape
-        Left = 401
-        Top = 8
+        Left = 417
+        Top = 11
         Width = 20
         Height = 5
         Brush.Color = clAqua
@@ -2105,8 +2136,8 @@ object Form1: TForm1
         Pen.Width = 2
       end
       object MedAltitudeLabel: TLabel
-        Left = 431
-        Top = 3
+        Left = 447
+        Top = 6
         Width = 80
         Height = 15
         Caption = '15,000-25,000'
@@ -2118,8 +2149,8 @@ object Form1: TForm1
         ParentFont = False
       end
       object LowMedAltitudeShape: TShape
-        Left = 137
-        Top = 27
+        Left = 145
+        Top = 32
         Width = 20
         Height = 5
         Brush.Color = clLime
@@ -2127,8 +2158,8 @@ object Form1: TForm1
         Pen.Width = 2
       end
       object LowMedAltitudeLabel: TLabel
-        Left = 163
-        Top = 22
+        Left = 171
+        Top = 27
         Width = 73
         Height = 15
         Caption = '8,000-15,000'
@@ -2140,8 +2171,8 @@ object Form1: TForm1
         ParentFont = False
       end
       object LowAltitudeLabel: TLabel
-        Left = 273
-        Top = 22
+        Left = 281
+        Top = 27
         Width = 66
         Height = 15
         Caption = '3,000-8,000'
@@ -2153,16 +2184,16 @@ object Form1: TForm1
         ParentFont = False
       end
       object LowAltitudeShape: TShape
-        Left = 247
-        Top = 27
+        Left = 255
+        Top = 32
         Width = 20
         Height = 5
         Brush.Color = clYellow
         Pen.Color = clYellow
       end
       object VeryLowAltitudeLabel: TLabel
-        Left = 382
-        Top = 22
+        Left = 390
+        Top = 27
         Width = 66
         Height = 15
         Caption = '1,000-3,000'
@@ -2174,24 +2205,24 @@ object Form1: TForm1
         ParentFont = False
       end
       object VeryLowAltitudeShape: TShape
-        Left = 356
-        Top = 27
+        Left = 364
+        Top = 32
         Width = 20
         Height = 5
         Brush.Color = clOrange
         Pen.Color = clOrange
       end
       object LowestAltitudeShape: TShape
-        Left = 456
-        Top = 27
+        Left = 464
+        Top = 32
         Width = 20
         Height = 5
         Brush.Color = clRed
         Pen.Color = clRed
       end
       object LowestAltitudeLabel: TLabel
-        Left = 485
-        Top = 22
+        Left = 493
+        Top = 27
         Width = 35
         Height = 15
         Caption = '1,000-'
@@ -2202,13 +2233,56 @@ object Form1: TForm1
         Font.Style = []
         ParentFont = False
       end
+      object Label6: TLabel
+        Left = 552
+        Top = 4
+        Width = 82
+        Height = 15
+        Caption = 'Filter by Speed'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Calibri'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object AltitudeFilterComboBox: TComboBox
+        Left = 5
+        Top = 25
+        Width = 120
+        Height = 21
+        Style = csDropDownList
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Consolas'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 0
+        OnCloseUp = AltitudeFilterComboBoxCloseUp
+      end
+      object SpeedFilterComboBox: TComboBox
+        Left = 556
+        Top = 25
+        Width = 120
+        Height = 21
+        Style = csDropDownList
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Consolas'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 1
+        OnCloseUp = SpeedFilterComboBoxCloseUp
+      end
     end
   end
   object ObjectDisplay: TOpenGLPanel
     Left = 0
     Top = 0
     Width = 1336
-    Height = 767
+    Height = 757
     Cursor = crCross
     Align = alClient
     TabOrder = 2

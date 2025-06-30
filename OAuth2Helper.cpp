@@ -45,41 +45,50 @@ OAuth2Helper::~OAuth2Helper() {
 }
 
 bool OAuth2Helper::LoadOpenSSLFunctions() {
-    // Load libcrypto.dll
-    hCryptoLib = LoadLibraryA("../../lib/curl/libcrypto.dll");
-    if (!hCryptoLib) {
-        SetLastError("Failed to load libcrypto.dll");
-        return false;
-    }
+	// Load libcrypto.dll
 
-    // Load libssl.dll
-    hSslLib = LoadLibraryA("../../lib/curl/libssl.dll");
-    if (!hSslLib) {
-        SetLastError("Failed to load libssl.dll");
+	UTF8String utf8str = ExtractFilePath(ExtractFileDir(Application->ExeName));
+	std::string filename = "..\\lib\\curl\\libcrypto.dll";
+	std::string dllPath = utf8str.c_str() + filename;
+
+	hCryptoLib = LoadLibraryA(dllPath.c_str());
+	if (!hCryptoLib) {
+		SetLastError("Failed to load libcrypto.dll");
+		return false;
+	}
+
+	// Load libssl.dll
+    std::string filename1 = "..\\lib\\curl\\libssl.dll";
+	std::string dllPath1 = utf8str.c_str() + filename1;
+
+	hSslLib = LoadLibraryA(dllPath1.c_str());
+
+	if (!hSslLib) {
+		SetLastError("Failed to load libssl.dll");
         FreeLibrary(hCryptoLib);
         hCryptoLib = NULL;
         return false;
     }
 
-    // Get function addresses from libcrypto.dll
-    p_BIO_new_mem_buf = (BIO_new_mem_buf_t)GetProcAddress(hCryptoLib, "BIO_new_mem_buf");
-    p_BIO_free = (BIO_free_t)GetProcAddress(hCryptoLib, "BIO_free");
-    p_PEM_read_bio_PrivateKey = (PEM_read_bio_PrivateKey_t)GetProcAddress(hCryptoLib, "PEM_read_bio_PrivateKey");
-    p_EVP_MD_CTX_new = (EVP_MD_CTX_new_t)GetProcAddress(hCryptoLib, "EVP_MD_CTX_new");
-    p_EVP_sha256 = (EVP_sha256_t)GetProcAddress(hCryptoLib, "EVP_sha256");
-    p_EVP_DigestSignInit = (EVP_DigestSignInit_t)GetProcAddress(hCryptoLib, "EVP_DigestSignInit");
-    p_EVP_DigestSign = (EVP_DigestSign_t)GetProcAddress(hCryptoLib, "EVP_DigestSign");
-    p_EVP_PKEY_free = (EVP_PKEY_free_t)GetProcAddress(hCryptoLib, "EVP_PKEY_free");
-    p_EVP_MD_CTX_free = (EVP_MD_CTX_free_t)GetProcAddress(hCryptoLib, "EVP_MD_CTX_free");
+	// Get function addresses from libcrypto.dll
+	p_BIO_new_mem_buf = (BIO_new_mem_buf_t)GetProcAddress(hCryptoLib, "BIO_new_mem_buf");
+	p_BIO_free = (BIO_free_t)GetProcAddress(hCryptoLib, "BIO_free");
+	p_PEM_read_bio_PrivateKey = (PEM_read_bio_PrivateKey_t)GetProcAddress(hCryptoLib, "PEM_read_bio_PrivateKey");
+	p_EVP_MD_CTX_new = (EVP_MD_CTX_new_t)GetProcAddress(hCryptoLib, "EVP_MD_CTX_new");
+	p_EVP_sha256 = (EVP_sha256_t)GetProcAddress(hCryptoLib, "EVP_sha256");
+	p_EVP_DigestSignInit = (EVP_DigestSignInit_t)GetProcAddress(hCryptoLib, "EVP_DigestSignInit");
+	p_EVP_DigestSign = (EVP_DigestSign_t)GetProcAddress(hCryptoLib, "EVP_DigestSign");
+	p_EVP_PKEY_free = (EVP_PKEY_free_t)GetProcAddress(hCryptoLib, "EVP_PKEY_free");
+	p_EVP_MD_CTX_free = (EVP_MD_CTX_free_t)GetProcAddress(hCryptoLib, "EVP_MD_CTX_free");
 
-    // Check if all functions were loaded successfully
-    if (!p_BIO_new_mem_buf || !p_BIO_free || !p_PEM_read_bio_PrivateKey || 
-        !p_EVP_MD_CTX_new || !p_EVP_sha256 || !p_EVP_DigestSignInit || 
-        !p_EVP_DigestSign || !p_EVP_PKEY_free || !p_EVP_MD_CTX_free) {
-        SetLastError("Failed to load one or more OpenSSL functions");
-        CleanupOpenSSL();
-        return false;
-    }
+	// Check if all functions were loaded successfully
+	if (!p_BIO_new_mem_buf || !p_BIO_free || !p_PEM_read_bio_PrivateKey ||
+		!p_EVP_MD_CTX_new || !p_EVP_sha256 || !p_EVP_DigestSignInit ||
+		!p_EVP_DigestSign || !p_EVP_PKEY_free || !p_EVP_MD_CTX_free) {
+		SetLastError("Failed to load one or more OpenSSL functions");
+		CleanupOpenSSL();
+		return false;
+	}
 
     return true;
 }

@@ -747,7 +747,7 @@ object Form1: TForm1
         AlignWithMargins = True
         Left = 4
         Top = 6
-        Width = 240
+        Width = 110
         Height = 15
         Margins.Top = 5
         Align = alTop
@@ -762,7 +762,6 @@ object Form1: TForm1
         ParentColor = False
         ParentFont = False
         Layout = tlCenter
-        ExplicitWidth = 110
       end
       object Panel4: TScrollBox
         Left = 1

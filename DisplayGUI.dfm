@@ -747,7 +747,7 @@ object Form1: TForm1
         AlignWithMargins = True
         Left = 4
         Top = 6
-        Width = 110
+        Width = 240
         Height = 15
         Margins.Top = 5
         Align = alTop
@@ -762,6 +762,7 @@ object Form1: TForm1
         ParentColor = False
         ParentFont = False
         Layout = tlCenter
+        ExplicitWidth = 110
       end
       object Panel4: TScrollBox
         Left = 1
@@ -2427,7 +2428,7 @@ object Form1: TForm1
     object Help1: TMenuItem
       Caption = 'Help'
       object UserManual1: TMenuItem
-        Caption = 'Documentation'
+        Caption = 'User Manual (F1)'
         OnClick = UserManual1Click
       end
       object AboutADSBDisplay1: TMenuItem

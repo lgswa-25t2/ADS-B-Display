@@ -3589,7 +3589,6 @@ static int CSV_callback_ARTCCBoundaries(struct CSV_context *ctx, const char *val
 
     if (ctx->field_num == (ctx->num_fields - 1))
     {
-
         float fLat, fLon;
         if (!IsFirstRow)
         {
@@ -4632,8 +4631,12 @@ void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shif
     case VK_END: // End 키: 비활성화 (아무 동작 안 함)
         break;
     case VK_F1:
+        printf("F1 Key Pressed - User Manual\n");
+        ShellExecute(0, L"open", L"https://github.com/lgswa-25t2/ADS-B-Display/blob/main/docs/usermanual/User_Guide_EN.md", NULL, NULL, SW_SHOWNORMAL);
+        break;
+    case VK_F2:
         printf("========================\n");
-        printf("F1 Key Pressed - Debug Info:\n");
+        printf("F2 Key Pressed - Debug Info:\n");
         printf("MapCenterLat: %.6f\n", MapCenterLat);
         printf("MapCenterLon: %.6f\n", MapCenterLon);
         printf("g_EarthView->m_Eye.x: %.6f\n", g_EarthView->m_Eye.x);

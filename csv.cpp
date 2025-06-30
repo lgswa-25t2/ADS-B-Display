@@ -335,6 +335,7 @@ int CSV_open_and_parse_file (struct CSV_context *ctx)
     if (!CSV_parse_file(ctx) || ctx->rec_num >= ctx->rec_max)
        break;
   }
+
   fclose (ctx->file);
   ctx->file = NULL;
   free (ctx->parse_buf);

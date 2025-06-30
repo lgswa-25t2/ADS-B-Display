@@ -1,5 +1,54 @@
 ﻿//---------------------------------------------------------------------------
 
+// Prevent WinCrypt defines from being overridden by OpenSSL
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#define NOGDI
+#define NOUSER
+
+// Suppress WinCrypt warnings and prevent OpenSSL conflicts
+#pragma warning(disable: 4005) // macro redefinition
+#pragma warning(disable: 4996) // deprecated functions
+#pragma warning(disable: 4091) // typedef ignored
+
+// Prevent OpenSSL from overriding Windows crypto definitions
+#define OPENSSL_NO_WINCRYPT
+#define OPENSSL_NO_ENGINE
+#define OPENSSL_NO_DYNAMIC_ENGINE
+#define OPENSSL_NO_EC
+#define OPENSSL_NO_DH
+#define OPENSSL_NO_DSA
+
+// Define Windows crypto types before OpenSSL includes them
+#ifndef WINCRYPT_DEFINED
+#define WINCRYPT_DEFINED
+#define CRYPT_STRING_BASE64 0x00000001
+#define CRYPT_STRING_HEX 0x00000004
+#define CRYPT_STRING_HEXRAW 0x0000000c
+#define CRYPT_STRING_HEXASCII 0x00000005
+#define CRYPT_STRING_BASE64HEADER 0x00000000
+#define CRYPT_STRING_BASE64REQUESTHEADER 0x00000003
+#define CRYPT_STRING_HEXADDR 0x0000000a
+#define CRYPT_STRING_HEXASCIIADDR 0x0000000b
+#define CRYPT_STRING_HEXRAWADDR 0x0000000e
+#define CRYPT_STRING_BASE64X509CRLHEADER 0x00000009
+#define CRYPT_STRING_HEXASCIIADDR 0x0000000b
+#define CRYPT_STRING_HEXRAWADDR 0x0000000e
+#define CRYPT_STRING_HEXRAW 0x0000000c
+#define CRYPT_STRING_HEXASCII 0x00000005
+#define CRYPT_STRING_HEXADDR 0x0000000a
+#define CRYPT_STRING_HEXASCIIADDR 0x0000000b
+#define CRYPT_STRING_HEXRAWADDR 0x0000000e
+#define CRYPT_STRING_BASE64X509CRLHEADER 0x00000009
+#define CRYPT_STRING_HEXASCIIADDR 0x0000000b
+#define CRYPT_STRING_HEXRAWADDR 0x0000000e
+#endif
+
+// Include Windows headers first
+#include <windows.h>
+#include <wincrypt.h>
+
+// Then include VCL and other headers
 #include <vcl.h>
 #include <new>
 #include <math.h>
@@ -15,6 +64,7 @@
 
 #pragma hdrstop
 
+// Include project headers last
 #include "DisplayGUI.h"
 #include "AreaDialog.h"
 #include "ntds2d.h"
@@ -254,7 +304,19 @@ __fastcall TForm1::TForm1(TComponent *Owner)
     TrackHook.Valid_CC = false;
     TrackHook.Valid_CPA = false;
 
-    HashTable = ght_create(50000);
+    // Initialize BigQuery client
+	bigquery_initialized_ = false;
+	bigquery_credentials_path_ = BigQueryPath + "YourJsonFile.json";
+	bigquery_auto_update_enabled_ = false;
+	bigquery_update_interval_seconds_ = 30;
+	last_tracked_icao_ = "";
+	InitializeBigQuery();
+
+	// Initialize Planned Route
+	planned_route_enabled_ = true;
+	planned_route_icao_ = "";
+
+	HashTable = ght_create(50000);
 
     if (!HashTable)
     {
@@ -1208,7 +1270,37 @@ void __fastcall TForm1::DrawObjects(void)
             LatLon2XY(Data->Latitude, Data->Longitude, ScrX, ScrY);
             DrawTrackHook(ScrX, ScrY);
 
-            // Display Tracking history
+            // Draw planned route for selected aircraft if available
+            if (a && a->route_size >= 2)
+			{
+				// Set red dashed line style
+                glColor4f(1.0, 0.0, 0.0, 0.8); // Red with transparency
+                glLineWidth(2.0);
+                glEnable(GL_LINE_STIPPLE);
+                glLineStipple(1, 0x00FF); // Dashed line pattern
+                
+                glBegin(GL_LINE_STRIP);
+                for (int i = 0; i < a->route_size; i++)
+                {
+                    double routeLat = a->route_latitude[i];
+                    double routeLon = a->route_longitude[i];
+                    
+                    // Validate coordinates
+                    if (fabs(routeLat) <= 90.0 && fabs(routeLon) <= 180.0)
+                    {
+                        double routeScrX, routeScrY;
+                        LatLon2XY(routeLat, routeLon, routeScrX, routeScrY);
+                        glVertex2f(routeScrX, routeScrY);
+                    }
+                }
+                glEnd();
+                
+                // Reset line style
+                glDisable(GL_LINE_STIPPLE);
+				glLineWidth(3.0);
+            }
+
+			// Display Tracking history
             if (Data && Data->HistoryCount > 0 && Data->HistoryIndex >= 0 && Data->HistoryIndex < FLIGHT_TRACK_HISTORY_COUNT)
             {
                 // printf("[Data] %s HistoryCount=%d HistoryIndex=%d\n", Data->HexAddr, Data->HistoryCount, Data->HistoryIndex);
@@ -1338,26 +1430,7 @@ void __fastcall TForm1::DrawObjects(void)
             DrawAirportIcon(a->airport_lat[i], a->airport_lon[i], (i == 0) ? true : false);
             DrawAirportInfo(a->airport_lat[i], a->airport_lon[i], a->airport_iata[i].c_str(), (i == 0) ? true : false);
         }
-
-        // Draw connecting line between airports if we have both departure and arrival
-        if (a->airport_size >= 2)
-        {
-            for (i = 0; i <= a->airport_size - 2; i++)
-            {
-                double ScrX1, ScrY1, ScrX2, ScrY2;
-                LatLon2XY(a->airport_lat[i], a->airport_lon[i], ScrX1, ScrY1);
-                LatLon2XY(a->airport_lat[i + 1], a->airport_lon[i + 1], ScrX2, ScrY2);
-
-                // Draw red line connecting airports
-                glColor4f(1.0, 0.0, 0.0, 1.0); // Red color
-                glLineWidth(4.0);              // Make the line thicker
-                glBegin(GL_LINES);
-                glVertex2f(ScrX1, ScrY1);
-                glVertex2f(ScrX2, ScrY2);
-                glEnd();
-            }
-        }
-    }
+	}
 
     // Draw Cells(white bubbles) instead of whole aircrafts for the performance and usability,
     // when zoomRate(xf) >= cellDrawZoomRate
@@ -4662,6 +4735,28 @@ void __fastcall TForm1::DrawAllAirports()
         glVertex2f(airportX, airportY + size);        // tower top
         glVertex2f(airportX, airportY + size * 1.3f); // antenna top
         glEnd();
+    }
+}
+
+// BigQuery related methods
+//---------------------------------------------------------------------------
+void __fastcall TForm1::InitializeBigQuery(void)
+{
+    try {
+        bigquery_client_ = std::make_unique<BigQueryClient>();
+
+        if (bigquery_client_->Initialize(bigquery_credentials_path_.c_str())) {
+            bigquery_initialized_ = true;
+            printf("BigQuery client initialized successfully\n");
+        } else {
+            printf("Failed to initialize BigQuery client: %s\n",
+                   bigquery_client_->GetLastError().c_str());
+            bigquery_initialized_ = false;
+        }
+    }
+    catch (const std::exception& e) {
+        printf("Exception during BigQuery initialization: %s\n", e.what());
+        bigquery_initialized_ = false;
     }
 }
 

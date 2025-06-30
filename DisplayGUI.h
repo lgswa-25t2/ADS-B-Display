@@ -34,6 +34,7 @@
 #include <unordered_set>
 #include <atomic>
 #include <vector>
+#include "BigQuery/BigQueryClient.h"
 // Forward declarations
 class AirportDataManager;
 
@@ -544,6 +545,41 @@ private: // User declarations
     TList *selectedFilterAreas; // selected filtering Area  s
     bool areaFilterEnabled;     // enable Area filter
 
+	// BigQuery related members
+    std::unique_ptr<BigQueryClient> bigquery_client_;
+	
+	std::vector<AircraftData> bigquery_aircraft_data_;
+    bool bigquery_initialized_;
+	AnsiString bigquery_credentials_path_;
+	
+	// BigQuery periodic update settings
+	bool bigquery_auto_update_enabled_;
+	int bigquery_update_interval_seconds_;  // Update interval in seconds
+	AnsiString last_tracked_icao_;  // Last tracked aircraft ICAO
+
+	// Planned Route related members
+	std::vector<AircraftData> planned_route_data_;
+	bool planned_route_enabled_;
+	AnsiString planned_route_icao_;  // Currently displayed planned route ICAO
+	
+	// BigQuery load methods
+    void __fastcall InitializeBigQuery(void);
+    void __fastcall LoadBigQueryData(void);
+    void __fastcall LoadBigQueryDataByTimeRange(AnsiString start_time, AnsiString end_time);
+    void __fastcall LoadBigQueryDataByICAO(AnsiString icao24);
+    void __fastcall LoadRecentBigQueryData(int minutes);
+    void __fastcall DisplayBigQueryData(void);
+    void __fastcall DrawBigQueryTrackHistory(void);  // Draw BigQuery track history as red lines
+
+    // Planned Route methods
+    void __fastcall LoadPlannedRouteData(void);
+    void __fastcall LoadPlannedRouteDataByICAO(AnsiString icao24);
+    void __fastcall DisplayPlannedRouteData(void);
+    void __fastcall DrawPlannedRoute(void);  // Draw planned route as blue lines
+    void __fastcall DrawPlannedRouteLegend(void);  // Draw planned route legend
+    void __fastcall TogglePlannedRouteDisplay(void);
+    void __fastcall ClearPlannedRouteData(void);
+	
     // 항공기-공항 거리 계산 결과
     AircraftAirportDistanceResult *aircraftAirportDistanceResult;
 

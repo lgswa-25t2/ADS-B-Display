@@ -2,6 +2,7 @@
 
 #ifndef AircraftDBH
 #define AircraftDBH
+#include <vcl.h>
 #include "ght_hash_table.h"
 
 #define  AC_DB_NUM_FIELDS          27
@@ -53,6 +54,11 @@ typedef struct
   double airport_alt_feet[10];
   double airport_alt_meters[10];
 
+  // Planned route information
+  uint32_t    route_size;
+  
+  double route_latitude[1000];
+  double route_longitude[1000];  
 } TAircraftData;
 
 bool InitAircraftDB(AnsiString FileName);
@@ -61,5 +67,11 @@ bool aircraft_is_helicopter(uint32_t addr, const char **type_ptr);
 bool aircraft_is_military(uint32_t addr, const char **type_ptr);
 bool IsAircraftMilitary(uint32_t icao_addr);
 static char *stristr(const char *String, const char *Pattern);
+
+// Planned route functions
+void LoadPlannedRouteData();
+void ParseRouteJson(const std::string& jsonContent);
+void StoreRoutePoint(const std::string& icao, double lat, double lon, int index);
+
 //---------------------------------------------------------------------------
 #endif

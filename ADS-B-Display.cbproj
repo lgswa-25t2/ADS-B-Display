@@ -93,8 +93,8 @@
         <Icon_MainIcon>$(BDS)\bin\cbuilder_PROJECTICON.ico</Icon_MainIcon>
         <UWP_CppLogo44>$(BDS)\bin\Artwork\Windows\UWP\cppreg_UwpDefault_44.png</UWP_CppLogo44>
         <UWP_CppLogo150>$(BDS)\bin\Artwork\Windows\UWP\cppreg_UwpDefault_150.png</UWP_CppLogo150>
-        <IncludePath>Map\MapSrc\;..\..\..\..\..\Desktop\ADS-B-2025\ADS-B-Display\;$(IncludePath)</IncludePath>
-        <ILINK_LibraryPath>Map\MapSrc\;..\..\..\..\..\Desktop\ADS-B-2025\ADS-B-Display\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <IncludePath>BigQuery\;Map\MapSrc\;..\..\..\..\..\Desktop\ADS-B-2025\ADS-B-Display\;$(IncludePath)</IncludePath>
+        <ILINK_LibraryPath>BigQuery\;Map\MapSrc\;..\..\..\..\..\Desktop\ADS-B-2025\ADS-B-Display\;$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <SanitizedProjectName>ADS-B-Display</SanitizedProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
@@ -224,6 +224,12 @@
             <DependentOn>AreaDialog.h</DependentOn>
             <BuildOrder>34</BuildOrder>
         </CppCompile>
+        <CppCompile Include="BigQuery\BigQueryClient.cpp">
+            <BuildOrder>47</BuildOrder>
+        </CppCompile>
+        <None Include="BigQuery\BigQueryClient.h">
+            <BuildOrder>48</BuildOrder>
+        </None>
         <CppCompile Include="CPA.cpp">
             <DependentOn>CPA.h</DependentOn>
             <BuildOrder>37</BuildOrder>
@@ -354,6 +360,12 @@
             <DependentOn>ntds2d.h</DependentOn>
             <BuildOrder>30</BuildOrder>
         </CppCompile>
+        <CppCompile Include="OAuth2Helper.cpp">
+            <BuildOrder>49</BuildOrder>
+        </CppCompile>
+        <None Include="OAuth2Helper.h">
+            <BuildOrder>50</BuildOrder>
+        </None>
         <CppCompile Include="PointInPolygon.cpp">
             <DependentOn>PointInPolygon.h</DependentOn>
             <BuildOrder>32</BuildOrder>

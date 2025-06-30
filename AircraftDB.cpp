@@ -4,6 +4,12 @@
 
 #include "AircraftDB.h"
 #include "csv.h"
+#include "json.hpp"
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
+#include <filesystem>
 
 #define DIM(array)         (sizeof(array) / sizeof(array[0]))
 //---------------------------------------------------------------------------
@@ -107,11 +113,109 @@ bool InitAircraftDB(AnsiString FileName)
    if (!CSV_open_and_parse_file(&csv_ctx))
     {
 	  printf("Parsing of \"%s\" failed: %s\n", FileName.c_str(), strerror(errno));
-      return (false);
+	  return (false);
 	}
 
    printf("Done Reading Aircraft DB\n");
+   
+   // Load planned route data from route.json
+   LoadPlannedRouteData();
+
    return(true);
+}
+//---------------------------------------------------------------------------
+void LoadPlannedRouteData()
+{
+	// Get the executable directory and construct route.json path
+	UTF8String utf8str = ExtractFilePath(ExtractFileDir(Application->ExeName));
+	std::string filename = "..\\AircraftDB\\route.json";
+	std::string routeFilePath = utf8str.c_str() + filename;
+
+	printf("Loading planned route data from: %s\n", routeFilePath.c_str());
+    
+    try {
+		std::ifstream file(routeFilePath);
+		if (!file.is_open()) {
+            printf("Failed to open route.json file\n");
+            return;
+        }
+        
+        // Parse JSON using nlohmann/json library
+        nlohmann::json routeData;
+        file >> routeData;
+        file.close();
+        
+        // Process the JSON data
+        if (routeData.contains("aircraft_list") && routeData["aircraft_list"].is_array()) {
+            auto& aircraftList = routeData["aircraft_list"];
+            printf("Found %d aircraft in route.json\n", (int)aircraftList.size());
+            
+            for (const auto& aircraft : aircraftList) {
+                if (aircraft.contains("icao") && aircraft.contains("planned_route")) {
+                    std::string icao = aircraft["icao"];
+                    auto& plannedRoute = aircraft["planned_route"];
+                    
+                    if (plannedRoute.is_array()) {
+                        printf("Processing aircraft: %s with %d route points\n", 
+                               icao.c_str(), (int)plannedRoute.size());
+                        
+                        int routeIndex = 0;
+                        for (const auto& point : plannedRoute) {
+                            if (point.contains("lat") && point.contains("lon")) {
+                                double lat = point["lat"];
+                                double lon = point["lon"];
+                                
+                                // Store route point in HashTable
+                                StoreRoutePoint(icao, lat, lon, routeIndex);
+                                routeIndex++;
+                            }
+                        }
+                        printf("  Added %d route points for %s\n", routeIndex, icao.c_str());
+                    }
+                }
+            }
+        }
+        
+        printf("Planned route data loading completed\n");
+        
+    } catch (const std::exception& e) {
+        printf("Error parsing route.json: %s\n", e.what());
+    }
+}
+
+//---------------------------------------------------------------------------
+void StoreRoutePoint(const std::string& icao, double lat, double lon, int index)
+{
+    if (index >= 1000) {
+        printf("Warning: Route point index %d exceeds maximum (1000) for aircraft %s\n", 
+               index, icao.c_str());
+        return;
+    }
+    
+    // Convert ICAO string to uint32_t
+    uint32_t icaoAddr;
+    try {
+        icaoAddr = static_cast<uint32_t>(std::stoul(icao, nullptr, 16));
+    } catch (const std::exception& e) {
+        printf("Error converting ICAO %s to address: %s\n", icao.c_str(), e.what());
+        return;
+    }
+    
+    // Get existing aircraft data from HashTable
+    TAircraftData* aircraft = (TAircraftData*)ght_get(AircraftDBHashTable, sizeof(icaoAddr), &icaoAddr);
+    
+    if (aircraft) {
+        // Store route point
+        aircraft->route_latitude[index] = lat;
+        aircraft->route_longitude[index] = lon;
+		
+        // Update route size if this is a new maximum index
+        if (index >= aircraft->route_size) {
+            aircraft->route_size = index + 1;
+        }
+    } else {
+        printf("Warning: Aircraft %s not found in HashTable\n", icao.c_str());
+    }
 }
 //---------------------------------------------------------------------------
 const char * GetAircraftDBInfo(uint32_t addr)

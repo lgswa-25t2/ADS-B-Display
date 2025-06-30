@@ -3278,7 +3278,7 @@ void __fastcall TForm1::LoadMap(int Type)
     }
     else if (Type == OpenStreetMaps)
     {
-        HomeDir = "D:\\OpenstreetMap";
+        HomeDir += "..\\OpenstreetMap";
         if (LoadMapFromInternet)
             HomeDir += "_Live\\";
         else

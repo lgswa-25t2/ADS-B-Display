@@ -187,6 +187,8 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <DynamicRTL>false</DynamicRTL>
         <IncludePath>C:\Users\user\Documents\LG\ADS-B-Display\lib\curl\include;$(IncludePath)</IncludePath>
+        <BCC_SelectedWarnings>false</BCC_SelectedWarnings>
+        <BCC_DisableWarnings>true</BCC_DisableWarnings>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64x)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>

@@ -2991,21 +2991,21 @@ void __fastcall TTCPClientSBSHandleThread::Execute(void)
             {
                 // Handle read timeout specifically
                 printf("SBS Read timeout: %s\n", AnsiString(e.Message).c_str());
-                TThread::Synchronize(StopTCPClient);
-                break;
+				//TThread::Synchronize(StopTCPClient);
+				break;
             }
             catch (const EIdException &e)
             {
-                // Handle other Indy exceptions
-                printf("SBS Indy exception: %s\n", AnsiString(e.Message).c_str());
-                TThread::Synchronize(StopTCPClient);
-                break;
-            }
+				// Handle other Indy exceptions
+				printf("SBS Indy exception: %s\n", AnsiString(e.Message).c_str());
+				//TThread::Synchronize(StopTCPClient);
+				break;
+			}
             catch (...)
-            {
-                printf("SBS General exception\n");
-                TThread::Synchronize(StopTCPClient);
-                break;
+			{
+				printf("SBS General exception\n");
+				//TThread::Synchronize(StopTCPClient);
+				break;
             }
         }
         else

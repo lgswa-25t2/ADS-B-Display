@@ -479,7 +479,19 @@ __fastcall TForm1::TForm1(TComponent *Owner)
     firstClickTime = 0;
 
     // Initialize Planned Route Manager
-    plannedRouteManager = new AircraftPlannedRoute();
+	plannedRouteManager = new AircraftPlannedRoute();
+
+	// 생성자나 스크롤바 Visible/위치가 바뀔 때마다 실행
+	TPanel *ScrollBarCornerPanel = new TPanel(this);
+	ScrollBarCornerPanel->Parent = this;
+	ScrollBarCornerPanel->Width = MapVScrollBar->Width;
+	ScrollBarCornerPanel->Height = MapHScrollBar->Height;
+	ScrollBarCornerPanel->Left = MapVScrollBar->Left;
+	ScrollBarCornerPanel->Top = MapHScrollBar->Top;
+	ScrollBarCornerPanel->Color = clGray;
+	ScrollBarCornerPanel->BevelOuter = bvNone;
+	ScrollBarCornerPanel->Visible = MapVScrollBar->Visible && MapHScrollBar->Visible;
+	ScrollBarCornerPanel->Anchors = TAnchors() << akLeft << akBottom;
 }
 //---------------------------------------------------------------------------
 __fastcall TForm1::~TForm1()
@@ -2678,7 +2690,7 @@ void __fastcall TForm1::RawPlaybackButtonClick(TObject *Sender)
 		{
 			try {
 				TCPClientRawHandleThread->Terminate();
-				//TCPClientRawHandleThread->WaitFor();
+				TCPClientRawHandleThread->WaitFor();
 			}
 			catch (...) {
 				printf("Error: Raw thread termination failed\n");
@@ -2972,7 +2984,7 @@ void __fastcall TTCPClientSBSHandleThread::Execute(void)
                 if (!Form1->IdTCPClientSBS->Connected())
                 {
                     Terminate();
-					continue;
+					break;
                 }
 
                 // Check if data is available before reading
@@ -3186,7 +3198,7 @@ void __fastcall TForm1::SBSPlaybackButtonClick(TObject *Sender)
 		{
 			try {
 				TCPClientSBSHandleThread->Terminate();
-				//TCPClientSBSHandleThread->WaitFor();
+				TCPClientSBSHandleThread->WaitFor();
 			}
 			catch (...) {
 				printf("Error: SBS thread termination failed\n");

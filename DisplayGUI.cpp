@@ -2690,7 +2690,7 @@ void __fastcall TForm1::RawPlaybackButtonClick(TObject *Sender)
 		{
 			try {
 				TCPClientRawHandleThread->Terminate();
-				TCPClientRawHandleThread->WaitFor();
+				//TCPClientRawHandleThread->WaitFor();
 			}
 			catch (...) {
 				printf("Error: Raw thread termination failed\n");
@@ -2751,20 +2751,20 @@ void __fastcall TTCPClientRawHandleThread::Execute(void)
             {
                 // Handle read timeout specifically
                 printf("Raw Read timeout: %s\n", AnsiString(e.Message).c_str());
-                TThread::Synchronize(StopTCPClient);
-                break;
+				//TThread::Synchronize(StopTCPClient);
+				break;
             }
             catch (const EIdException &e)
             {
-                // Handle other Indy exceptions
-                printf("Raw Indy exception: %s\n", AnsiString(e.Message).c_str());
-                TThread::Synchronize(StopTCPClient);
+				// Handle other Indy exceptions
+				printf("Raw Indy exception: %s\n", AnsiString(e.Message).c_str());
+				//TThread::Synchronize(StopTCPClient);
                 break;
             }
             catch (...)
             {
                 printf("Raw General exception\n");
-                TThread::Synchronize(StopTCPClient);
+				//TThread::Synchronize(StopTCPClient);
                 break;
             }
         }
@@ -3198,7 +3198,7 @@ void __fastcall TForm1::SBSPlaybackButtonClick(TObject *Sender)
 		{
 			try {
 				TCPClientSBSHandleThread->Terminate();
-				TCPClientSBSHandleThread->WaitFor();
+				//TCPClientSBSHandleThread->WaitFor();
 			}
 			catch (...) {
 				printf("Error: SBS thread termination failed\n");

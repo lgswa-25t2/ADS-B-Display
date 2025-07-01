@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 
 #pragma hdrstop
 
@@ -231,6 +231,7 @@ const char * GetAircraftDBInfo(uint32_t addr)
 	bool  isHelo=false;
 ;
 	type2 = NULL;
+
 	isHelo=aircraft_is_helicopter(addr, &type2);
 	snprintf (buf,sizeof(buf),"addr:0x%06X, Reg:%s, Manufact-ICAO:%s, Manufact-Name:%s, Model:%s\n"
 							  "Type:%s, Serial:%s, Line:%s, ICAO-Air-Type:%s, Op:%s, Op-CallSign:%s\n"
@@ -507,7 +508,7 @@ static const ICAO_range military_range [] = {
      { 0x3A8000,  0x3AFFFF, NULL },
      { 0x3B0000,  0x3BFFFF, NULL },
      { 0x3EA000,  0x3EBFFF, NULL },
-     { 0x3F4000,  0x3FBFFF, NULL },
+	 { 0x3F4000,  0x3FBFFF, NULL },
      { 0x400000,  0x40003F, NULL },
      { 0x43C000,  0x43CFFF, "UK" },
      { 0x444000,  0x446FFF, NULL },
@@ -667,4 +668,258 @@ static char *stristr(const char *String, const char *Pattern)
             }
       }
    return(NULL);
+}
+
+static const char *airlines[][2] = {
+    // 미국
+    { "AAL", "American Airlines" },
+    { "DAL", "Delta Air Lines" },
+    { "UAL", "United Airlines" },
+    { "SWA", "Southwest Airlines" },
+	{ "ASA", "Alaska Airlines" },
+    { "FFT", "Frontier Airlines" },
+    { "JBU", "JetBlue Airways" },
+    { "FDX", "FedEx Express" },
+    { "UPS", "United Parcel Service" },
+    { "NKS", "Spirit Airlines" },
+    { "VRD", "Virgin America" },
+    { "HAL", "Hawaiian Airlines" },
+    { "ENY", "Envoy Air" },
+    { "SKW", "SkyWest Airlines" },
+    { "JIA", "Mesa Airlines" },
+    { "CSG", "Compass Airlines" },
+
+    // 한국
+    { "KAL", "Korean Air" },
+    { "AAR", "Asiana Airlines" },
+    { "JJA", "Jeju Air" },
+    { "ABL", "Air Busan" },
+    { "ESR", "Eastar Jet" },
+    { "APZ", "Air Premia" },
+    { "RSZ", "Air Seoul" },
+
+    // 중국
+    { "CCA", "Air China" },
+    { "CSN", "China Southern Airlines" },
+    { "CES", "China Eastern Airlines" },
+    { "HXA", "Hainan Airlines" },
+    { "CQH", "Spring Airlines" },
+    { "CSZ", "Shenzhen Airlines" },
+    { "CHH", "China United Airlines" },
+    { "GJS", "Loong Air" },
+    { "CXH", "XiamenAir" },
+    { "DRC", "Ruili Airlines" },
+
+    // 캐나다
+    { "ACA", "Air Canada" },
+    { "WJA", "WestJet" },
+    { "TSC", "Air Transat" },
+
+    // 영국
+    { "BAW", "British Airways" },
+    { "EZY", "easyJet" },
+    { "RYR", "Ryanair" },
+    { "VIR", "Virgin Atlantic" },
+    { "BEE", "Flybe" },
+
+    // 프랑스
+    { "AFR", "Air France" },
+    { "CRL", "Corsair International" },
+    { "ASL", "ASL Airlines France" },
+    { "CFH", "French Bee" },
+
+    // 독일
+    { "DLH", "Lufthansa" },
+    { "CFG", "Condor" },
+    { "EWG", "Eurowings" },
+    { "GWI", "Germanwings" },
+
+    // 아랍에미리트
+    { "UAE", "Emirates" },
+    { "ETD", "Etihad Airways" },
+    { "DHF", "Flydubai" },
+
+    // 터키
+    { "THY", "Turkish Airlines" },
+    { "PGT", "Pegasus Airlines" },
+    { "TJA", "Tailwind Airlines" },
+
+    // 일본
+    { "ANA", "All Nippon Airways" },
+    { "JAL", "Japan Airlines" },
+    { "SFJ", "StarFlyer" },
+    { "SNJ", "Skymark Airlines" },
+    { "NCA", "Nippon Cargo Airlines" },
+
+    // 호주
+    { "QFA", "Qantas" },
+    { "JST", "Jetstar Airways" },
+    { "VHT", "Virgin Australia" },
+
+    // 인도
+    { "IGO", "IndiGo" },
+    { "AIJ", "Air India" },
+    { "IXC", "Air India Express" },
+    { "SGR", "SpiceJet" },
+
+    // 브라질
+    { "TAM", "LATAM Brasil" },
+    { "GLO", "GOL Linhas Aéreas" },
+    { "AZU", "Azul Brazilian Airlines" },
+
+    // 러시아
+    { "AFL", "Aeroflot" },
+    { "SBI", "S7 Airlines" },
+    { "TAT", "Tatarstan Airlines" },
+
+    // 멕시코
+    { "AMX", "Aeromexico" },
+    { "VOI", "Volaris" },
+
+    // 네덜란드
+    { "KLM", "KLM Royal Dutch Airlines" },
+
+    // 싱가포르
+    { "SIA", "Singapore Airlines" },
+    { "SQC", "Scoot" },
+
+    // 말레이시아
+    { "MAS", "Malaysia Airlines" },
+	{ "AXM", "AirAsia X" },
+
+    // 태국
+    { "THA", "Thai Airways" },
+    { "THD", "Thai AirAsia" },
+
+    // 이스라엘
+    { "ELY", "El Al" },
+
+    // 사우디아라비아
+	{ "SVA", "Saudia" },
+
+    // 스위스
+    { "SWR", "Swiss International Air Lines" },
+
+    // 아일랜드
+    { "RYR", "Ryanair" },
+
+    // 기타 LCC
+    { "FRD", "Friedman Airlines" },
+	{ "RDM", "Red Air" },
+
+    // 추가 미국 항공사
+    { "SCX", "Sun Country Airlines" },
+    { "PDT", "Porter Airlines" },
+    { "JZA", "Jazz Aviation" },
+    { "CSB", "Seaborne Airlines" },
+    { "RPA", "Republic Airways" },
+    { "SKA", "SkyWest Airlines" },
+    { "VOI", "Volaris" },
+    { "NKS", "Spirit Airlines" },
+    { "SWA", "Sunwing Airlines" },
+    { "BTA", "Boutique Air" },
+
+    // 러시아 및 CIS 지역
+    { "SBR", "S7 Airlines" },
+    { "AER", "Aeroflot" },
+    { "VOG", "Vologda Air" },
+    { "UTN", "UTair Aviation" },
+    { "LNK", "Lufthansa Cargo" },
+
+    // 유럽 추가 항공사
+    { "NAX", "Neos" },
+    { "VLG", "Vueling Airlines" },
+    { "IBE", "Iberia" },
+    { "TAP", "TAP Air Portugal" },
+    { "AUA", "Austrian Airlines" },
+    { "SAS", "Scandinavian Airlines" },
+    { "DLR", "Danish Air Transport" },
+    { "RYR", "Ryanair" },
+    { "EZY", "easyJet" },
+    { "BTI", "British International" },
+
+    // 중동 추가 항공사
+    { "MAY", "Royal Jordanian" },
+    { "MEA", "Middle East Airlines" },
+    { "KAC", "Kuwait Airways" },
+    { "QTR", "Qatar Airways" },
+    { "GFA", "Gulf Air" },
+
+    // 아프리카 주요 항공사
+    { "ETH", "Ethiopian Airlines" },
+    { "SWR", "South African Airways" },
+    { "KQA", "Kenya Airways" },
+    { "TAR", "Tanzania Airlines" },
+
+    // 아시아 추가 항공사
+    { "MAL", "Malaysia Airlines" },
+    { "VJS", "VietJet Air" },
+    { "FDK", "Fiji Airways" },
+    { "CJM", "Cebu Pacific" },
+    { "GIA", "Garuda Indonesia" },
+    { "TNI", "Thai AirAsia" },
+    { "CXA", "Cathay Pacific" },
+    { "CPA", "Cathay Pacific" },
+
+    // 라틴 아메리카 추가 항공사
+    { "AVA", "Avianca" },
+    { "CMP", "Copa Airlines" },
+    { "GLO", "GOL Linhas Aéreas" },
+    { "LAP", "LATAM Peru" },
+    { "LAT", "LATAM Airlines" },
+
+    // 기타 주요 항공사
+    { "PAL", "Philippine Airlines" },
+	{ "JBU", "JetBlue Airways" },
+    { "DAL", "Delta Air Lines" },
+    { "UAL", "United Airlines" },
+    { "SWA", "Southwest Airlines" },
+    { "AFR", "Air France" },
+    { "DLH", "Lufthansa" },
+    { "BAW", "British Airways" },
+    { "KAL", "Korean Air" },
+	{ "ANA", "All Nippon Airways" },
+
+    // 저비용 항공사(LCC)
+    { "FRJ", "Freebird Airlines" },
+    { "NAX", "Neos" },
+    { "TAL", "TAROM" },
+    { "VLG", "Vueling Airlines" },
+    { "EZU", "easyJet Europe" },
+    { "RYR", "Ryanair" },
+    { "WZZ", "Wizz Air" },
+    { "VDA", "Vueling Airlines" },
+    { "VIR", "Virgin Atlantic" },
+
+    // 화물 항공사
+    { "FDX", "FedEx Express" },
+    { "UPS", "United Parcel Service" },
+    { "CJB", "Cargolux" },
+    { "MAS", "Mas Air" },
+
+    // 기타 소규모 항공사
+    { "PDT", "Porter Airlines" },
+    { "CSN", "China Southern Airlines" },
+    { "CES", "China Eastern Airlines" },
+    { "JAL", "Japan Airlines" },
+    { "QFA", "Qantas" },
+    { "JST", "Jetstar Airways" },
+    { "VHT", "Virgin Australia" },
+    { "IGO", "IndiGo" },
+    { "AIJ", "Air India" },
+	{ "SGR", "SpiceJet" }
+};
+
+const char *aircraft_get_airline (const char* callsign_prefix)
+{
+  int num_airlines = sizeof(airlines) / sizeof(airlines[0]);
+  uint16_t   i;
+
+  if (callsign_prefix != NULL) {
+      for (i = 0; i < num_airlines; i++)
+		  if (strcmp(callsign_prefix, airlines[i][0]) == 0)
+			 return airlines[i][1];
+  }
+
+  return "N/A";
 }

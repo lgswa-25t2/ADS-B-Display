@@ -61,6 +61,7 @@
 #include <chrono>
 #include <ShellAPI.h>
 #include <IniFiles.hpp>
+#include <math.h>
 
 #pragma hdrstop
 
@@ -101,6 +102,9 @@
 // #define PROGRESSBAR_DEBUGGING
 
 #define BG_INTENSITY 0.37
+
+#define DEG_TO_RAD (M_PI / 180.0)
+#define RAD_TO_DEG (180.0 / M_PI)
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma link "OpenGLPanel"
@@ -1258,54 +1262,43 @@ void __fastcall TForm1::DrawObjects(void)
             LatLon2XY(Data->Latitude, Data->Longitude, ScrX, ScrY);
             DrawTrackHook(ScrX, ScrY);
 
-            bool isDrawn = false;
-#if 0
-            // Draw planned route for selected aircraft by fetching from http://flightaware.com
-            if (Data->HaveFlightNum)
-            {
-                std::string flightName(Data->FlightNum);
-                auto waypoints = plannedRouteManager->GetWaypoints(flightName);
-                if (waypoints.size() > 2)
-                {
-                    isDrawn = true;
+            if (a != NULL && a->airport_size > 0)
+			{
+				for (i = 0; i < a->airport_size; i++)
+				{
+					bool isSame = false;
+					for (int j = 0; j < i; j++)
+					{
+						if(a->airport_lat[i] == a->airport_lat[j] && a->airport_lon[i] == a->airport_lon[j])
+						{
+							isSame = true;
+							break;
+						}
+					}
 
-                    // draw curved dotted line connecting waypoints
-                    glColor4f(1.0, 0.0, 0.0, 1.0); // red with full opacity
-                    glLineWidth(2.0);
-                    glEnable(GL_LINE_STIPPLE);
-                    glLineStipple(1, 0x00FF); // Dashed line pattern
+					DrawAirportIcon(a->airport_lat[i], a->airport_lon[i], (i == 0) ? true : false, isSame);
+					DrawAirportInfo(a->airport_lat[i], a->airport_lon[i], a->airport_iata[i].c_str(), (i == 0) ? true : false);
+				}
+			}
 
-                    glBegin(GL_LINE_STRIP);
-                    for (const auto& waypoint : waypoints)
-                    {
-                        double routeScrX, routeScrY;
-                        LatLon2XY(waypoint.first, waypoint.second, routeScrX, routeScrY);
-                        glVertex2f(routeScrX, routeScrY);
-                    }
-                    glEnd();
-
-                    glDisable(GL_LINE_STIPPLE);
-                }
-            }
-#endif
-            // Draw planned route for selected aircraft if available
-            if (!isDrawn && a && a->route_size >= 2)
+			// Draw planned route for selected aircraft if available
+			if (a && a->route_size >= 2)
 			{
 				// Set red dashed line style
-                glColor4f(1.0, 0.0, 0.0, 1.0); // red with full opacity
-                glLineWidth(2.0);
-                glEnable(GL_LINE_STIPPLE);
-                glLineStipple(1, 0x00FF); // Dashed line pattern
-                
-                glBegin(GL_LINE_STRIP);
-                for (int i = 0; i < a->route_size; i++)
+				glColor4f(1.0, 0.0, 0.0, 0.8); // Red with transparency
+				glLineWidth(2.0);
+				glEnable(GL_LINE_STIPPLE);
+				glLineStipple(1, 0x00FF); // Dashed line pattern
+
+				glBegin(GL_LINE_STRIP);
+				for (int i = 0; i < a->route_size; i++)
                 {
                     double routeLat = a->route_latitude[i];
                     double routeLon = a->route_longitude[i];
                     
                     // Validate coordinates
                     if (fabs(routeLat) <= 90.0 && fabs(routeLon) <= 180.0)
-                    {
+					{
                         double routeScrX, routeScrY;
                         LatLon2XY(routeLat, routeLon, routeScrX, routeScrY);
                         glVertex2f(routeScrX, routeScrY);
@@ -1316,7 +1309,18 @@ void __fastcall TForm1::DrawObjects(void)
                 // Reset line style
                 glDisable(GL_LINE_STIPPLE);
 				glLineWidth(3.0);
-            }
+			}
+			else
+			{
+				if(a && a->airport_size > 1)
+				{
+					for (i = 0; i < a->airport_size - 1; i++)
+					{
+						DrawGreatCircleRoute(a->airport_lat[i], a->airport_lon[i], a->airport_lat[i+1], a->airport_lon[i+1], NULL, NULL);
+					}
+				}
+
+			}
 
 			// Display Tracking history
             if (Data && Data->HistoryCount > 0 && Data->HistoryIndex >= 0 && Data->HistoryIndex < FLIGHT_TRACK_HISTORY_COUNT)
@@ -1440,15 +1444,6 @@ void __fastcall TForm1::DrawObjects(void)
             CpaDistanceValue->Caption = "None";
         }
     }
-
-    if (a != NULL && a->airport_size > 0)
-    {
-        for (i = 0; i < a->airport_size; i++)
-        {
-            DrawAirportIcon(a->airport_lat[i], a->airport_lon[i], (i == 0) ? true : false);
-            DrawAirportInfo(a->airport_lat[i], a->airport_lon[i], a->airport_iata[i].c_str(), (i == 0) ? true : false);
-        }
-	}
 
     // Draw Cells(white bubbles) instead of whole aircrafts for the performance and usability,
     // when zoomRate(xf) >= cellDrawZoomRate
@@ -3832,7 +3827,7 @@ void __fastcall TForm1::DisplayAirportCheckBoxClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::DrawAirportIcon(double lat, double lon, bool isDeparture)
+void __fastcall TForm1::DrawAirportIcon(double lat, double lon, bool isDeparture, bool isAlreadyOccupy)
 {
     double ScrX, ScrY;
     LatLon2XY(lat, lon, ScrX, ScrY);
@@ -3847,14 +3842,20 @@ void __fastcall TForm1::DrawAirportIcon(double lat, double lon, bool isDeparture
         glColor4f(1.0, 0.0, 0.0, 1.0); // Red for arrival
     }
 
-    // Draw airport icon (simple cross)
-    glLineWidth(2.0);
-    glBegin(GL_LINES);
-    glVertex2f(ScrX - 10, ScrY);
-    glVertex2f(ScrX + 10, ScrY);
-    glVertex2f(ScrX, ScrY - 10);
-    glVertex2f(ScrX, ScrY + 10);
-    glEnd();
+	// Draw airport icon (simple cross)
+
+	if(isAlreadyOccupy)
+	{
+		ScrX -= 20;
+	}
+
+	glLineWidth(2.0);
+	glBegin(GL_LINES);
+	glVertex2f(ScrX - 10, ScrY);
+	glVertex2f(ScrX + 10, ScrY);
+	glVertex2f(ScrX, ScrY - 10);
+	glVertex2f(ScrX, ScrY + 10);
+	glEnd();
 
     // Draw circle around the cross
     glBegin(GL_LINE_LOOP);
@@ -4003,23 +4004,23 @@ void __fastcall TForm1::UpdateAircraftInfo(TADS_B_Aircraft *Data)
         Manufacturer->Caption = SafeAnsiString(a->Fields[AC_DB_ManufacturerName].c_str());
         Model->Caption = SafeAnsiString(a->Fields[AC_DB_Model].c_str());
         MFRYear->Caption = SafeAnsiString(a->Fields[AC_DB_Built].c_str());
-        CeritificatedInfo->Caption = SafeAnsiString(a->Fields[AC_DB_Registered].c_str());
+		AircraftCountry->Caption = SafeAnsiString(aircraft_get_country(a->ICAO24, false));
         ExpirationData->Caption = SafeAnsiString(a->Fields[AC_DB_RegUntil].c_str());
-        EngineType->Caption = SafeAnsiString(a->Fields[AC_DB_Engines].c_str());
-        AirType->Caption = SafeAnsiString(a->Fields[AC_DB_ICAOAircraftType].c_str());
+		Airline->Caption = SafeAnsiString(aircraft_get_airline(a->airline_code.c_str()));
+		AirType->Caption = SafeAnsiString(a->Fields[AC_DB_TypeCode].c_str());
 
         printf("Aircraft metadata updated in UI\n");
-    }
-    else
+	}
+	else
     {
-        // Clear metadata when no data available
+		// Clear metadata when no data available
         SerialNum->Caption = "N/A";
         Manufacturer->Caption = "N/A";
         Model->Caption = "N/A";
-        MFRYear->Caption = "N/A";
-        CeritificatedInfo->Caption = "N/A";
+		MFRYear->Caption = "N/A";
+		AircraftCountry->Caption = "N/A";
         ExpirationData->Caption = "N/A";
-        EngineType->Caption = "N/A";
+		Airline->Caption = "N/A";
         AirType->Caption = "N/A";
 
         printf("No aircraft metadata available\n");
@@ -4071,6 +4072,13 @@ void __fastcall TForm1::UpdateRouteInfo(TADS_B_Aircraft *Data)
                    a->airport_icao[lastIndex].c_str(),
                    a->airport_location[lastIndex].c_str(),
                    a->airport_countryiso2[lastIndex].c_str());
+            
+            // 대원호 경로 그리기 (출발지와 도착지가 모두 있는 경우)
+            if (a->airport_lat[0] != 0.0 && a->airport_lon[0] != 0.0 && 
+                a->airport_lat[lastIndex] != 0.0 && a->airport_lon[lastIndex] != 0.0)
+            {
+                DrawGreatCircleRoute(a->airport_lat[0], a->airport_lon[0], a->airport_lat[lastIndex], a->airport_lon[lastIndex], a->airport_icao[0].c_str(), a->airport_icao[lastIndex].c_str());
+            }
         }
         else
         {
@@ -4141,9 +4149,9 @@ void __fastcall TForm1::ClearAircraftInfo()
     Manufacturer->Caption = "N/A";
     Model->Caption = "N/A";
     MFRYear->Caption = "N/A";
-    CeritificatedInfo->Caption = "N/A";
+	AircraftCountry->Caption = "N/A";
     ExpirationData->Caption = "N/A";
-    EngineType->Caption = "N/A";
+    Airline->Caption = "N/A";
     AirType->Caption = "N/A";
 
     // Also clear route information
@@ -6503,3 +6511,74 @@ void __fastcall TForm1::FormActivate(TObject *Sender)
     this->ActiveControl = nullptr;
     printf("Form activated, focus set to Form\n");
 }
+
+void __fastcall TForm1::CalculateGreatCirclePoints(double lat1, double lon1, double lat2, double lon2, std::vector<double>& lats, std::vector<double>& lons, int numPoints)
+{
+    lats.clear();
+    lons.clear();
+    if (numPoints < 2) numPoints = 2;
+
+    double lat1Rad = lat1 * DEG_TO_RAD;
+    double lon1Rad = lon1 * DEG_TO_RAD;
+    double lat2Rad = lat2 * DEG_TO_RAD;
+    double lon2Rad = lon2 * DEG_TO_RAD;
+
+    double d = 2 * asin(sqrt(pow(sin((lat2Rad - lat1Rad) / 2), 2) +
+        cos(lat1Rad) * cos(lat2Rad) * pow(sin((lon2Rad - lon1Rad) / 2), 2)));
+
+    for (int i = 0; i < numPoints; i++) {
+        double f = (double)i / (numPoints - 1);
+        double A = sin((1 - f) * d) / sin(d);
+        double B = sin(f * d) / sin(d);
+
+        double x = A * cos(lat1Rad) * cos(lon1Rad) + B * cos(lat2Rad) * cos(lon2Rad);
+        double y = A * cos(lat1Rad) * sin(lon1Rad) + B * cos(lat2Rad) * sin(lon2Rad);
+        double z = A * sin(lat1Rad) + B * sin(lat2Rad);
+
+        double latRad = atan2(z, sqrt(x * x + y * y));
+        double lonRad = atan2(y, x);
+
+        lats.push_back(latRad * RAD_TO_DEG);
+        lons.push_back(lonRad * RAD_TO_DEG);
+    }
+}
+
+void __fastcall TForm1::DrawGreatCircleRoute(double depLat, double depLon, double arrLat, double arrLon, const char* depICAO, const char* arrICAO)
+{
+    std::vector<double> lats, lons;
+    CalculateGreatCirclePoints(depLat, depLon, arrLat, arrLon, lats, lons, 100);
+
+	glColor4f(0.0, 1.0, 0.0, 0.8); // 녹색, 반투명
+    glLineWidth(3.0);
+    glEnable(GL_LINE_STIPPLE);
+    glLineStipple(1, 0x00FF);
+
+    glBegin(GL_LINE_STRIP);
+    for (size_t i = 0; i < lats.size(); i++) {
+        double x, y;
+        LatLon2XY(lats[i], lons[i], x, y);
+        glVertex2f(x, y);
+    }
+    glEnd();
+
+    glDisable(GL_LINE_STIPPLE);
+    glLineWidth(2.0);
+
+    // 출발/도착 라벨
+    double depX, depY, arrX, arrY;
+    LatLon2XY(depLat, depLon, depX, depY);
+    LatLon2XY(arrLat, arrLon, arrX, arrY);
+
+#if 0
+    glColor4f(0.0, 0.0, 1.0, 1.0);
+    glRasterPos2f(depX + 5, depY + 5);
+    for (const char* p = depICAO; *p; ++p) glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, *p);
+
+    glColor4f(1.0, 0.0, 0.0, 1.0);
+    glRasterPos2f(arrX + 5, arrY + 5);
+    for (const char* p = arrICAO; *p; ++p) glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, *p);
+#endif
+}
+
+
+

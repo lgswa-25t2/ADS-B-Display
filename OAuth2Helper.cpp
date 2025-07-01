@@ -45,6 +45,7 @@ OAuth2Helper::~OAuth2Helper() {
 }
 
 bool OAuth2Helper::LoadOpenSSLFunctions() {
+#if 0
 	// Load libcrypto.dll
 
 	UTF8String utf8str = ExtractFilePath(ExtractFileDir(Application->ExeName));
@@ -62,7 +63,6 @@ bool OAuth2Helper::LoadOpenSSLFunctions() {
 	std::string dllPath1 = utf8str.c_str() + filename1;
 
 	hSslLib = LoadLibraryA(dllPath1.c_str());
-
 	if (!hSslLib) {
 		SetLastError("Failed to load libssl.dll");
         FreeLibrary(hCryptoLib);
@@ -89,6 +89,7 @@ bool OAuth2Helper::LoadOpenSSLFunctions() {
 		CleanupOpenSSL();
 		return false;
 	}
+#endif
 
     return true;
 }

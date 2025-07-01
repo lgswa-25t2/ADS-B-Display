@@ -319,10 +319,10 @@ class TForm1 : public TForm
     TLabel *MFRYear;
     TLabel *Label26;
     TLabel *Label27;
-    TLabel *AirType;
-    TLabel *EngineType;
+	TLabel *AirType;
+	TLabel *Airline;
     TLabel *Label29;
-    TLabel *CeritificatedInfo;
+    TLabel *AircraftCountry;
     TLabel *Label30;
     TLabel *ExpirationData;
 	TLabel *SubTitleDeparture;
@@ -717,7 +717,7 @@ public: // User declarations
     __int64 PlaybackCurrentTime;
     bool ProgrammaticProgressUpdate;
 
-    void DrawAirportIcon(double lat, double lon, bool isDeparture);
+	void DrawAirportIcon(double lat, double lon, bool isDeparture, bool isAlreadyOccupy);
     void DrawAirportInfo(double lat, double lon, const char *name, bool isDeparture);
     int __fastcall getAirplaneType(uint32_t addr);
     void UpdateAircraftInfo(TADS_B_Aircraft *Data);
@@ -738,6 +738,9 @@ public: // User declarations
     bool __fastcall IsAircraftInAltitudeFilter(TADS_B_Aircraft *aircraft);  
     // aircraft speed filter
     bool __fastcall IsAircraftInSpeedFilter(TADS_B_Aircraft *aircraft);  
+    // 대원호 경로 그리기 함수 추가
+    void __fastcall DrawGreatCircleRoute(double depLat, double depLon, double arrLat, double arrLon, const char* depICAO, const char* arrICAO);
+    void __fastcall CalculateGreatCirclePoints(double lat1, double lon1, double lat2, double lon2, std::vector<double>& lats, std::vector<double>& lons, int numPoints = 100);
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TForm1 *Form1;

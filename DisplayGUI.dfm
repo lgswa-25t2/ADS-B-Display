@@ -1250,9 +1250,9 @@ object Form1: TForm1
           object Label27: TLabel
             Left = 4
             Top = 241
-            Width = 39
+            Width = 40
             Height = 15
-            Caption = 'Engine:'
+            Caption = 'Airline:'
             Font.Charset = ANSI_CHARSET
             Font.Color = clWindowText
             Font.Height = -13
@@ -1273,7 +1273,7 @@ object Form1: TForm1
             Font.Style = []
             ParentFont = False
           end
-          object EngineType: TLabel
+          object Airline: TLabel
             Left = 70
             Top = 240
             Width = 20
@@ -1289,9 +1289,9 @@ object Form1: TForm1
           object Label29: TLabel
             Left = 4
             Top = 261
-            Width = 25
+            Width = 46
             Height = 15
-            Caption = 'Cert:'
+            Caption = 'Country:'
             Font.Charset = ANSI_CHARSET
             Font.Color = clWindowText
             Font.Height = -13
@@ -1299,7 +1299,7 @@ object Form1: TForm1
             Font.Style = []
             ParentFont = False
           end
-          object CeritificatedInfo: TLabel
+          object AircraftCountry: TLabel
             Left = 70
             Top = 261
             Width = 20

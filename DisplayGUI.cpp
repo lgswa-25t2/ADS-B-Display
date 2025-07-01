@@ -6272,12 +6272,16 @@ void __fastcall TAircraftAircraftDistanceThread::Execute()
                 if (!Data1->HaveLatLon)
                     continue;
 
-                // 고도 정보가 없거나 N/A이거나 0인 경우 제외
-                if (!Data1->HaveAltitude || Data1->Altitude <= 0)
+                // 고도 정보가 없거나 N/A이거나 100인 경우 제외
+                if (!Data1->HaveAltitude || Data1->Altitude <= 100)
                     continue;
 
                 // 헬리콥터나 군용기는 제외
                 if (aircraft_is_helicopter(Data1->ICAO, NULL) || IsAircraftMilitary(Data1->ICAO))
+                    continue;
+
+                // 공항 근처 비행기는 제외
+                if (Form1->isAircraftNearAirport(Data1->ICAO))
                     continue;
 
                 // 두 번째 항공기와의 거리 계산
@@ -6288,16 +6292,20 @@ void __fastcall TAircraftAircraftDistanceThread::Execute()
                     if (!Data2->HaveLatLon)
                         continue;
 
-                    // 고도 정보가 없거나 N/A이거나 0인 경우 제외
-                    if (!Data2->HaveAltitude || Data2->Altitude <= 0)
+                    // 고도 정보가 없거나 N/A이거나 100인 경우 제외
+                    if (!Data2->HaveAltitude || Data2->Altitude <= 100)
                         continue;
 
-                    // 같은 항공기는 제외
-                    if (Data1->ICAO == Data2->ICAO)
+                    // 같은 항공기는 제외, ICAO 순서 체크 - Data1의 ICAO가 더 큰 경우 건너뛰기 (중복 방지)
+                    if (Data1->ICAO >= Data2->ICAO)
                         continue;
 
                     // 헬리콥터나 군용기는 제외
                     if (aircraft_is_helicopter(Data2->ICAO, NULL) || IsAircraftMilitary(Data2->ICAO))
+                        continue;
+
+                    // 공항 근처 비행기는 제외
+                    if (Form1->isAircraftNearAirport(Data2->ICAO))
                         continue;
 
                     // 1. 평면 거리 계산 (해리 단위)
@@ -6318,10 +6326,8 @@ void __fastcall TAircraftAircraftDistanceThread::Execute()
                     // 1해리 이내인 경우 결과에 추가
                     if (distance3DSquare <= 1.0)
                     {
-                        // 중복 방지를 위해 작은 ICAO가 앞에 오도록 정렬
-                        uint32_t icao1 = (Data1->ICAO < Data2->ICAO) ? Data1->ICAO : Data2->ICAO;
-                        uint32_t icao2 = (Data1->ICAO < Data2->ICAO) ? Data2->ICAO : Data1->ICAO;
-                        std::pair<uint32_t, uint32_t> pair = std::make_pair(icao1, icao2);
+                        // 이미 ICAO 순서가 보장되므로 단순히 추가
+                        std::pair<uint32_t, uint32_t> pair = std::make_pair(Data1->ICAO, Data2->ICAO);
 
                         // 중복 체크
                         bool alreadyExists = false;
@@ -6340,16 +6346,7 @@ void __fastcall TAircraftAircraftDistanceThread::Execute()
 
                             // 콘솔에 로그 출력
                             printf("CLOSE AIRCRAFT PAIR: ICAO1=%06X, ICAO2=%06X, Distance=%.2f NM\n",
-                                   icao1, icao2, sqrt(distance3DSquare));
-                            
-                            //printf("CLOSE AIRCRAFT PAIR: ICAO1=%06X, ICAO2=%06X, Distance=%.2f NM, v=%.2f, h=%.2f\n",
-                            //       icao1, icao2, sqrt(distance3DSquare), verticalDistance, sqrt(horizontalDistanceSquare));
-                            //printf("    ALT      ICAO1=%.1f, ICAO2=%.1f\n",
-                            //       Data1->Altitude, Data2->Altitude);
-                            //printf("    LAT      ICAO1=%.5f, ICAO2=%.5f\n",
-                            //       Data1->Latitude, Data2->Latitude);
-                            //printf("    LON      ICAO1=%.5f, ICAO2=%.5f\n\n",
-                            //       Data1->Longitude, Data2->Longitude);
+                                   Data1->ICAO, Data2->ICAO, sqrt(distance3DSquare));
                         }
                     }
                 }
@@ -6372,7 +6369,7 @@ void TForm1::startAircraftDistanceCalculationThread()
         aircraftAircraftDistanceResult = new AircraftAircraftDistanceResult();
         aircraftAircraftDistanceResult->isUpdating = false;
 
-        aircraftDistanceCalculationThread = new TAircraftAircraftDistanceThread(aircraftAircraftDistanceResult, 5000); // 5초마다 업데이트
+        aircraftDistanceCalculationThread = new TAircraftAircraftDistanceThread(aircraftAircraftDistanceResult, 20000); // 20초마다 업데이트
         aircraftDistanceCalculationThread->Start();
     }
 }

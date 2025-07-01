@@ -503,6 +503,8 @@ class TForm1 : public TForm
     void __fastcall FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shift);
     void __fastcall FormKeyUp(TObject *Sender, WORD &Key, TShiftState Shift);
     void __fastcall FormActivate(TObject *Sender);
+    // 항공기가 공항 근처에 있는지 확인하는 함수
+    bool isAircraftNearAirport(uint32_t aircraftICAO);
 private: // User declarations
     bool __fastcall CheckCellClickAndZoom(int X, int Y);
     void __fastcall DrawDeadReckoningStatusBar(void);
@@ -589,9 +591,6 @@ private: // User declarations
 
     // 항공기-공항 거리 계산 스레드
     TAircraftAirportDistanceThread *distanceCalculationThread;
-
-    // 항공기가 공항 근처에 있는지 확인하는 함수
-    bool isAircraftNearAirport(uint32_t aircraftICAO);
 
     // 거리 계산 스레드 시작/중지
     void startDistanceCalculationThread();

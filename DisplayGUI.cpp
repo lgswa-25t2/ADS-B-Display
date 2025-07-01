@@ -473,6 +473,9 @@ __fastcall TForm1::TForm1(TComponent *Owner)
     // 빠른 클릭 감지 변수 초기화
     rapidClickCount = 0;
     firstClickTime = 0;
+
+    // Initialize Planned Route Manager
+    plannedRouteManager = new AircraftPlannedRoute();
 }
 //---------------------------------------------------------------------------
 __fastcall TForm1::~TForm1()
@@ -640,9 +643,9 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
         {
             int currentTextures = g_GETileManager->GetTextureCount();
             int maxTextures = g_GETileManager->GetMaxTextures();
-            printf("Cache Status: %d/%d textures (%.1f%% full)\n",
+            /*printf("Cache Status: %d/%d textures (%.1f%% full)\n",
                    currentTextures, maxTextures,
-                   (float)currentTextures / maxTextures * 100.0f);
+                   (float)currentTextures / maxTextures * 100.0f);*/
         }
         lastCacheCheck = CurrentTime;
     }
@@ -1270,11 +1273,40 @@ void __fastcall TForm1::DrawObjects(void)
             LatLon2XY(Data->Latitude, Data->Longitude, ScrX, ScrY);
             DrawTrackHook(ScrX, ScrY);
 
+            bool isDrawn = false;
+            // Draw planned route for selected aircraft by fetching from http://flightaware.com
+            if (Data->HaveFlightNum)
+            {
+                std::string flightName(Data->FlightNum);
+                auto waypoints = plannedRouteManager->GetWaypoints(flightName);
+                if (waypoints.size() > 2)
+                {
+                    isDrawn = true;
+
+                    // draw curved dotted line connecting waypoints
+                    glColor4f(1.0, 0.0, 0.0, 1.0); // red with full opacity
+                    glLineWidth(2.0);
+                    glEnable(GL_LINE_STIPPLE);
+                    glLineStipple(1, 0x00FF); // Dashed line pattern
+
+                    glBegin(GL_LINE_STRIP);
+                    for (const auto& waypoint : waypoints)
+                    {
+                        double routeScrX, routeScrY;
+                        LatLon2XY(waypoint.first, waypoint.second, routeScrX, routeScrY);
+                        glVertex2f(routeScrX, routeScrY);
+                    }
+                    glEnd();
+
+                    glDisable(GL_LINE_STIPPLE);
+                }
+            }
+
             // Draw planned route for selected aircraft if available
-            if (a && a->route_size >= 2)
+            if (!isDrawn && a && a->route_size >= 2)
 			{
 				// Set red dashed line style
-                glColor4f(1.0, 0.0, 0.0, 0.8); // Red with transparency
+                glColor4f(1.0, 0.0, 0.0, 1.0); // red with full opacity
                 glLineWidth(2.0);
                 glEnable(GL_LINE_STIPPLE);
                 glLineStipple(1, 0x00FF); // Dashed line pattern
@@ -1980,7 +2012,7 @@ void __fastcall TForm1::HookTrack(int X, int Y, bool CPA_Hook)
                 {
                     bool isExist = false;
                     const char *additionalInfo = GetAircraftAPIInfo(ADS_B_Aircraft->ICAO, ADS_B_Aircraft->FlightNum, &isExist);
-                    printf("additionalInfo: %s\n", additionalInfo);
+                    //printf("additionalInfo: %s\n", additionalInfo);
 
                     if (isExist)
                     {
@@ -3969,6 +4001,7 @@ void __fastcall TForm1::UpdateRouteInfo(TADS_B_Aircraft *Data)
         ClearRouteInfo();
         return;
     }
+    return;
 
     // Get aircraft data which contains route information
     const TAircraftData *a = (TAircraftData *)ght_get(AircraftDBHashTable, sizeof(Data->ICAO), &Data->ICAO);
@@ -4401,6 +4434,12 @@ void __fastcall TForm1::LoadIpHistoryToComboBox()
     {
         RawIpAddress->Text = RawIpHistory->Strings[0];
     }
+}
+
+void TForm1::LoadWaypointsFromHttp(const std::string &callsign)
+{
+    //std::vector<std::pair<double, double>> waypoints = plannedRouteManager->GetWaypoints(callsign);
+    plannedRouteManager->GetWaypoints(callsign);
 }
 
 // feature AreaFilter
@@ -6262,8 +6301,9 @@ void __fastcall TAircraftAircraftDistanceThread::Execute()
                             distanceResult->closeAircraftPairs.push_back(pair);
 
                             // 콘솔에 로그 출력
-                            printf("CLOSE AIRCRAFT PAIR: ICAO1=%06X, ICAO2=%06X, Distance=%.2f NM\n",
-                                   icao1, icao2, sqrt(distance3DSquare));
+                            //printf("CLOSE AIRCRAFT PAIR: ICAO1=%06X, ICAO2=%06X, Distance=%.2f NM\n",
+                            //       icao1, icao2, sqrt(distance3DSquare));
+                            
                             //printf("CLOSE AIRCRAFT PAIR: ICAO1=%06X, ICAO2=%06X, Distance=%.2f NM, v=%.2f, h=%.2f\n",
                             //       icao1, icao2, sqrt(distance3DSquare), verticalDistance, sqrt(horizontalDistanceSquare));
                             //printf("    ALT      ICAO1=%.1f, ICAO2=%.1f\n",

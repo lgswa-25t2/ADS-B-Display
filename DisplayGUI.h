@@ -35,6 +35,7 @@
 #include <atomic>
 #include <vector>
 #include "BigQuery/BigQueryClient.h"
+#include "AircraftPlannedRoute.h"
 // Forward declarations
 class AirportDataManager;
 
@@ -540,6 +541,8 @@ private: // User declarations
     void LoadIpHistory();
     void SaveIpHistory();
     void LoadIpHistoryToComboBox();
+    void LoadWaypointsFromHttp(const std::string &callsign);
+    AircraftPlannedRoute *plannedRouteManager;
 
     // Area Filter
     TList *selectedFilterAreas; // selected filtering Area  s

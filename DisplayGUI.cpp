@@ -6549,7 +6549,7 @@ void __fastcall TForm1::DrawGreatCircleRoute(double depLat, double depLon, doubl
     CalculateGreatCirclePoints(depLat, depLon, arrLat, arrLon, lats, lons, 100);
 
 	glColor4f(0.0, 1.0, 0.0, 0.8); // 녹색, 반투명
-    glLineWidth(3.0);
+    glLineWidth(12.0);
     glEnable(GL_LINE_STIPPLE);
     glLineStipple(1, 0x00FF);
 

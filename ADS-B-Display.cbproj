@@ -213,6 +213,12 @@
             <DependentOn>AircraftDB.h</DependentOn>
             <BuildOrder>38</BuildOrder>
         </CppCompile>
+        <CppCompile Include="AircraftPlannedRoute.cpp">
+            <BuildOrder>51</BuildOrder>
+        </CppCompile>
+        <None Include="AircraftPlannedRoute.h">
+            <BuildOrder>52</BuildOrder>
+        </None>
         <CppCompile Include="AirportDataManager.cpp">
             <BuildOrder>40</BuildOrder>
         </CppCompile>
@@ -385,10 +391,6 @@
         </CppCompile>
         <CppCompile Include="TriangulatPoly.cpp">
             <DependentOn>TriangulatPoly.h</DependentOn>
-            <BuildOrder>32</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="AircraftPlannedRoute.cpp">
-            <DependentOn>AircraftPlannedRoute.h</DependentOn>
             <BuildOrder>32</BuildOrder>
         </CppCompile>
         <FormResources Include="AreaDialog.dfm"/>

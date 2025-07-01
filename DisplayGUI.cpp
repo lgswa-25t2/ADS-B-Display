@@ -1326,6 +1326,8 @@ void __fastcall TForm1::DrawObjects(void)
             if (Data && Data->HistoryCount > 0 && Data->HistoryIndex >= 0 && Data->HistoryIndex < FLIGHT_TRACK_HISTORY_COUNT)
             {
                 // printf("[Data] %s HistoryCount=%d HistoryIndex=%d\n", Data->HexAddr, Data->HistoryCount, Data->HistoryIndex);
+                glColor4f(1.0, 1.0, 1.0, 0.7);
+                glLineWidth(12.0);
                 glBegin(GL_LINE_STRIP);
                 for (int i = 0; i < Data->HistoryCount && i < FLIGHT_TRACK_HISTORY_COUNT; i++)
                 {
@@ -1365,8 +1367,6 @@ void __fastcall TForm1::DrawObjects(void)
                         }
                     }
 
-                    glColor4f(1.0, 1.0, 1.0, 0.7);
-                    glLineWidth(3.0);
                     double historyScrX, historyScrY;
                     LatLon2XY(Data->PrevLatitude[idx], Data->PrevLongitude[idx], historyScrX, historyScrY);
                     glVertex2f(historyScrX, historyScrY);
@@ -1884,7 +1884,7 @@ void __fastcall TForm1::PurgeOldHistory(TADS_B_Aircraft *aircraft, __int64 curre
         memset(aircraft->PrevAltitude, 0, sizeof(aircraft->PrevAltitude));
         memset(aircraft->PrevTimestamp, 0, sizeof(aircraft->PrevTimestamp));
         
-        printf("[CLEAR] Aircraft %s track history cleared: %s\n", aircraft->HexAddr, reason.c_str());
+        //printf("[CLEAR] Aircraft %s track history cleared: %s\n", aircraft->HexAddr, reason.c_str());
     }
 }
 

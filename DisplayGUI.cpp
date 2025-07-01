@@ -1259,6 +1259,7 @@ void __fastcall TForm1::DrawObjects(void)
             DrawTrackHook(ScrX, ScrY);
 
             bool isDrawn = false;
+#if 0
             // Draw planned route for selected aircraft by fetching from http://flightaware.com
             if (Data->HaveFlightNum)
             {
@@ -1286,7 +1287,7 @@ void __fastcall TForm1::DrawObjects(void)
                     glDisable(GL_LINE_STIPPLE);
                 }
             }
-
+#endif
             // Draw planned route for selected aircraft if available
             if (!isDrawn && a && a->route_size >= 2)
 			{

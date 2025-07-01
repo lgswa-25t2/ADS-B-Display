@@ -3186,7 +3186,7 @@ void __fastcall TForm1::SBSPlaybackButtonClick(TObject *Sender)
 		{
 			try {
 				TCPClientSBSHandleThread->Terminate();
-				TCPClientSBSHandleThread->WaitFor();
+				//TCPClientSBSHandleThread->WaitFor();
 			}
 			catch (...) {
 				printf("Error: SBS thread termination failed\n");

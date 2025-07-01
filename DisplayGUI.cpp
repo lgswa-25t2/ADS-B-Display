@@ -2678,7 +2678,7 @@ void __fastcall TForm1::RawPlaybackButtonClick(TObject *Sender)
 		{
 			try {
 				TCPClientRawHandleThread->Terminate();
-				TCPClientRawHandleThread->WaitFor();
+				//TCPClientRawHandleThread->WaitFor();
 			}
 			catch (...) {
 				printf("Error: Raw thread termination failed\n");

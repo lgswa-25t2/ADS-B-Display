@@ -387,6 +387,10 @@
             <DependentOn>TriangulatPoly.h</DependentOn>
             <BuildOrder>32</BuildOrder>
         </CppCompile>
+        <CppCompile Include="AircraftPlannedRoute.cpp">
+            <DependentOn>AircraftPlannedRoute.h</DependentOn>
+            <BuildOrder>32</BuildOrder>
+        </CppCompile>
         <FormResources Include="AreaDialog.dfm"/>
         <FormResources Include="DisplayGUI.dfm"/>
         <BuildConfiguration Include="Base">

@@ -156,24 +156,24 @@
 ### **Aircraft Type Color Coding**
 | Color | Type | Description |
 |-------|------|-------------|
-| 🟩 **Green** | Helicopter | Rotorcraft |
-| 🟥 **Red** | Military | Military aircraft |
-| 🟦 **Blue** | Civilian (Known) | Civilian aircraft registered in database |
-| ⚫ **Black** | Unknown | Aircraft with no type information |
-| 🟨 **Yellow** | Near Airport | Aircraft located within airport radius |
-| 🟪 **Purple** | Selected | User-selected aircraft |
-| 🔘 **Gray** | Flight Path | Past flight trajectory of aircraft |
+| 🔴 **Red** | Helicopter | Rotorcraft |
+| 🟢 **Green** | Military | Military aircraft |
+| 🟠 **Wine** | Civilian | Civilian aircraft registered in database |
+| 🔵 **Blue** | Unknown | Aircraft with no type information |
+| 🟡 **Yellow** | Near Airport | Aircraft located within airport radius |
+| ⭕ **Red Circle** | Selected | User-selected aircraft |
+| 🔲 **White** | Flight Path | Past flight trajectory of aircraft |
 
 ### **Altitude Color Coding (Time-To-Go Lines)**
 | Color | Altitude Range | Description |
 |-------|----------------|-------------|
-| 🔴 **Red** | Below 1,000ft | Lowest altitude |
-| 🟠 **Orange** | 1,000-5,000ft | Low altitude |
-| 🟡 **Yellow** | 5,000-10,000ft | Medium-low altitude |
-| 🟢 **Green** | 10,000-18,000ft | Medium altitude |
-| 🔵 **Blue** | 18,000-30,000ft | Medium-high altitude |
-| 🟣 **Purple** | 30,000-40,000ft | High altitude |
-| ⚪ **White** | Above 40,000ft | Highest altitude |
+| 🟥 **Red** | Below 1,000ft | Lowest altitude |
+| 🟧 **Orange** | 1,000-3,000ft | Low altitude |
+| 🟨 **Yellow** | 3,000-8,000ft | Medium-low altitude |
+| 🟩 **Green** | 8,000-15,000ft | Medium altitude |
+| 🟦 **Blue** | 15,000-25,000ft | Medium-high altitude |
+| 🟪 **Purple** | 25,000-35,000ft | High altitude |
+| 🟪 **Pink** | Above 35,000ft | Highest altitude |
 
 ### **Filter Controls**
 | Control | Function |

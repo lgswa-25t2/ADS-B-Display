@@ -45,8 +45,8 @@
 #endif
 
 // Include Windows headers first
-#include <windows.h>
-#include <wincrypt.h>
+//inlude <windows.h>
+//nclude <wincrypt.h>
 
 // Then include VCL and other headers
 #include <vcl.h>

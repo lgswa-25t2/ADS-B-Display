@@ -221,8 +221,8 @@
 | Key | Function | Description |
 |-----|----------|-------------|
 | **Home** | Go to Pittsburgh | Coordinates: 40.4406°N, 79.9959°W |
-| **End** | Disabled | Currently no function |
-| **F1** | Debug Information Output | Output current map center and viewpoint info to console |
+| **F1** | User Guide | Open UserGuide Document |
+| **F9** | Debug Information Output | Output current map center and viewpoint info to console |
 
 ---
 

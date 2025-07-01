@@ -2278,6 +2278,40 @@ object Form1: TForm1
         OnCloseUp = SpeedFilterComboBoxCloseUp
       end
     end
+    object PanelRouteLegend: TPanel
+      Left = 1180
+      Top = 2
+      Width = 300
+      Height = 48
+      BevelOuter = bvNone
+      Ctl3D = True
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -10
+      Font.Name = 'Calibri'
+      Font.Style = []
+      ParentBackground = False
+      ParentColor = True
+      ParentCtl3D = False
+      ParentFont = False
+      TabOrder = 2
+      object PaintBoxRouteLegend: TPaintBox
+        Left = 0
+        Top = 0
+        Width = 300
+        Height = 48
+        Align = alClient
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Calibri'
+        Font.Style = []
+        ParentFont = False
+        OnPaint = PaintBoxRouteLegendPaint
+        ExplicitWidth = 240
+        ExplicitHeight = 30
+      end
+    end
   end
   object ObjectDisplay: TOpenGLPanel
     Left = 0

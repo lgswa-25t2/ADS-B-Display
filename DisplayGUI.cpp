@@ -6580,5 +6580,54 @@ void __fastcall TForm1::DrawGreatCircleRoute(double depLat, double depLon, doubl
 #endif
 }
 
+// PanelRouteLegend용 공항 아이콘 그리기 함수
+void __fastcall TForm1::DrawAirportIconOnPanel(TCanvas* Canvas, int x, int y, bool isDeparture, int size)
+{
+    // 색상 설정
+    TColor color = isDeparture ? clGreen : clRed;
+    Canvas->Pen->Color = color;
+    Canvas->Pen->Width = 2;
+    Canvas->Brush->Style = bsClear; // 빈 원
+    
+    // 십자가 그리기 (DrawAirportIcon과 동일한 비율)
+    Canvas->MoveTo(x - size, y);
+    Canvas->LineTo(x + size, y);
+    Canvas->MoveTo(x, y - size);
+    Canvas->LineTo(x, y + size);
+    
+    // 원 그리기 (십자가보다 약간 큰 반지름)
+    int circleRadius = size + 3;
+    Canvas->Ellipse(x - circleRadius, y - circleRadius, x + circleRadius, y + circleRadius);
+}
 
+// TPaintBox OnPaint 이벤트 핸들러
+void __fastcall TForm1::PaintBoxRouteLegendPaint(TObject *Sender)
+{
+    TPaintBox* paintBox = dynamic_cast<TPaintBox*>(Sender);
+    if (!paintBox) return;
+
+    TCanvas* Canvas = paintBox->Canvas;
+
+    // 텍스트 폰트 설정
+    Canvas->Font->Name = "Calibri";
+    Canvas->Font->Size = 10;
+    Canvas->Font->Color = clBlack;
+    Canvas->Font->Style = TFontStyles() << fsBold;
+    Canvas->TextOut(0, 4, "Route info");
+
+    int startY = paintBox->Height / 2; // 중앙 높이
+    int iconSize = 5; // 작은 아이콘 크기
+
+    Canvas->Font->Style = TFontStyles();
+    // 출발지 아이콘과 텍스트
+    int departureX = 15;
+    DrawAirportIconOnPanel(Canvas, departureX, startY + 8, true, iconSize);
+    Canvas->TextOut(departureX + 15, startY, "Departure");
+
+    // 도착지 아이콘과 텍스트
+    int arrivalX = 100;
+
+    DrawAirportIconOnPanel(Canvas, arrivalX, startY + 8, false, iconSize);
+    Canvas->TextOut(arrivalX + 15, startY, "Destination");
+}
 

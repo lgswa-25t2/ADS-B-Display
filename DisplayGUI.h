@@ -425,6 +425,8 @@ class TForm1 : public TForm
 	TShape *Shape3;
 	TShape *Shape4;
 	TShape *Shape5;
+	TPanel *PanelRouteLegend;
+  	TPaintBox *PaintBoxRouteLegend;
     void __fastcall ObjectDisplayInit(TObject *Sender);
     void __fastcall ObjectDisplayResize(TObject *Sender);
     void __fastcall ObjectDisplayPaint(TObject *Sender);
@@ -505,6 +507,7 @@ class TForm1 : public TForm
     void __fastcall FormActivate(TObject *Sender);
     // 항공기가 공항 근처에 있는지 확인하는 함수
     bool isAircraftNearAirport(uint32_t aircraftICAO);
+	void __fastcall PaintBoxRouteLegendPaint(TObject *Sender);
 private: // User declarations
     bool __fastcall CheckCellClickAndZoom(int X, int Y);
     void __fastcall DrawDeadReckoningStatusBar(void);
@@ -741,6 +744,8 @@ public: // User declarations
     // 대원호 경로 그리기 함수 추가
     void __fastcall DrawGreatCircleRoute(double depLat, double depLon, double arrLat, double arrLon, const char* depICAO, const char* arrICAO);
     void __fastcall CalculateGreatCirclePoints(double lat1, double lon1, double lat2, double lon2, std::vector<double>& lats, std::vector<double>& lons, int numPoints = 100);
+    void __fastcall DrawAirportIconOnPanel(TCanvas* Canvas, int x, int y, bool isDeparture, int size = 10);
+    void __fastcall PanelRouteLegendPaint(TObject *Sender);
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TForm1 *Form1;

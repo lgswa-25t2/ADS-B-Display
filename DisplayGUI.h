@@ -505,6 +505,7 @@ class TForm1 : public TForm
 private: // User declarations
     bool __fastcall CheckCellClickAndZoom(int X, int Y);
     void __fastcall DrawDeadReckoningStatusBar(void);
+    void __fastcall DrawCenterCross(void);
 
     // Map scrollbars
     TScrollBar *MapVScrollBar;

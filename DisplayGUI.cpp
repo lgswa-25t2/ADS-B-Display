@@ -834,22 +834,6 @@ void __fastcall TForm1::DrawObjects(void)
         glColor4f(0.3, 0.3, 0.3, 0.8); // dark gray
     }
 
-    // 화면 중앙 좌표 계산
-    int screenWidth = ObjectDisplay->Width;
-    int screenHeight = ObjectDisplay->Height;
-    double centerX = screenWidth / 2.0;
-    double centerY = screenHeight / 2.0;
-
-    glBegin(GL_LINE_STRIP);
-    glVertex2f(centerX - 20.0, centerY);
-    glVertex2f(centerX + 20.0, centerY);
-    glEnd();
-
-    glBegin(GL_LINE_STRIP);
-    glVertex2f(centerX, centerY - 20.0);
-    glVertex2f(centerX, centerY + 20.0);
-    glEnd();
-
     uint32_t *Key;
     ght_iterator_t iterator;
     TADS_B_Aircraft *Data, *DataCPA;
@@ -1467,6 +1451,8 @@ void __fastcall TForm1::DrawObjects(void)
         }
     }
 
+    DrawCenterCross();
+
     if (!isDataThreadWorking && isConnectClicked && ght_size(HashTable) > 0)
     {
         DrawDeadReckoningStatusBar();
@@ -1480,6 +1466,32 @@ void __fastcall TForm1::DrawObjects(void)
 #endif
     }
 }
+
+void __fastcall TForm1::DrawCenterCross(void)
+{
+    // 화면 중앙 좌표 계산
+    int screenWidth = ObjectDisplay->Width;
+    int screenHeight = ObjectDisplay->Height;
+    double centerX = screenWidth / 2.0;
+    double centerY = screenHeight / 2.0;
+
+    // 십자가 선 두께 설정
+    glLineWidth(3.0);
+
+    // 십자가 선 색상 설정
+    glColor4f(1.0, 1.0, 1.0, 1.0);
+
+    glBegin(GL_LINE_STRIP);
+    glVertex2f(centerX - 20.0, centerY);
+    glVertex2f(centerX + 20.0, centerY);
+    glEnd();
+
+    glBegin(GL_LINE_STRIP);
+    glVertex2f(centerX, centerY - 20.0);
+    glVertex2f(centerX, centerY + 20.0);
+    glEnd();
+}
+
 
 int __fastcall TForm1::getAirplaneType(uint32_t addr)
 {

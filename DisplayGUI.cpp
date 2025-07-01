@@ -643,9 +643,9 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
         {
             int currentTextures = g_GETileManager->GetTextureCount();
             int maxTextures = g_GETileManager->GetMaxTextures();
-            /*printf("Cache Status: %d/%d textures (%.1f%% full)\n",
+            printf("Cache Status: %d/%d textures (%.1f%% full)\n",
                    currentTextures, maxTextures,
-                   (float)currentTextures / maxTextures * 100.0f);*/
+                   (float)currentTextures / maxTextures * 100.0f);
         }
         lastCacheCheck = CurrentTime;
     }
@@ -2025,7 +2025,7 @@ void __fastcall TForm1::HookTrack(int X, int Y, bool CPA_Hook)
                 {
                     bool isExist = false;
                     const char *additionalInfo = GetAircraftAPIInfo(ADS_B_Aircraft->ICAO, ADS_B_Aircraft->FlightNum, &isExist);
-                    //printf("additionalInfo: %s\n", additionalInfo);
+                    printf("additionalInfo: %s\n", additionalInfo);
 
                     if (isExist)
                     {
@@ -4036,7 +4036,6 @@ void __fastcall TForm1::UpdateRouteInfo(TADS_B_Aircraft *Data)
         ClearRouteInfo();
         return;
     }
-    return;
 
     // Get aircraft data which contains route information
     const TAircraftData *a = (TAircraftData *)ght_get(AircraftDBHashTable, sizeof(Data->ICAO), &Data->ICAO);
@@ -6340,8 +6339,8 @@ void __fastcall TAircraftAircraftDistanceThread::Execute()
                             distanceResult->closeAircraftPairs.push_back(pair);
 
                             // 콘솔에 로그 출력
-                            //printf("CLOSE AIRCRAFT PAIR: ICAO1=%06X, ICAO2=%06X, Distance=%.2f NM\n",
-                            //       icao1, icao2, sqrt(distance3DSquare));
+                            printf("CLOSE AIRCRAFT PAIR: ICAO1=%06X, ICAO2=%06X, Distance=%.2f NM\n",
+                                   icao1, icao2, sqrt(distance3DSquare));
                             
                             //printf("CLOSE AIRCRAFT PAIR: ICAO1=%06X, ICAO2=%06X, Distance=%.2f NM, v=%.2f, h=%.2f\n",
                             //       icao1, icao2, sqrt(distance3DSquare), verticalDistance, sqrt(horizontalDistanceSquare));

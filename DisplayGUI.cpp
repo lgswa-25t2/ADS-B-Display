@@ -4728,6 +4728,50 @@ void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shif
         printf("========================\n");
         break;
     }
+
+        // Area 관련 단축키들 (AreaListView가 포커스되어 있거나 다른 컨트롤이 포커스되지 않았을 때)
+    bool canProcessAreaShortcuts = (AreaListView->Focused || 
+                                   (ActiveControl == NULL) || 
+                                   (ActiveControl == AreaListView));
+    
+    if (canProcessAreaShortcuts) {
+        // Ctrl+A: 전체 선택
+        if (Shift.Contains(ssCtrl) && !Shift.Contains(ssShift) && Key == 'A') {
+            SelectAllAreas();
+            Key = 0; // 키 이벤트 소비
+            return;
+        }
+        
+        // Ctrl+D: 선택 해제
+        if (Shift.Contains(ssCtrl) && !Shift.Contains(ssShift) && Key == 'D') {
+            ClearAreaSelection();
+            Key = 0;
+            return;
+        }
+        
+        // ESC: 선택 해제
+        if (Key == VK_ESCAPE) {
+            ClearAreaSelection();
+            Key = 0;
+            return;
+        }
+        
+        // Ctrl+Shift+Delete: 전체 삭제
+        if (Shift.Contains(ssCtrl) && Shift.Contains(ssShift) && Key == VK_DELETE) {
+            DeleteAllAreasWithConfirm();
+            Key = 0;
+            return;
+        }
+        
+        // Delete: 선택된 항목 삭제 (기존 Delete 버튼과 동일)
+        if (Key == VK_DELETE && !Shift.Contains(ssCtrl)) {
+            if (Delete->Enabled) {
+                DeleteClick(NULL);
+            }
+            Key = 0;
+            return;
+        }
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -6631,3 +6675,79 @@ void __fastcall TForm1::PaintBoxRouteLegendPaint(TObject *Sender)
     Canvas->TextOut(arrivalX + 15, startY, "Destination");
 }
 
+//---------------------------------------------------------------------------
+void __fastcall TForm1::SelectAllAreas()
+{
+    if (AreaListView->Items->Count == 0) {
+        return;
+    }
+    
+    // 모든 항목 선택
+    for (int i = 0; i < AreaListView->Items->Count; i++) {
+        AreaListView->Items->Item[i]->Selected = true;
+        
+        // Area 객체의 Selected 상태도 업데이트
+        TArea *area = (TArea*)AreaListView->Items->Item[i]->Data;
+        if (area) {
+            area->Selected = true;
+            AddAreaToFilter(area);
+        }
+    }
+    
+    // Delete 버튼 활성화
+    Delete->Enabled = true;
+    Delete->Color = clMoneyGreen;
+    
+    ObjectDisplay->Repaint();
+    printf("All areas selected (%d items) - Ctrl+A\n", AreaListView->Items->Count);
+}
+
+//---------------------------------------------------------------------------
+void __fastcall TForm1::ClearAreaSelection()
+{
+    // 모든 항목 선택 해제
+    for (int i = 0; i < AreaListView->Items->Count; i++) {
+        AreaListView->Items->Item[i]->Selected = false;
+        
+        TArea *area = (TArea*)AreaListView->Items->Item[i]->Data;
+        if (area) {
+            area->Selected = false;
+        }
+    }
+    
+    // 필터 클리어
+    ClearAreaFilter();
+    
+    // Delete 버튼 비활성화
+    Delete->Enabled = false;
+    Delete->Color = clCream;
+    
+    ObjectDisplay->Repaint();
+    printf("All area selections cleared - ESC or Ctrl+D\n");
+}
+
+//---------------------------------------------------------------------------
+void __fastcall TForm1::DeleteAllAreasWithConfirm()
+{
+    if (AreaListView->Items->Count == 0) {
+        ShowMessage("No areas to delete.");
+        return;
+    }
+
+    // ShowMessage와 Application->MessageBox 조합
+    AnsiString confirmMsg = "Are you sure you want to delete ALL " +
+                           IntToStr(AreaListView->Items->Count) +
+                           " areas?\n\nThis action cannot be undone.";
+
+    if (Application->MessageBox(
+        UnicodeString(confirmMsg).c_str(),  // AnsiString을 UnicodeString으로 변환
+        L"Delete All Areas",
+        MB_YESNO | MB_ICONWARNING | MB_DEFBUTTON2
+    ) == IDYES) {
+        DeleteAllAreas();
+        Delete->Enabled = false;
+        Delete->Color = clCream;
+        printf("All areas deleted - Ctrl+Shift+Delete\n");
+        ShowMessage("All areas have been deleted.");
+    }
+}

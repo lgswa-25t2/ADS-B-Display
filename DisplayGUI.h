@@ -722,6 +722,11 @@ public: // User declarations
 	void DrawAirportIcon(double lat, double lon, bool isDeparture, bool isAlreadyOccupy);
     void DrawAirportInfo(double lat, double lon, const char *name, bool isDeparture);
     int __fastcall getAirplaneType(uint32_t addr);
+
+	void SelectAllAreas(); 
+	void ClearAreaSelection(); 
+	void DeleteAllAreasWithConfirm(); 
+
     void UpdateAircraftInfo(TADS_B_Aircraft *Data);
     void UpdateRouteInfo(TADS_B_Aircraft *Data);
     void ClearAircraftInfo();

@@ -57,8 +57,8 @@ typedef struct
   // Planned route information
   uint32_t    route_size;
   
-  double route_latitude[1000];
-  double route_longitude[1000];  
+  double route_latitude[10];
+  double route_longitude[10];  
 } TAircraftData;
 
 bool InitAircraftDB(AnsiString FileName);

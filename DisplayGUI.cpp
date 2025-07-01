@@ -932,8 +932,9 @@ void __fastcall TForm1::DrawObjects(void)
 
     __int64 CurrentTime = GetCurrentTimeInMsec();
 
-    bool isDataThreadWorking = Form1->IdTCPClientRaw->Connected() || Form1->IdTCPClientSBS->Connected();
-    bool isConnectClicked = RawConnectButton->Caption == "Raw Disconnect" || SBSConnectButton->Caption == "SBS Disconnect";
+	bool isDataThreadWorking = (Form1->IdTCPClientRaw->Connected() && !RawTimeoutPopupShown)
+	 || (Form1->IdTCPClientSBS->Connected() && !SBSTimeoutPopupShown);
+	bool isConnectClicked = RawConnectButton->Caption == "Raw Disconnect" || SBSConnectButton->Caption == "SBS Disconnect";
 
     for (Data = (TADS_B_Aircraft *)ght_first(HashTable, &iterator, (const void **)&Key);
          Data; Data = (TADS_B_Aircraft *)ght_next(HashTable, &iterator, (const void **)&Key))

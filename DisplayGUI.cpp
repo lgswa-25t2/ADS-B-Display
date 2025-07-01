@@ -45,8 +45,8 @@
 #endif
 
 // Include Windows headers first
-#include <windows.h>
-#include <wincrypt.h>
+//inlude <windows.h>
+//nclude <wincrypt.h>
 
 // Then include VCL and other headers
 #include <vcl.h>
@@ -837,22 +837,6 @@ void __fastcall TForm1::DrawObjects(void)
         glColor4f(0.3, 0.3, 0.3, 0.8); // dark gray
     }
 
-    // 화면 중앙 좌표 계산
-    int screenWidth = ObjectDisplay->Width;
-    int screenHeight = ObjectDisplay->Height;
-    double centerX = screenWidth / 2.0;
-    double centerY = screenHeight / 2.0;
-
-    glBegin(GL_LINE_STRIP);
-    glVertex2f(centerX - 20.0, centerY);
-    glVertex2f(centerX + 20.0, centerY);
-    glEnd();
-
-    glBegin(GL_LINE_STRIP);
-    glVertex2f(centerX, centerY - 20.0);
-    glVertex2f(centerX, centerY + 20.0);
-    glEnd();
-
     uint32_t *Key;
     ght_iterator_t iterator;
     TADS_B_Aircraft *Data, *DataCPA;
@@ -1499,6 +1483,8 @@ void __fastcall TForm1::DrawObjects(void)
         }
     }
 
+    DrawCenterCross();
+
     if (!isDataThreadWorking && isConnectClicked && ght_size(HashTable) > 0)
     {
         DrawDeadReckoningStatusBar();
@@ -1512,6 +1498,32 @@ void __fastcall TForm1::DrawObjects(void)
 #endif
     }
 }
+
+void __fastcall TForm1::DrawCenterCross(void)
+{
+    // 화면 중앙 좌표 계산
+    int screenWidth = ObjectDisplay->Width;
+    int screenHeight = ObjectDisplay->Height;
+    double centerX = screenWidth / 2.0;
+    double centerY = screenHeight / 2.0;
+
+    // 십자가 선 두께 설정
+    glLineWidth(3.0);
+
+    // 십자가 선 색상 설정
+    glColor4f(1.0, 1.0, 1.0, 1.0);
+
+    glBegin(GL_LINE_STRIP);
+    glVertex2f(centerX - 20.0, centerY);
+    glVertex2f(centerX + 20.0, centerY);
+    glEnd();
+
+    glBegin(GL_LINE_STRIP);
+    glVertex2f(centerX, centerY - 20.0);
+    glVertex2f(centerX, centerY + 20.0);
+    glEnd();
+}
+
 
 int __fastcall TForm1::getAirplaneType(uint32_t addr)
 {
@@ -3621,7 +3633,6 @@ static int CSV_callback_ARTCCBoundaries(struct CSV_context *ctx, const char *val
 
     if (ctx->field_num == (ctx->num_fields - 1))
     {
-
         float fLat, fLon;
         if (!IsFirstRow)
         {
@@ -4671,8 +4682,12 @@ void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shif
     case VK_END: // End 키: 비활성화 (아무 동작 안 함)
         break;
     case VK_F1:
+        printf("F1 Key Pressed - User Manual\n");
+        ShellExecute(0, L"open", L"https://github.com/lgswa-25t2/ADS-B-Display/blob/main/docs/usermanual/User_Guide_EN.md", NULL, NULL, SW_SHOWNORMAL);
+        break;
+    case VK_F2:
         printf("========================\n");
-        printf("F1 Key Pressed - Debug Info:\n");
+        printf("F2 Key Pressed - Debug Info:\n");
         printf("MapCenterLat: %.6f\n", MapCenterLat);
         printf("MapCenterLon: %.6f\n", MapCenterLon);
         printf("g_EarthView->m_Eye.x: %.6f\n", g_EarthView->m_Eye.x);

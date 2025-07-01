@@ -710,7 +710,7 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
             }
         }
         // 데이터 없음 감지 (연결은 살아있지만 데이터가 안 옴)
-        else if (!RawTimeoutPopupShown && (now - LastHeartbeatTime > 30000)) // 30초
+		else if (!RawConnectionLostShown && !RawTimeoutPopupShown && (now - LastHeartbeatTime > 30000)) // 30초
         {
             RawTimeoutPopupShown = true;
             ShowRawTimeoutDialog(); // 타임아웃 다이얼로그 표시 (연결은 유지)
@@ -775,7 +775,7 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
             }
         }
         // SBS 데이터 타임아웃 체크 (기존 로직)
-        else if (!SBSTimeoutPopupShown && (now - LastSBSDataReceiveTime > 10000)) // 10 Sec
+		else if (!SBSConnectionLostShown && !SBSTimeoutPopupShown && (now - LastSBSDataReceiveTime > 30000)) // 30 Sec
         {
             SBSTimeoutPopupShown = true;
             ShowSBSTimeoutDialog(); // 타임아웃 다이얼로그 표시 (연결은 유지)
@@ -2555,11 +2555,25 @@ void __fastcall TForm1::RawConnectButtonClick(TObject *Sender)
         TConnectionThread *connectionThread = new TConnectionThread(RawIpAddress->Text, 30002, false);
         connectionThread->Resume();
     }
-    else
-    {
-        TCPClientRawHandleThread->Terminate();
-        IdTCPClientRaw->Disconnect();
-        IdTCPClientRaw->IOHandler->InputBuffer->Clear();
+	else
+	{
+    	if (TCPClientRawHandleThread && TCPClientRawHandleThread->Handle)
+		{
+			try {
+				TCPClientRawHandleThread->Terminate();
+				TCPClientRawHandleThread->WaitFor();
+			}
+			catch (...) {
+				printf("Error: Raw thread termination failed\n");
+			}
+		}
+
+		if (IdTCPClientRaw->Connected())
+		{
+			IdTCPClientRaw->Disconnect();
+		}
+
+		IdTCPClientRaw->IOHandler->InputBuffer->Clear();
         RawConnectButton->Caption = "Raw Connect";
         RawPlaybackButton->Enabled = true;
 		RawConnectButton->Color = clMoneyGreen;
@@ -2847,8 +2861,14 @@ void __fastcall TForm1::SBSConnectButtonClick(TObject *Sender)
 			catch (...) {
 				printf("Error: SBS thread termination failed\n");
 			}
+
 		}
-		IdTCPClientSBS->Disconnect();
+
+		if (IdTCPClientSBS->Connected())
+		{
+			IdTCPClientSBS->Disconnect();
+		}
+
 		IdTCPClientSBS->IOHandler->InputBuffer->Clear();
 		SBSConnectButton->Caption = "SBS Connect";
         SBSPlaybackButton->Enabled = true;
@@ -2955,7 +2975,7 @@ void __fastcall TTCPClientSBSHandleThread::Execute(void)
                 if (!Form1->IdTCPClientSBS->Connected())
                 {
                     Terminate();
-                    break;
+					continue;
                 }
 
                 // Check if data is available before reading
@@ -3191,7 +3211,10 @@ void __fastcall TForm1::SBSPlaybackButtonClick(TObject *Sender)
 void __fastcall TForm1::IdTCPClientSBSConnected(TObject *Sender)
 {
     // SetKeepAliveValues(const AEnabled: Boolean; const ATimeMS, AInterval: Integer);
-    IdTCPClientSBS->Socket->Binding->SetKeepAliveValues(true, 60 * 1000, 15 * 1000);
+    // WiFi 끊김 빠른 감지를 위한 더 짧은 KeepAlive 설정 (1초 간격, 1초 재시도) - Raw와 동일
+    IdTCPClientSBS->Socket->Binding->SetKeepAliveValues(true, 1 * 1000, 1 * 1000);
+    // ReadTimeout 설정 (3초) - WiFi 끊김 빠른 감지용 - Raw와 동일
+    IdTCPClientSBS->ReadTimeout = 3000;
     SBSConnectButton->Caption = "SBS Disconnect";
     SBSPlaybackButton->Enabled = false;
 	SBSConnectButton->Color = clCream;
@@ -5843,9 +5866,9 @@ void __fastcall TForm1::ShowSBSTimeoutDialog()
 
     int result = MessageDlg(
         "Data reception timeout from SBS Hub (" + ipAddress + ").\n"
-                                                              "No data received for 10 seconds.\n\n"
+															  "No data received for 30 seconds.\n\n"
                                                               "Would you like to reconnect automatically?",
-        mtConfirmation,
+		mtConfirmation,
         TMsgDlgButtons() << mbYes << mbNo,
         0);
 

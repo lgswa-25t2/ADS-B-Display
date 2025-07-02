@@ -4715,9 +4715,9 @@ void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shif
             }
         }
         break;
-    case VK_HOME: // Home 키: 피츠버그로 이동
-        MapCenterLat = 40.4406;   // 피츠버그 위도
-        MapCenterLon = -79.9959;  // 피츠버그 경도
+    case VK_HOME: // Home 키: CMU로 이동
+        MapCenterLat = 40.443275222;   // CMU 위도
+        MapCenterLon = -79.94262421;  // CMU 경도
         SetMapCenter(g_EarthView->m_Eye.x, g_EarthView->m_Eye.y);
         UpdateScrollBarRanges();
         UpdateScrollBarPositions();
@@ -4729,7 +4729,55 @@ void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key, TShiftState Shif
         printf("F1 Key Pressed - User Manual\n");
         ShellExecute(0, L"open", L"https://github.com/lgswa-25t2/ADS-B-Display/blob/main/docs/usermanual/User_Guide_EN.md", NULL, NULL, SW_SHOWNORMAL);
         break;
-    case VK_F2:
+    case VK_F2:  // LG Science Park (Seoul, Korea)
+        MapCenterLat = 37.562967;   // 위도
+        MapCenterLon = 126.831287;  // 경도
+        SetMapCenter(g_EarthView->m_Eye.x, g_EarthView->m_Eye.y);
+        UpdateScrollBarRanges();
+        UpdateScrollBarPositions();
+        ObjectDisplay->Repaint();
+        break;
+    case VK_F3:  // LG Twin Tower (Seoul, Korea)
+        MapCenterLat = 37.528072;   // 위도
+        MapCenterLon = 126.929071;  // 경도
+        SetMapCenter(g_EarthView->m_Eye.x, g_EarthView->m_Eye.y);
+        UpdateScrollBarRanges();
+        UpdateScrollBarPositions();
+        ObjectDisplay->Repaint();
+        break;
+    case VK_F4:  // LG Seocho R&D Campus (Seoul, Korea)
+        MapCenterLat = 37.461099;   // 위도
+        MapCenterLon = 127.034636;  // 경도
+        SetMapCenter(g_EarthView->m_Eye.x, g_EarthView->m_Eye.y);
+        UpdateScrollBarRanges();
+        UpdateScrollBarPositions();
+        ObjectDisplay->Repaint();
+        break;
+    case VK_F5:  // LG Digital Park (Pyungtaek, Korea)
+        MapCenterLat = 37.123943;   // 위도
+        MapCenterLon = 127.089135;  // 경도
+        SetMapCenter(g_EarthView->m_Eye.x, g_EarthView->m_Eye.y);
+        UpdateScrollBarRanges();
+        UpdateScrollBarPositions();
+        ObjectDisplay->Repaint();
+        break;
+    case VK_F6:  // LG Smart Park (Changwon, Korea)
+        MapCenterLat = 35.208350;   // 위도
+        MapCenterLon = 128.684225;  // 경도
+        SetMapCenter(g_EarthView->m_Eye.x, g_EarthView->m_Eye.y);
+        UpdateScrollBarRanges();
+        UpdateScrollBarPositions();
+        ObjectDisplay->Repaint();
+        break;
+    case VK_F7:  // LG SI (India)
+        MapCenterLat = 12.935843;   // 위도
+        MapCenterLon = 77.694530;  // 경도
+        SetMapCenter(g_EarthView->m_Eye.x, g_EarthView->m_Eye.y);
+        UpdateScrollBarRanges();
+        UpdateScrollBarPositions();
+        ObjectDisplay->Repaint();
+        break;
+    case VK_F9:
         printf("========================\n");
         printf("F2 Key Pressed - Debug Info:\n");
         printf("MapCenterLat: %.6f\n", MapCenterLat);
